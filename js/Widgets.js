@@ -1562,57 +1562,88 @@ export class TilesField extends Component {
   }
 
   renderPopup() {
-    let allOptions: string[][] = this.isMultiColumn() ? this.props.options : [this.props.options];
+    let allOptions: string[][] = this.isMultiColumn()
+      ? this.props.options
+      : [this.props.options];
     return (
-      <TouchableWithoutFeedback onPress={this.commitEdit} accessible={false} testID="popupBackground">
+      <TouchableWithoutFeedback
+        onPress={this.commitEdit}
+        accessible={false}
+        testID="popupBackground">
         <View style={styles.popupBackground}>
           <Text style={styles.modalTitle}>
             {postfix(this.props.label, ': ')}
             {this.format(this.state.editedValue)}
           </Text>
-          <FocusTile type="previous" commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
-          <FocusTile type="next" commitEdit={this.commitEdit} transferFocus={this.props.transferFocus} />
+          <FocusTile
+            type="previous"
+            commitEdit={this.commitEdit}
+            transferFocus={this.props.transferFocus}
+          />
+          <FocusTile
+            type="next"
+            commitEdit={this.commitEdit}
+            transferFocus={this.props.transferFocus}
+          />
           <ScrollView horizontal={allOptions.length > 3}>
-            <Pressable onPress={this.commitEdit}>
-              <View style={styles.flexColumnLayout}>
-                <View style={styles.centeredRowLayout}>
-                  {allOptions.map((options: string[], columnIndex: number) => (
-                    <View style={styles.modalColumn} key={columnIndex}>
-                      {options.map((option: string, rowIndex: number) => {
-                        let isSelected: boolean = this.isMultiColumn()
-                          ? this.state.editedValue[columnIndex] === option
-                          : this.state.editedValue === option;
-                        return (
-                          <TouchableOpacity
-                            key={rowIndex}
-                            onPress={() => this.updateValue(option, columnIndex)}
-                            testID={
-                              'option' + (this.isMultiColumn() ? columnIndex + 1 + ',' + (rowIndex + 1) : rowIndex + 1)
+            <Pressable onPress={this.commitEdit} >
+            <View style={styles.flexColumnLayout}>
+              <View style={styles.centeredRowLayout}>
+                {allOptions.map((options: string[], columnIndex: number) => (
+                  <View style={styles.modalColumn} key={columnIndex}>
+                    {options.map((option: string, rowIndex: number) => {
+                      let isSelected: boolean = this.isMultiColumn()
+                        ? this.state.editedValue[columnIndex] === option
+                        : this.state.editedValue === option;
+                      return (
+                        <TouchableOpacity
+                          key={rowIndex}
+                          onPress={() => this.updateValue(option, columnIndex)}
+                          testID={
+                            'option' +
+                            (this.isMultiColumn()
+                              ? columnIndex + 1 + ',' + (rowIndex + 1)
+                              : rowIndex + 1)
+                          }>
+                          <View
+                            style={
+                              isSelected
+                                ? styles.popupTileSelected
+                                : styles.popupTile
                             }>
-                            <View style={isSelected ? styles.popupTileSelected : styles.popupTile}>
-                              <Text style={isSelected ? styles.modalTileLabelSelected : styles.modalTileLabel}>
-                                {option}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        );
-                      })}
-                      {allOptions.length === 1 && !this.props.hideClear && <ClearTile commitEdit={this.clear} />}
-                      {allOptions.length === 1 && this.props.freestyle === true && (
+                            <Text
+                              style={
+                                isSelected
+                                  ? styles.modalTileLabelSelected
+                                  : styles.modalTileLabel
+                              }>
+                              {option}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                    {allOptions.length === 1 && !this.props.hideClear && (
+                      <ClearTile commitEdit={this.clear} />
+                    )}
+                    {allOptions.length === 1 &&
+                      this.props.freestyle === true && (
                         <KeyboardTile commitEdit={this.startTyping} />
                       )}
-                    </View>
-                  ))}
-                  {allOptions.length > 1 && !this.props.hideClear && (
-                    <View style={styles.modalColumn}>
-                      <UpdateTile commitEdit={this.commitEdit} />
-                      <ClearTile commitEdit={this.clear} />
-                      <RefreshTile commitEdit={this.cancelEdit} />
-                      {this.props.freestyle === true && <KeyboardTile commitEdit={this.startTyping} />}
-                    </View>
-                  )}
-                </View>
+                  </View>
+                ))}
+                {allOptions.length > 1 && !this.props.hideClear && (
+                  <View style={styles.modalColumn}>
+                    <UpdateTile commitEdit={this.commitEdit} />
+                    <ClearTile commitEdit={this.clear} />
+                    <RefreshTile commitEdit={this.cancelEdit} />
+                    {this.props.freestyle === true && (
+                      <KeyboardTile commitEdit={this.startTyping} />
+                    )}
+                  </View>
+                )}
               </View>
+            </View>
             </Pressable>
           </ScrollView>
         </View>
@@ -1752,7 +1783,6 @@ export class ListField extends Component {
           <View style={[styles.flexColumnLayout, this.props.popupStyle]}>
             <View style={styles.modalColumn}>
               <SelectionList
-                label={this.props.label ?? 'ListField'}
                 items={this.props.options}
                 selection={this.state.editedValue}
                 simpleSelect={this.props.simpleSelect}
@@ -3423,21 +3453,20 @@ export class SelectionList extends React.PureComponent {
   }
 
   itemsToShow(): any[] {
-    const uniqueOptions = Array.from(new Set(this.props.items));
     let data: any[];
     if (this.props.selection instanceof Array) {
       for (let selection: string of this.props.selection) {
-        if (!uniqueOptions.includes(selection)) {
+        if (!this.props.items.includes(selection)) {
           if (data === undefined) {
-            data = [].concat(uniqueOptions);
+            data = [].concat(this.props.items);
           }
           data.unshift(selection);
         }
       }
     } else if (this.props.selection) {
       let selection: string = stripSelectionPrefix(this.props.selection);
-      if (!uniqueOptions.includes(selection)) {
-        data = [].concat(uniqueOptions);
+      if (!this.props.items.includes(selection)) {
+        data = [].concat(this.props.items);
         data.unshift(selection);
       }
     }
@@ -3447,7 +3476,7 @@ export class SelectionList extends React.PureComponent {
         : undefined;
     if (filter) {
       if (!data) {
-        data = uniqueOptions;
+        data = this.props.items;
       }
       data = data.filter(
         (item: string) =>
@@ -3468,7 +3497,7 @@ export class SelectionList extends React.PureComponent {
       data.push(this.state.filter);
     }
     if (data === undefined) {
-      data = [].concat(uniqueOptions);
+      data = [].concat(this.props.items);
     }
     return data;
   }
