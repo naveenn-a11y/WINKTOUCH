@@ -1219,6 +1219,7 @@ export class TableListRow extends React.PureComponent {
             onChangeValue={(code: ?string | ?number) => this.updateValue(code)}
             readonly={this.props.readonly}
             style={formCodeStyle}
+            testID={this.props?.testID + '.Status'}
           />
 
           <TextField
@@ -1966,7 +1967,7 @@ export class TableList extends React.PureComponent {
                 this.select(item.item, isSelected)
               }
               onLongPress={() => this.onDelete(item.item)}
-              testID={this.props.label + '.option' + (item.index + 1)}
+              testID={item?.item?.id + '.Row-' + (item.index + 1)}
               readonly={this.props.isDraft}
               isVisible={isVisible}
               allRefStatusCode={this.props.allRefStatusCode}
