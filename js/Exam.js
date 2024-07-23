@@ -534,7 +534,6 @@ export class ExamCard extends Component {
 }
 
 export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, setStateHandler=()=>{}): Exam[] {
-  console.log('StartIndex: ', startIndex, '\nEndindex:', endIndex)
   const visit = getCachedItem(exam.visitId);
   if (!visit) {
     return [];
@@ -613,7 +612,7 @@ export class ExamHistoryScreen extends Component {
       patient,
       zoomScale: new Animated.Value(1),
       isExamHistoryLoading: true,
-      pageSize: 25,
+      pageSize: 5,
       examHistoryPagination: {
         startIndex: 0,
         endIndex: 5,
