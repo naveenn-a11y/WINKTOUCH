@@ -1584,7 +1584,8 @@ export class ExamScreen extends Component {
       currentDefinition.relatedExams === null ||
       currentDefinition.relatedExams.length === 0
     ) {
-      return null;
+      this.setState({relatedExams: null});
+      return;
     }
 
     let relatedExams =  await Promise.all(currentDefinition.relatedExams.map(
