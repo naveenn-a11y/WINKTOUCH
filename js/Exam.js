@@ -533,7 +533,8 @@ export class ExamCard extends Component {
   }
 }
 
-export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null): Exam[] {
+export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, setStateHandler=()=>{}): Exam[] {
+  console.log('StartIndex: ', startIndex, '\nEndindex:', endIndex)
   const visit = getCachedItem(exam.visitId);
   if (!visit) {
     return [];
@@ -544,10 +545,16 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null): E
   const examDefinitionName: string = exam.definition.name;
   let examArray: Exam[] = [];
 
-  console.log('Total exam history:', visitHistory?.length)
+  let updatedEndIndex = endIndex
+
+  // Checking whether visitHistory array is not out of range
+  if (visitHistory.length < endIndex) {
+    updatedEndIndex = visitHistory.length
+    setStateHandler?.({ isMoreDataAvailable: false })
+  }
 
   // Slicing VisitHistory Data Array
-  let limitedVisitHistory = visitHistory?.slice(startIndex, endIndex ?? visitHistory.length)
+  let limitedVisitHistory = visitHistory?.slice(startIndex, updatedEndIndex)
 
   console.log('Sliced Data Length: ', limitedVisitHistory?.length)
 
@@ -606,12 +613,13 @@ export class ExamHistoryScreen extends Component {
       patient,
       zoomScale: new Animated.Value(1),
       isExamHistoryLoading: true,
-      pageSize: 5,
+      pageSize: 25,
       examHistoryPagination: {
         startIndex: 0,
         endIndex: 5,
         pageNumber: 1,
-      }
+      },
+      isMoreDataAvailable: true
     };
     // getExamHistory(params.exam).then(examHistory=>this.setState({examHistory}));
   }
@@ -630,34 +638,30 @@ export class ExamHistoryScreen extends Component {
       // Setting Loading State
       this.setState({ isExamHistoryLoading: true });
       const params = this.props.route?.params;
+
+      // Getting current state startIndex and endIndex
+      const currStartIndex = this.state?.examHistoryPagination?.startIndex;
+      const currEndIndex = this.state?.examHistoryPagination?.endIndex;
+
+      // Calculating new Start and End Index based on current state and page number
+      const newStartIndex =  currEndIndex;
+      const newEndIndex = (this.state.pageSize * (this.state?.examHistoryPagination?.pageNumber + 1));
+
       // Calling Function to fetch data from History
-      getExamHistory(params.exam, newStartIndex, this.state?.examHistoryPagination?.endIndex)
-        .then(examHistory=>this.setState( ps=> ({
+      getExamHistory(params.exam, currStartIndex, currEndIndex, (obj) => this.setState({ ...obj}))
+        .then(examHistory => this.setState( ps=> ({
           examHistory: [
             ...ps?.examHistory,
             ...examHistory
-          ]
+          ],
+          isExamHistoryLoading: false,
+          examHistoryPagination: {
+            pageNumber: this.state.examHistoryPagination?.pageNumber + 1,
+            startIndex: newStartIndex,
+            endIndex: newEndIndex,
+          }
         })
-        .catch(err => console.error(err))
-        .finally(() => this.setState({ isExamHistoryLoading: false }))
       ));
-
-      // Getting current state startIndex and endIndex
-      const currStartIndex = this.state?.examHistoryPagination?.startIndex
-      const currEndIndex = this.state?.examHistoryPagination?.endIndex
-
-      // Calculating new Start and End Index based on current state and page number
-      const newStartIndex =  currEndIndex + 1
-      const newEndIndex = (this.state.pageSize * this.state?.examHistoryPagination?.pageNumber)
-
-      this.setState({
-        examHistoryPagination: {
-          pageNumber: this.state.examHistoryPagination?.pageNumber + 1,
-          startIndex: newStartIndex,
-          endIndex: newEndIndex,
-        }
-      })
-
   }
 
   addItem(item: any) {
@@ -889,16 +893,22 @@ export class ExamHistoryScreen extends Component {
         maximumZoomScale={1}
         zoomScale={this.state.zoomScale}>
         {this.state.examHistory.map((exam: Exam) => this.renderExam(exam))}
-        <View style={{ flex: 1, width: '100%', padding: 20, marginBottom: 30}} >
-          {
-            this.state.isExamHistoryLoading
-            ? <ActivityIndicator size="large" />
-            : <Button 
-                title={'Load More'} 
-                buttonStyle={{ textAlign:'center', width: 200, alignSelf:'center', flex: 1 }} 
-                onPress={this.loadMoreExamHistoryData} />
-          }
-        </View>
+        {
+          this.state?.isMoreDataAvailable &&
+          <View style={[styles.examHistoryScreenContainer, styles.rowContainer]} >
+            {
+              this.state.isExamHistoryLoading
+              ? <View style={styles.examHistoryScreenLoadingContainer}>
+                  <ActivityIndicator size="large" />
+                  <Text style={{textAlign: 'center'}}>Loading..</Text>
+                </View>
+              : <Button 
+                  title={'Load More'} 
+                  buttonStyle={styles.examHistoryLoadMoreBtn} 
+                  onPress={this.loadMoreExamHistoryData} />
+            }
+          </View>
+        }
       </Animated.ScrollView>
     );
   }
