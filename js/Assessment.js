@@ -140,7 +140,7 @@ export class PrescriptionCard extends Component {
         <View
           style={
             hasPrism(glassesRx) && hasBvd(glassesRx)
-              ? styles.formRow1600
+              ? styles.formRow1200
               : styles.formRow800
           }>
           <GlassesDetail
