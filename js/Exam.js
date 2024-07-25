@@ -555,8 +555,6 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
   // Slicing VisitHistory Data Array
   let limitedVisitHistory = visitHistory?.slice(startIndex, updatedEndIndex)
 
-  console.log('Sliced Data Length: ', limitedVisitHistory?.length)
-
   // Paralle API Calls to Get Exam History
   await Promise.all(
     limitedVisitHistory?.map(async (visit: Visit) => {
