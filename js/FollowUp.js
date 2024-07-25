@@ -1200,15 +1200,15 @@ export class TableListRow extends React.PureComponent {
             }
             color={selectionFontColor}
           />
-          <Text style={textStyle}>{this.props.rowValue.ref}</Text>
+          <Text style={textStyle} testID={this.props?.testID + '.Referral'}>{this.props.rowValue.ref}</Text>
           {this.props.isVisible && (
-            <Text style={textStyle}>
+            <Text style={textStyle} testID={this.props?.testID + '.PatientName'}>
               {getPatientFullName(this.props.rowValue.patientInfo)}
             </Text>
           )}
-          <Text style={textStyle}>{this.props.rowValue.from.name}</Text>
-          <Text style={textStyle}>{this.props.rowValue.to.name}</Text>
-          <Text style={textStyle}>
+          <Text style={textStyle} testID={this.props?.testID + '.From'}>{this.props.rowValue.from.name}</Text>
+          <Text style={textStyle} testID={this.props?.testID + '.To'}>{this.props.rowValue.to.name}</Text>
+          <Text style={textStyle} testID={this.props?.testID + '.Date'}>
             {formatDate(this.props.rowValue.date, jsonDateFormat)}
           </Text>
           <FormCode
@@ -1219,6 +1219,7 @@ export class TableListRow extends React.PureComponent {
             onChangeValue={(code: ?string | ?number) => this.updateValue(code)}
             readonly={this.props.readonly}
             style={formCodeStyle}
+            testID={this.props?.testID + '.Status'}
           />
 
           <TextField
@@ -1229,7 +1230,7 @@ export class TableListRow extends React.PureComponent {
             value={this.state.commentValue}
             style={commentStyle}
             onChangeValue={(text: string) => this.changeText(text)}
-            testID={this.props.fieldId + '.filter'}
+            testID={this.props?.testID+ '.Filter'}
           />
         </View>
       </TouchableOpacity>
@@ -1966,7 +1967,7 @@ export class TableList extends React.PureComponent {
                 this.select(item.item, isSelected)
               }
               onLongPress={() => this.onDelete(item.item)}
-              testID={this.props.label + '.option' + (item.index + 1)}
+              testID={'Referral.Row-' + (item?.index + 1)}
               readonly={this.props.isDraft}
               isVisible={isVisible}
               allRefStatusCode={this.props.allRefStatusCode}

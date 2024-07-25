@@ -523,14 +523,14 @@ export class GlassesDetail extends Component {
     const hasOU = this.hasVA() && props.glassesRx.ou !== undefined;
 
     const glassesColumns = [
-      { label: formatLabel(getFieldDefinition('visit.prescription.od.sph')), visible: true},
-      { label: formatLabel(getFieldDefinition('visit.prescription.od.cyl')), visible: true},
-      { label: formatLabel(getFieldDefinition('visit.prescription.od.axis')), visible: true},
-      { label: formatLabel(getFieldDefinition('visit.prescription.od.prism1')), visible: state.prism},
-      { label: formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA')), visible: this.hasVA()},
-      { label: formatLabel(getFieldDefinition('visit.prescription.od.add')), visible: props.hasAdd},
-      { label: formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA')), visible: this.hasNVA()},
-      { label: formatLabel(getFieldDefinition('visit.prescription.od.bvd')), visible: this.hasBvd()},
+      { label: formatLabel(getFieldDefinition('visit.prescription.od.sph')), visible: true, isPrism: false},
+      { label: formatLabel(getFieldDefinition('visit.prescription.od.cyl')), visible: true, isPrism: false},
+      { label: formatLabel(getFieldDefinition('visit.prescription.od.axis')), visible: true, isPrism: false},
+      { label: formatLabel(getFieldDefinition('visit.prescription.od.prism1')), visible: state.prism, isPrism: true},
+      { label: formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA')), visible: this.hasVA(), isPrism: false},
+      { label: formatLabel(getFieldDefinition('visit.prescription.od.add')), visible: props.hasAdd, isPrism: false},
+      { label: formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA')), visible: this.hasNVA(), isPrism: false},
+      { label: formatLabel(getFieldDefinition('visit.prescription.od.bvd')), visible: this.hasBvd(), isPrism: false},
     ];
 
     const glassesRows = [
@@ -569,14 +569,14 @@ export class GlassesDetail extends Component {
         visible: hasOU,
         allowCopy: false,
         columns: [
-          { visible: true, placeholder: true },
-          { visible: true, placeholder: true },
-          { visible: true, placeholder: true },
-          { visible: state.prism, placeholder: true },
+          { visible: true, placeholder: true, isPrism: false },
+          { visible: true, placeholder: true, isPrism: false },
+          { visible: true, placeholder: true, isPrism: false },
+          { visible: state.prism, placeholder: true, isPrism: true },
           this.createColumn(props, 'ou', 'va', 'exam.VA cc.Aided acuities.DVA.OU', false, this.hasVA(), props.glassesRx?.ou?.vaError ?? ''),
-          { visible: props.hasAdd, placeholder: true },
+          { visible: props.hasAdd, placeholder: true, isPrism: false },
           this.createColumn(props, 'ou', 'addVa', 'exam.VA cc.Aided acuities.NVA.OU', false, this.hasNVA(), props.glassesRx?.ou?.addVaError ?? ''),
-          { visible: this.hasBvd(), placeholder: true }
+          { visible: this.hasBvd(), placeholder: true, isPrism: false }
         ],
       },
     ];
@@ -590,8 +590,12 @@ export class GlassesDetail extends Component {
           {glassesColumns
             .filter((column) => column.visible)
             .map((column, index) => (
-              <View style={styles.flexColumn} key={index}>
-                <Label value={column.label} style={styles.formTableColumnHeaderFull} suffix={''} />
+              <View style={column.isPrism ? styles.flexPrismColumn : styles.flexColumn} key={index}>
+                <Label
+                  value={column.label}
+                  style={column.isPrism ? styles.formTablePrismColumnHeader : styles.formTableColumnHeader}
+                  suffix={''}
+                />
               </View>
             ))}
           {props.editable && <View style={styles.emptyButtonSpaceWide} />}
@@ -607,7 +611,7 @@ export class GlassesDetail extends Component {
                 {row.columns
                   .filter((column) => column.visible)
                   .map((column, idx) => (
-                    <View style={styles.flexColumn} key={column.testID}>
+                    <View style={column.isPrism ? styles.flexPrismColumn : styles.flexColumn} key={column.testID}>
                       {!column.placeholder && !column.isPrism && (
                         <FormInput
                           value={column.value}
@@ -703,7 +707,7 @@ export class GlassesDetail extends Component {
             .filter((column) => column.visible)
             .map((column, index) => (
               <View style={styles.flexColumn} key={index}>
-                <Label value={column.label} style={styles.formTableColumnHeaderFull} suffix={''} />
+                <Label value={column.label} style={styles.formTableColumnHeader} suffix={''} />
               </View>
             ))}
           <View style={styles.emptyButtonSpace} />
