@@ -1699,7 +1699,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 3 * fontScale,
-    marginTop: 3 * fontScale,
+    marginTop: 4.25 * fontScale,
     paddingLeft: 0,
   },
   formDataContainer: {
@@ -1753,31 +1753,20 @@ function boardStyle(
 ) {
   const minWidth: number =
     size === 'XL' || size === 'MAX'
-      ? 1200
+      ? 1040
       : size === 'L'
-      ? 850
+      ? 680
       : size === 'M'
-      ? 450
+      ? 520
       : size === 'S'
-      ? 300
-      : 300;
-  const maxWidth: number =
-    size === 'XL' || size === 'MAX'
-      ? 1200
-      : size === 'L'
-      ? 850
-      : size === 'M'
-      ? 450
-      : size === 'S'
-      ? 325
-      : 325;
+      ? 340
+      : 340;
   return {
     backgroundColor: 'white',
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
     minWidth,
-    maxWidth,
     minHeight: minHeight * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
