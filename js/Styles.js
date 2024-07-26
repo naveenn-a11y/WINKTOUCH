@@ -1766,7 +1766,7 @@ function boardStyle(
     alignSelf: 'flex-start',
     padding: 10 * fontScale,
     paddingTop: (size === 'S' || size === 'M' ? 46 : 10) * fontScale,
-    minWidth,
+    minWidth: minWidth * fontScale,
     minHeight: minHeight * fontScale,
     borderRadius: 30 * fontScale,
     borderColor: shadowColor,
