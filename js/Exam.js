@@ -555,6 +555,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
   // Slicing VisitHistory Data Array
   let limitedVisitHistory = visitHistory?.slice(startIndex, updatedEndIndex)
 
+  console.time('getExamHistoryTime')
   // Paralle API Calls to Get Exam History
   await Promise.all(
     limitedVisitHistory?.map(async (visit: Visit) => {
@@ -576,6 +577,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
        } // end-else
     }),
   );
+  console.timeEnd('getExamHistoryTime')
 
   examArray = examArray.filter((exam: Exam) => exam != undefined);
 
@@ -584,7 +586,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
       new Date(getCachedItem(exam2.visitId).date).getTime() - new Date(getCachedItem(exam1.visitId).date).getTime(),
   );
 
-  return examArray;
+  return [...examArray];
 }
 
 export class ExamHistoryScreen extends Component {
