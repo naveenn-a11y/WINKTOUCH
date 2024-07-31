@@ -262,14 +262,13 @@ async function addStoreLogoWeb(
     return;
   }
   const imageDim = await getImageDimensions(storeLogo);
-  const width: number = imageDim.width ? imageDim.width : 110;
-
+  const [width, height] = getStoreLogoDimension(imageDim.width, imageDim.height);
   const image = await pdfDoc.embedPng(storeLogo);
   page.drawImage(image, {
     x: x - width,
-    y: y - 50,
+    y: y - height,
     width,
-    height: imageDim.height ? imageDim.height : 54,
+    height,
   });
 }
 
@@ -298,14 +297,21 @@ async function addStoreLogoIos(
 
   const fPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
   const imageDim = await getImageDimensions(fPath);
-  const width: number = imageDim.width ? imageDim.width : 110;
+  const [width, height] = getStoreLogoDimension(imageDim.width, imageDim.height);
 
   page.drawImage(fPath, 'png', {
     x: x - width,
-    y: y - 50,
+    y: y - height,
     width,
-    height: imageDim.height ? imageDim.height : 54,
+    height,
   });
+}
+
+function getStoreLogoDimension(imgWidth: number, imgHeight: number): [number, number] {
+  let height: number = imgHeight ?? 54;
+  const width: number = ((imgWidth ?? 110) / height) * 54;
+  height = 54;
+  return [width, height];
 }
 
 export function getImageDimensions(storeLogo: string): Promise<any> {
@@ -651,8 +657,9 @@ async function addSignatureWeb(
   pageWidth: number,
   border: number,
   pdfDoc?: PDFDocument,
+  x: number,
+  y: number, 
 ) {
-  let x: number = border * 3;
 
   let signature: Upload = getCachedItem(doctor.signatureId);
   if (!signature) {
@@ -664,23 +671,22 @@ async function addSignatureWeb(
     }
   }
   const mimeType: string = getMimeType(signature);
-  if (mimeType === 'image/jpeg;base64') {
-    let dimension = getJpeg64Dimension(signature.data);
-    const image = await pdfDoc.embedJpg(signature.data);
+  if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64') {
+    let dimension: number = undefined;
+    let image = undefined;
+    if (mimeType === 'image/jpeg;base64'){
+      dimension = getJpeg64Dimension(signature.data);
+      image = await pdfDoc.embedJpg(signature.data);
+    } else if (mimeType === 'image/png;base64') {
+      dimension = getPng64Dimension(signature.data);
+      image = await pdfDoc.embedPng(signature.data);
+    }
+    const[width, height] = getSignatureDimenstion(dimension.width, dimension.height);
     page.drawImage(image, {
       x,
-      y: border,
-      width: 150,
-      height: (dimension.height / dimension.width) * 150,
-    });
-  } else if (mimeType === 'image/png;base64') {
-    let dimension = getPng64Dimension(signature.data);
-    const image = await pdfDoc.embedPng(signature.data);
-    page.drawImage(image, {
-      x,
-      y: border,
-      width: 150,
-      height: (dimension.height / dimension.width) * 150,
+      y: y - height/2,
+      width,
+      height,
     });
   } else {
     __DEV__ &&
@@ -698,8 +704,9 @@ async function addSignatureNative(
   page: PDFPage,
   pageWidth: number,
   border: number,
+  x: number,
+  y: number, 
 ) {
-  let x: number = border * 3;
 
   const fullFilename: string =
     RNFS.DocumentDirectoryPath + '/' + doctor.signatureId + '.base64';
@@ -720,30 +727,25 @@ async function addSignatureNative(
     }
   }
   const mimeType: string = getMimeType(signature);
-  if (mimeType === 'image/jpeg;base64') {
-    let dimension = getJpeg64Dimension(signature.data);
-    page.drawImage(fullFilename, 'jpg', {
+  if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64') {
+    let dimension: number = undefined;
+    let imgType: String = undefined;
+    if (mimeType === 'image/jpeg;base64') {
+      dimension = getJpeg64Dimension(signature.data);
+      imgType = 'jpg';
+    } else if (mimeType === 'image/png;base64') {
+      dimension = getPng64Dimension(signature.data);
+      imgType = 'png';
+    }
+    const[width, height] = getSignatureDimenstion(dimension.width, dimension.height);
+    page.drawImage(fullFilename, imgType, {
       x,
-      y: border,
-      width: 150,
-      height: (dimension.height / dimension.width) * 150,
-    });
-  } else if (mimeType === 'image/png;base64') {
-    let dimension = getPng64Dimension(signature.data);
-    page.drawImage(fullFilename, 'png', {
-      x,
-      y: border,
-      width: 150,
-      height: (dimension.height / dimension.width) * 150,
+      y: y - height / 2,
+      width,
+      height,
     });
   } else {
-    __DEV__ &&
-      console.log(
-        'Unsupported signature image type:' +
-          signature.name +
-          ' ' +
-          signature.mimeType,
-      );
+    __DEV__ && console.log('Unsupported signature image type:' + signature.name + ' ' + signature.mimeType);
   }
 }
 async function addSignature(
@@ -759,7 +761,7 @@ async function addSignature(
       ? formatDate(visit.prescription.signedDate, officialDateFormat)
       : undefined;
   const fontSize: number = 10;
-  let x: number = border * 3;
+  let x: number = border;
   let y: number = border + fontSize * 4;
   page.drawText(strings.drSignature + ':', {x, y, size: fontSize});
   x += 60;
@@ -774,8 +776,8 @@ async function addSignature(
       console.log('Doctor Signature: ' + JSON.stringify(doctor.signatureId));
       if (doctor.signatureId) {
         isWeb
-          ? await addSignatureWeb(doctor, page, pageWidth, border, pdfDoc)
-          : await addSignatureNative(doctor, page, pageWidth, border);
+          ? await addSignatureWeb(doctor, page, pageWidth, border, pdfDoc, x, y)
+          : await addSignatureNative(doctor, page, pageWidth, border, x, y);
       }
     }
   }
@@ -788,13 +790,21 @@ async function addSignature(
   });
 }
 
+function getSignatureDimenstion(imgWidth: number, imgHeight: number): [number, number] {
+  const width = 150;
+  const height = (imgHeight / imgWidth) * 150;
+  return [width, height];
+};
+
 function addRxFootNote(
   visitId: string,
   page: PDFPage,
+  pageWidth: number, 
   pageHeight: number,
   border: number,
 ) {
   const fontSize: number = 8;
+  const lineHeight: number = fontSize * 1.3;
   const visit: Visit = getCachedItem(visitId);
   if (!visit || !visit.userId) {
     return;
@@ -808,6 +818,8 @@ function addRxFootNote(
     x: border,
     y: border,
     size: fontSize,
+    maxWidth: pageWidth - border * 2,
+    lineHeight 
   });
 }
 
@@ -832,7 +844,7 @@ export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
   await addSignature(visitId, rxPage, pageWidth, border, pdfDoc);
-  addRxFootNote(visitId, rxPage, pageHeight, border);
+  addRxFootNote(visitId, rxPage, pageWidth, pageHeight, border);
   if (isWeb) {
     const pdfData = await pdfDoc.saveAsBase64();
     const format: string = 'data:application/pdf;base64,';
