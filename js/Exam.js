@@ -4,7 +4,7 @@
 'use strict';
 
 import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, Animated, Easing} from 'react-native';
+import {View, Text, TouchableOpacity, Animated, Easing, ActivityIndicator} from 'react-native';
 import {CommonActions} from '@react-navigation/native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import type {
@@ -57,6 +57,7 @@ import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
 import {getConfiguration} from './Configuration';
 import {Machine, exportData} from './Machine';
 import {PatientCard} from './Patient';
+import { Button } from './Widgets';
 
 export async function fetchExam(
   examId: string,
@@ -532,7 +533,7 @@ export class ExamCard extends Component {
   }
 }
 
-export async function getExamHistory(exam: Exam): Exam[] {
+export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, setStateHandler=()=>{}): Exam[] {
   const visit = getCachedItem(exam.visitId);
   if (!visit) {
     return [];
@@ -542,22 +543,42 @@ export async function getExamHistory(exam: Exam): Exam[] {
   );
   const examDefinitionName: string = exam.definition.name;
   let examArray: Exam[] = [];
+
+  let updatedEndIndex = endIndex
+
+  // Checking whether visitHistory array is not out of range
+  if (visitHistory.length < endIndex) {
+    updatedEndIndex = visitHistory.length
+    setStateHandler?.({ isMoreDataAvailable: false })
+  }
+
+  // Slicing VisitHistory Data Array
+  let limitedVisitHistory = visitHistory?.slice(startIndex, updatedEndIndex)
+
+  console.time('getExamHistoryTime')
+  // Paralle API Calls to Get Exam History
   await Promise.all(
-    visitHistory.map(async (visit: Visit) => {
+    limitedVisitHistory?.map(async (visit: Visit) => {
       if (visit.medicalDataPrivilege === 'NOACCESS') {
         let noAccessExam: Exam = {
           noaccess: true,
           visitId: visit.id,
         };
-        examArray = [...examArray, noAccessExam];
+        examArray.push(noAccessExam);
       } else {
-        const exam = await fetchVisitExam(visit, examDefinitionName);
-        if(exam){
-          examArray = [...examArray, exam];
+        try {
+          const exam = await fetchVisitExam(visit, examDefinitionName);
+          if(exam){
+            examArray.push(exam);
+          }
+        } catch (error) {
+          console.error('Error fetching exam', error);
         }
-      }
+       } // end-else
     }),
   );
+  console.timeEnd('getExamHistoryTime')
+
   examArray = examArray.filter((exam: Exam) => exam != undefined);
 
   examArray.sort(
@@ -565,7 +586,7 @@ export async function getExamHistory(exam: Exam): Exam[] {
       new Date(getCachedItem(exam2.visitId).date).getTime() - new Date(getCachedItem(exam1.visitId).date).getTime(),
   );
 
-  return examArray;
+  return [...examArray];
 }
 
 export class ExamHistoryScreen extends Component {
@@ -590,8 +611,16 @@ export class ExamHistoryScreen extends Component {
       examHistory, 
       patient,
       zoomScale: new Animated.Value(1),
+      isExamHistoryLoading: true,
+      pageSize: 5,
+      examHistoryPagination: {
+        startIndex: 0,
+        endIndex: 5,
+        pageNumber: 1,
+      },
+      isMoreDataAvailable: true
     };
-    getExamHistory(params.exam).then(examHistory=>this.setState({examHistory}));
+    // getExamHistory(params.exam).then(examHistory=>this.setState({examHistory}));
   }
 
   componentDidMount() {
@@ -600,6 +629,38 @@ export class ExamHistoryScreen extends Component {
       duration: 1000,
       easing: Easing.ease,
     }).start();
+
+    this.loadMoreExamHistoryData()
+  }
+
+  loadMoreExamHistoryData = () => {
+      // Setting Loading State
+      this.setState({ isExamHistoryLoading: true });
+      const params = this.props.route?.params;
+
+      // Getting current state startIndex and endIndex
+      const currStartIndex = this.state?.examHistoryPagination?.startIndex;
+      const currEndIndex = this.state?.examHistoryPagination?.endIndex;
+
+      // Calculating new Start and End Index based on current state and page number
+      const newStartIndex =  currEndIndex;
+      const newEndIndex = (this.state.pageSize * (this.state?.examHistoryPagination?.pageNumber + 1));
+
+      // Calling Function to fetch data from History
+      getExamHistory(params.exam, currStartIndex, currEndIndex, (obj) => this.setState({ ...obj}))
+        .then(examHistory => this.setState( ps=> ({
+          examHistory: [
+            ...ps?.examHistory,
+            ...examHistory
+          ],
+          isExamHistoryLoading: false,
+          examHistoryPagination: {
+            pageNumber: this.state.examHistoryPagination?.pageNumber + 1,
+            startIndex: newStartIndex,
+            endIndex: newEndIndex,
+          }
+        })
+      ));
   }
 
   addItem(item: any) {
@@ -831,6 +892,22 @@ export class ExamHistoryScreen extends Component {
         maximumZoomScale={1}
         zoomScale={this.state.zoomScale}>
         {this.state.examHistory.map((exam: Exam) => this.renderExam(exam))}
+        {
+          this.state?.isMoreDataAvailable &&
+          <View style={[styles.examHistoryScreenContainer, styles.rowContainer]} >
+            {
+              this.state.isExamHistoryLoading
+              ? <View style={styles.examHistoryScreenLoadingContainer}>
+                  <ActivityIndicator size="large" />
+                  <Text style={{textAlign: 'center'}}>Loading..</Text>
+                </View>
+              : <Button 
+                  title={'Load More'} 
+                  buttonStyle={styles.examHistoryLoadMoreBtn} 
+                  onPress={this.loadMoreExamHistoryData} />
+            }
+          </View>
+        }
       </Animated.ScrollView>
     );
   }
