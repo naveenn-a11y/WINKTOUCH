@@ -262,9 +262,7 @@ async function addStoreLogoWeb(
     return;
   }
   const imageDim = await getImageDimensions(storeLogo);
-  let height: number = imageDim.height ? imageDim.height : 54;
-  const width: number = (imageDim.width ? imageDim.width : 110) / height * 54;
-  height = 54;
+  const [width, height] = getStoreLogoDimension(imageDim.width, imageDim.height);
   const image = await pdfDoc.embedPng(storeLogo);
   page.drawImage(image, {
     x: x - width,
@@ -299,9 +297,7 @@ async function addStoreLogoIos(
 
   const fPath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
   const imageDim = await getImageDimensions(fPath);
-  let height: number = imageDim.height ? imageDim.height : 54;
-  const width: number = (imageDim.width ? imageDim.width : 110) / height * 54;
-  height = 54;
+  const [width, height] = getStoreLogoDimension(imageDim.width, imageDim.height);
 
   page.drawImage(fPath, 'png', {
     x: x - width,
@@ -309,6 +305,13 @@ async function addStoreLogoIos(
     width,
     height,
   });
+}
+
+function getStoreLogoDimension(imgWidth: number, imgHeight: number): [number, number] {
+  let height: number = imgHeight ?? 54;
+  const width: number = ((imgWidth ?? 110) / height) * 54;
+  height = 54;
+  return [width, height];
 }
 
 export function getImageDimensions(storeLogo: string): Promise<any> {
@@ -678,8 +681,7 @@ async function addSignatureWeb(
       dimension = getPng64Dimension(signature.data);
       image = await pdfDoc.embedPng(signature.data);
     }
-    const width = 150;
-    const height = (dimension.height / dimension.width) * 150;
+    const[width, height] = getSignatureDimenstion(dimension.width, dimension.height);
     page.drawImage(image, {
       x,
       y: y - height/2,
@@ -735,8 +737,7 @@ async function addSignatureNative(
       dimension = getPng64Dimension(signature.data);
       imgType = 'png';
     }
-    const width = 150;
-    const height = (dimension.height / dimension.width) * 150;
+    const[width, height] = getSignatureDimenstion(dimension.width, dimension.height);
     page.drawImage(fullFilename, imgType, {
       x,
       y: y - height / 2,
@@ -788,6 +789,12 @@ async function addSignature(
     size: fontSize,
   });
 }
+
+function getSignatureDimenstion(imgWidth: number, imgHeight: number): [number, number] {
+  const width = 150;
+  const height = (imgHeight / imgWidth) * 150;
+  return [width, height];
+};
 
 function addRxFootNote(
   visitId: string,
