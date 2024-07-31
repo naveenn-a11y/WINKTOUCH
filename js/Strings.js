@@ -198,7 +198,7 @@ export const strings = new LocalizedStrings({
     configuration: 'Config',
     nameStar: 'Please give the star a name',
     during: 'During',
-    drSignature: 'Dr Signature',
+    drSignature: 'Signature',
     signedDate: 'Signed Date',
     futureVisitDateError: "You can't add a consultation in the future",
     saveImageError:
@@ -636,7 +636,7 @@ export const strings = new LocalizedStrings({
     configuration: 'Config',
     nameStar: 'Please give the star a name',
     during: 'Pendant',
-    drSignature: 'Signature Dr',
+    drSignature: 'Signature',
     signedDate: 'Signé le',
     futureVisitDateError:
       'Vous ne pouvez pas ajouter une consultation dans le futur.',
@@ -1072,7 +1072,7 @@ export const strings = new LocalizedStrings({
     configuration: 'Configuración',
     nameStar: 'Ponle un nombre a la estrella',
     during: 'Durante',
-    drSignature: 'Firma del Dr.',
+    drSignature: 'Firma',
     signedDate: 'Fecha firmada',
     futureVisitDateError: 'No puedes agregar una consulta en el futuro',
     saveImageError:
