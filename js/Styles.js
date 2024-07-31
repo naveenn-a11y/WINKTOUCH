@@ -1704,6 +1704,23 @@ export const styles = StyleSheet.create({
   },
   formDataContainer: {
     flex: 1,
+  },
+  examHistoryScreenContainer: {
+    padding: 20, 
+    marginBottom: 30
+  },
+  examHistoryScreenLoadingContainer: {
+    flex: 1, 
+    justifyContent:'center', 
+    textAlign: 'center'
+  },
+  examHistoryLoadMoreBtn: {
+    textAlign:'center', 
+    width: 200, 
+    alignSelf:'center',
+    alignItems: 'center',
+    justifyContent: 'center', 
+    flex: 1
   }
 });
 

@@ -2929,6 +2929,7 @@ export class Button extends Component {
     loading?: boolean,
     onPress?: () => void,
     testID?: string,
+    buttonStyle?: Object,
   };
   static defaultProps = {
     visible: true,
