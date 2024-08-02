@@ -555,7 +555,6 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
   // Slicing VisitHistory Data Array
   let limitedVisitHistory = visitHistory?.slice(startIndex, updatedEndIndex)
 
-  console.time('getExamHistoryTime')
   // Paralle API Calls to Get Exam History
   await Promise.all(
     limitedVisitHistory?.map(async (visit: Visit) => {
@@ -568,22 +567,19 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
       } else {
         try {
           const exam = await fetchVisitExam(visit, examDefinitionName);
-          if(exam){
-            examArray.push(exam);
-          }
+          examArray.push(exam ?? {});
         } catch (error) {
           console.error('Error fetching exam', error);
         }
        } // end-else
     }),
   );
-  console.timeEnd('getExamHistoryTime')
 
   examArray = examArray.filter((exam: Exam) => exam != undefined);
 
   examArray.sort(
     (exam1, exam2) =>
-      new Date(getCachedItem(exam2.visitId).date).getTime() - new Date(getCachedItem(exam1.visitId).date).getTime(),
+      new Date(getCachedItem(exam2?.visitId)?.date).getTime() - new Date(getCachedItem(exam1?.visitId)?.date).getTime(),
   );
 
   return [...examArray];
@@ -812,8 +808,10 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    if (exam === undefined) {
-      return null;
+    if (isEmpty(exam)) {
+      return <View style={[styles.historyBoard, { width: '100%' }]}>
+        <Text style={styles.cardTitle}>{'No Data Available'}</Text>
+      </View>;
     }
     const visitDate: string = exam.visitId
       ? formatMoment(getCachedItem(exam.visitId).date)
@@ -830,7 +828,9 @@ export class ExamHistoryScreen extends Component {
       exam.definition === undefined ||
       exam[exam.definition.name] === undefined
     ) {
-      return null;
+      return <View style={[styles.historyBoard, { width: '100%' }]}>
+      <Text style={styles.cardTitle}>{'No Exam Definition Available'}</Text>
+    </View>;;
     }
     switch (exam.definition.type) {
       case 'selectionLists':
