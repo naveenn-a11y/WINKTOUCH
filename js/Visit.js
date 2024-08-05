@@ -2786,9 +2786,10 @@ export class VisitHistory extends Component {
     if(this.state.selectedId !== id && !this.state.isVisitLoading){
       this.setState({isVisitLoading: true});
       this.setState({selectedId: id});
-      await fetchVisit(id);
+      if(id !== 'followup'){
+        await fetchVisit(id);
+      }
       this.setState({isVisitLoading: false});
-
     }
   }
 

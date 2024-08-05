@@ -56,7 +56,10 @@ export const corneaCodes = [[
   {"code":"KP"},
   {"code":"Opacities"},
   {"code":"Neovascularization"},
-  {"code":"Dystrophy"}
+  {"code":"Dystrophy"},
+  {"code":"Arcus"},
+  {"code":"Flap Scars"},
+  {"code":"Pigment Dispersion"},
 ]]
 
 export const aCSuffixCodes = [
