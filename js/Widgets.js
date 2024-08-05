@@ -2997,10 +2997,11 @@ export class CheckButton extends Component {
             ? this.props.onDeselect
             : this.props.onSelect
         }
+        
         testID={
           this.props.testID ? this.props.testID + 'CheckButton' : 'checkButton'
         }>
-        <View style={styles.centeredRowLayout}>
+        <View role={this.props.isChecked ? 'checked' : 'unchecked'} style={styles.centeredRowLayout}>
           {this.props.prefix != undefined && (
             <Text
               style={
@@ -3015,6 +3016,7 @@ export class CheckButton extends Component {
                 ? 'checkbox-marked'
                 : 'checkbox-blank-outline'
             }
+            testID={this.props.isChecked ? 'checkedIcon' : 'uncheckedIcon'}
             style={styles.checkButtonIcon}
           />
           {this.props.suffix != undefined && (
