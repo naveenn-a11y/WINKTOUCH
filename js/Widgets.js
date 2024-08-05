@@ -71,6 +71,7 @@ import {
 } from './Util';
 import Dialog from './utilities/Dialog';
 import { CustomModal as Modal } from './utilities/Modal';
+import { TextInputWrapper } from './TextInputWrapper';
 
 const margin: number = 40;
 
@@ -353,6 +354,7 @@ export class TextField extends Component {
 
   updateText = (text: string) => {
     this.setState({value: text});
+    this.commitEdit(text)
   };
 
   render() {
@@ -372,7 +374,20 @@ export class TextField extends Component {
         {this.props.prefix != undefined && (
           <Text style={styles.formPrefix}>{this.props.prefix}</Text>
         )}
-        {isWeb ? (
+        <TextInputWrapper
+          value={this.state.value}
+          onChangeText={this.updateText}
+          onFocus={this.props.onFocus}
+          onBlur={() => this.commitEdit(this.state.value)}
+          keyboardType={this.props.type}
+          autoFocus={this.props.autoFocus}
+          readonly={this.props.readonly}
+          multiline={this.props.multiline}
+          testID={this.props.testID}
+          style={style}
+          isWeb={isWeb}
+        />
+        {/* {isWeb ? (
           <TextInput
             value={this.state.value}
             autoCapitalize="sentences"
@@ -405,7 +420,7 @@ export class TextField extends Component {
             multiline={this.props.multiline}
             testID={this.props.testID}
           />
-        )}
+        )} */}
 
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
