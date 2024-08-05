@@ -567,7 +567,8 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
       } else {
         try {
           const exam = await fetchVisitExam(visit, examDefinitionName);
-          examArray.push(exam ?? {});
+          const newExamDetails = {...exam, visitDate: visit?.date}
+          examArray.push(newExamDetails ?? {});
         } catch (error) {
           console.error('Error fetching exam', error);
         }
@@ -575,11 +576,15 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
     }),
   );
 
+  console.log('ExamARray', examArray);
   examArray = examArray.filter((exam: Exam) => exam != undefined);
 
   examArray.sort(
-    (exam1, exam2) =>
-      new Date(getCachedItem(exam2?.visitId)?.date).getTime() - new Date(getCachedItem(exam1?.visitId)?.date).getTime(),
+    (exam1, exam2) => {
+      //console.log('Exam1', new Date(getCachedItem(exam1?.visitId)?.date).getTime(), exam1?.visitDate, new Date(getCachedItem(exam1?.visitId)?.date).getTime() === new Date(exam1?.visitDate).getTime())
+      //console.log('Exam2', new Date(getCachedItem(exam2?.visitId)?.date).getTime(), exam2?.visitDate, new Date(getCachedItem(exam2?.visitId)?.date).getTime() === new Date(exam2?.visitDate).getTime())
+      return new Date(exam2?.visitDate).getTime() - new Date(exam1?.visitDate).getTime()
+    }
   );
 
   return [...examArray];
@@ -616,7 +621,6 @@ export class ExamHistoryScreen extends Component {
       },
       isMoreDataAvailable: true
     };
-    // getExamHistory(params.exam).then(examHistory=>this.setState({examHistory}));
   }
 
   componentDidMount() {
@@ -808,15 +812,18 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    if (isEmpty(exam)) {
+    const visitDate: string = !isEmpty(exam?.visitDate)
+      ? formatMoment(exam?.visitDate)
+      : 'Today';
+    
+    // If Exam or exam definition is undefined
+    if (isEmpty(exam) || (isEmpty(exam.definition) || isEmpty(exam?.[exam.definition.name]))) {
       return <View style={[styles.historyBoard, { width: '100%' }]}>
-        <Text style={styles.cardTitle}>{'No Data Available'}</Text>
+            <Text style={styles.cardTitle}>{visitDate}</Text>
+            <Text style={{ textAlign: 'center', paddingTop: 30, flex: 1 }}>{'There is no data available for this visit'}</Text>
       </View>;
     }
-    const visitDate: string = exam.visitId
-      ? formatMoment(getCachedItem(exam.visitId).date)
-      : 'Today';
-    if (exam.noaccess === true) {
+    if (exam?.noaccess === true) {
       return (
         <View style={styles.historyBoard}>
           <Text style={styles.cardTitle}>{visitDate}</Text>
@@ -824,14 +831,15 @@ export class ExamHistoryScreen extends Component {
         </View>
       );
     }
-    if (
-      exam.definition === undefined ||
-      exam[exam.definition.name] === undefined
-    ) {
-      return <View style={[styles.historyBoard, { width: '100%' }]}>
-      <Text style={styles.cardTitle}>{'No Exam Definition Available'}</Text>
-    </View>;;
-    }
+    // if (
+    //   exam.definition === undefined ||
+    //   exam[exam.definition.name] === undefined
+    // ) {
+    //   return <View style={[styles.historyBoard, { width: '100%' }]}>
+    //   <Text style={styles.cardTitle}>{visitDate}</Text>
+    //   <Text>{'Exam Data for this date is not available'}</Text>
+    // </View>;
+    // }
     switch (exam.definition.type) {
       case 'selectionLists':
         return (
@@ -855,10 +863,12 @@ export class ExamHistoryScreen extends Component {
       case 'groupedForm':
         return (
           <View
-            style={
+            style={[
               exam.id === this.props.route.params.exam.id
                 ? styles.historyBoardSelected
                 : styles.historyBoard
+              , {width: '100%'}
+              ]
             }
             key={exam.id}>
             <Text style={styles.cardTitle}>{visitDate}</Text>
