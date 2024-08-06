@@ -576,13 +576,10 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
     }),
   );
 
-  console.log('ExamARray', examArray);
-  examArray = examArray.filter((exam: Exam) => exam != undefined);
+  examArray = examArray.filter((exam: Exam) => !isEmpty(exam));
 
   examArray.sort(
     (exam1, exam2) => {
-      //console.log('Exam1', new Date(getCachedItem(exam1?.visitId)?.date).getTime(), exam1?.visitDate, new Date(getCachedItem(exam1?.visitId)?.date).getTime() === new Date(exam1?.visitDate).getTime())
-      //console.log('Exam2', new Date(getCachedItem(exam2?.visitId)?.date).getTime(), exam2?.visitDate, new Date(getCachedItem(exam2?.visitId)?.date).getTime() === new Date(exam2?.visitDate).getTime())
       return new Date(exam2?.visitDate).getTime() - new Date(exam1?.visitDate).getTime()
     }
   );
@@ -613,7 +610,7 @@ export class ExamHistoryScreen extends Component {
       patient,
       zoomScale: new Animated.Value(1),
       isExamHistoryLoading: true,
-      pageSize: 5,
+      pageSize: 10,
       examHistoryPagination: {
         startIndex: 0,
         endIndex: 5,
@@ -818,10 +815,7 @@ export class ExamHistoryScreen extends Component {
     
     // If Exam or exam definition is undefined
     if (isEmpty(exam) || (isEmpty(exam.definition) || isEmpty(exam?.[exam.definition.name]))) {
-      return <View style={[styles.historyBoard, { width: '100%' }]}>
-            <Text style={styles.cardTitle}>{visitDate}</Text>
-            <Text style={{ textAlign: 'center', paddingTop: 30, flex: 1 }}>{'There is no data available for this visit'}</Text>
-      </View>;
+      return null;
     }
     if (exam?.noaccess === true) {
       return (
