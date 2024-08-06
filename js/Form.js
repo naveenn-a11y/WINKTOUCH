@@ -51,6 +51,8 @@ import {
   sort,
 } from './Util';
 import { Microphone } from './Voice';
+import {WINK_APP_REST_URL} from '@env';
+import {isWeb} from './Styles';
 import {
   ButtonArray,
   CheckButton,
@@ -1861,7 +1863,7 @@ export class FormInput extends Component {
         //An image in a multivalue group
         replaceImage = false;
       }
-      const image = this.props.definition.image;
+      let image = this.props.definition.image;
       let value = this.props.value;
       if (
         image !== undefined &&
@@ -1872,6 +1874,16 @@ export class FormInput extends Component {
         value = {image: this.props.value};
       }
 
+      if(typeof image === "string" || image instanceof String){
+        const templateURL = "https://attachment.downloadwink.com/WinkRESTvWinkWeb/";
+        if (image.startsWith(templateURL)) {
+          let restUrl = isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL;
+          if(!restUrl.endsWith('/')){
+            restUrl += '/';
+          }
+          image = restUrl + image.substring(templateURL.length);
+        }
+      }
       return (
         <ImageField
           ref="imageField"
