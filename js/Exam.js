@@ -613,7 +613,7 @@ export class ExamHistoryScreen extends Component {
       pageSize: 10,
       examHistoryPagination: {
         startIndex: 0,
-        endIndex: 5,
+        endIndex: 10,
         pageNumber: 1,
       },
       isMoreDataAvailable: true
@@ -825,15 +825,7 @@ export class ExamHistoryScreen extends Component {
         </View>
       );
     }
-    // if (
-    //   exam.definition === undefined ||
-    //   exam[exam.definition.name] === undefined
-    // ) {
-    //   return <View style={[styles.historyBoard, { width: '100%' }]}>
-    //   <Text style={styles.cardTitle}>{visitDate}</Text>
-    //   <Text>{'Exam Data for this date is not available'}</Text>
-    // </View>;
-    // }
+
     switch (exam.definition.type) {
       case 'selectionLists':
         return (
