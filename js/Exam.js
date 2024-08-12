@@ -568,7 +568,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
         try {
           const exam = await fetchVisitExam(visit, examDefinitionName);
           const newExamDetails = {...exam, visitDate: visit?.date}
-          examArray.push(newExamDetails ?? {});
+          examArray.push(newExamDetails);
         } catch (error) {
           console.error('Error fetching exam', error);
         }
