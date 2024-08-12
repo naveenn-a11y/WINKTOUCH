@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { TextInput as RNTextInput, View, GestureResponderEvent, Platform, TouchableWithoutFeedback } from 'react-native';
-import { Dialog, Portal, Button, TextInput as PaperTextInput } from 'react-native-paper';
+import { Dimensions, Text, TextInput as RNTextInput, View, GestureResponderEvent, Platform, TouchableWithoutFeedback } from 'react-native';
+import { Portal, Button, TextInput as PaperTextInput } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
+import Dialog from './utilities/Dialog';
+import { fontScale } from './Styles';
 
 type Props = {
   value: string;
@@ -85,7 +87,41 @@ export const TextInputWrapper: React.FC<Props> = ({
         {renderTextInput()}
       </TouchableWithoutFeedback>
 
-      <Portal>
+      <Portal theme={{colors: {backdrop: 'transparent'}}}>
+        <Dialog
+          style={{
+            width: '70%',
+            minHeight: '60%',
+            maxHeight: '90%',
+            alignSelf: 'center',
+            backgroundColor: '#fff',
+          }}
+          visible={dialogVisible}
+          onDismiss={handleCancel}
+          dismissable={true}>
+          <Dialog.Title>
+            <Text style={{color: '#1db3b3'}}>Text Editor</Text>
+          </Dialog.Title>
+          <Dialog.ScrollArea>
+            <PaperTextInput
+              value={tempValue}
+              onChangeText={setTempValue}
+              multiline={true}
+              autoFocus={true}
+              rows={20}
+              style={{
+                backgroundColor: '#FAFAFA',
+              }}
+            />
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <Button onPress={handleCancel}>Cancel</Button>
+            <Button onPress={handleSave}>OK</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+
+      {/* <Portal>
         <Dialog visible={dialogVisible} onDismiss={handleCancel}>
           <Dialog.Title>Edit Text</Dialog.Title>
           <Dialog.Content>
@@ -102,7 +138,7 @@ export const TextInputWrapper: React.FC<Props> = ({
             <Button onPress={handleSave}>OK</Button>
           </Dialog.Actions>
         </Dialog>
-      </Portal>
+      </Portal> */}
     </View>
   );
 };
