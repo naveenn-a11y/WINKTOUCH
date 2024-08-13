@@ -809,9 +809,7 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    const visitDate: string = !isEmpty(exam?.visitDate)
-      ? formatMoment(exam?.visitDate)
-      : 'Today';
+    const visitDate: string = formatMoment(exam?.visitDate)
     
     // If Exam or exam definition is undefined
     if (isEmpty(exam) || (isEmpty(exam.definition) || isEmpty(exam?.[exam.definition.name]))) {
