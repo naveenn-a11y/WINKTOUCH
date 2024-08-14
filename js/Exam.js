@@ -580,7 +580,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
 
   examArray.sort(
     (exam1, exam2) => {
-      return new Date(exam2?.visitDate).getTime() - new Date(exam1?.visitDate).getTime()
+      return new Date(exam2?.visitDate || 0) - new Date(exam1?.visitDate || 0)
     }
   );
 
