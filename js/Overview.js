@@ -3,31 +3,23 @@
  */
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import { Component, PureComponent } from 'react';
 import {
-  Image,
-  Text,
-  TextInput,
-  View,
-  Dimensions,
-  ScrollView,
   InteractionManager,
+  View
 } from 'react-native';
-import {styles} from './Styles';
-import type {Appointment, User} from './Types';
-import {AppointmentsSummary, fetchAppointments} from './Appointment';
-import {Button} from './Widgets';
-import {StartVisitButtons, fetchReferralFollowUpHistory} from './Visit';
-import {getStore, getDoctor} from './DoctorApp';
-import {now, isToday, getCurrentRoute} from './Util';
-import {strings} from './Strings';
-import {isAtWink} from './Registration';
-import {toggleTranslateMode, isInTranslateMode} from './ExamDefinition';
-import {getCachedItem} from './DataCache';
-import {isReferralsEnabled} from './Referral';
-import {getPrivileges} from './Rest';
-import {ProfileHeader} from './Profile';
+import { AppointmentsSummary, fetchAppointments } from './Appointment';
+import { getDoctor, getStore } from './DoctorApp';
+import { isInTranslateMode, toggleTranslateMode } from './ExamDefinition';
+import { ProfileHeader } from './Profile';
+import { isReferralsEnabled } from './Referral';
+import { getPrivileges } from './Rest';
+import { strings } from './Strings';
+import { styles } from './Styles';
+import { PRIVILEGE, type Appointment } from './Types';
+import { getCurrentRoute, isToday, now } from './Util';
 import NavigationService from './utilities/NavigationService';
+import { Button } from './Widgets';
 
 class MainActivities extends Component {
   props: {
@@ -66,10 +58,12 @@ class MainActivities extends Component {
   };
 
   render() {
+    const noAccessPatient: boolean = getPrivileges().patientPrivilege === PRIVILEGE.NOACCESS;
+
     return (
       <View style={styles.startVisitCard}>
         <View style={styles.flow}>
-          <Button title={strings.openFile} onPress={this.openPatientFile} />
+          <Button title={strings.openFile} disabled={noAccessPatient} onPress={noAccessPatient ? () => {} : this.openPatientFile} />
           <Button title={strings.logout} onPress={this.props.onLogout} />
           {__DEV__ && false && (
             <Button

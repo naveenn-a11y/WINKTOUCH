@@ -3,28 +3,27 @@
  */
 'use strict';
 
-import type {
-  FieldDefinitions,
-  RestResponse,
-  Privileges,
-  TokenPayload,
-  Account,
-} from './Types';
+import { WINK_APP_EMR_HOST_REST_URL, WINK_APP_HOST } from '@env';
 import base64 from 'base-64';
-import { capitalize, deepClone, isEmpty, extractHostname } from './Util';
-import { strings, getUserLanguage } from './Strings';
 import {
+  cacheItem,
   cacheItemById,
   cacheItemsById,
-  cacheItem,
-  getCachedVersionNumber,
-  getCachedItem,
   clearCachedItemById,
+  getCachedItem,
+  getCachedVersionNumber,
 } from './DataCache';
-import { setWinkRestUrl } from './WinkRest';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserLanguage, strings } from './Strings';
 import { isWeb } from './Styles';
-import { WINK_APP_HOST, WINK_APP_EMR_HOST_REST_URL } from '@env';
+import type {
+  Account,
+  FieldDefinitions,
+  Privileges,
+  RestResponse,
+  TokenPayload,
+} from './Types';
+import { capitalize, deepClone, isEmpty } from './Util';
+import { setWinkRestUrl } from './WinkRest';
 
 let token: string;
 let privileges: Privileges = {
@@ -33,6 +32,7 @@ let privileges: Privileges = {
   appointmentPrivilege: 'NOACCESS',
   referralPrivilege: 'NOACCESS',
   finalRxPrivilege: 'NOACCESS',
+  patientPrivilege: 'NOACCESS',
 };
 
 let requestNumber: number = 0;
@@ -58,6 +58,7 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
   privileges.appointmentPrivilege = 'NOACCESS';
   privileges.referralPrivilege = 'NOACCESS';
   privileges.finalRxPrivilege = 'NOACCESS';
+  privileges.patientPrivilege = 'NOACCESS';
   if (tokenPrivileges === undefined || tokenPrivileges === null) {
     return;
   }
@@ -98,6 +99,12 @@ function parsePrivileges(tokenPrivileges: TokenPrivileges): void {
     privileges.fittingPrivilege = 'FULLACCESS';
   } else if (tokenPrivileges.fit === 'R') {
     privileges.fittingPrivilege = 'READONLY';
+  }
+  //Patient permission
+  if (tokenPrivileges.pat === 'F') {
+    privileges.patientPrivilege = 'FULLACCESS';
+  } else if (tokenPrivileges.pat === 'R') {
+    privileges.patientPrivilege = 'READONLY';
   }
 }
 
