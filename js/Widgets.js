@@ -387,6 +387,7 @@ export class TextField extends Component {
           style={style}
           isWeb={isWeb}
         />
+
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
         )}
