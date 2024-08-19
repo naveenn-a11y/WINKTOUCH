@@ -387,41 +387,6 @@ export class TextField extends Component {
           style={style}
           isWeb={isWeb}
         />
-        {/* {isWeb ? (
-          <TextInput
-            value={this.state.value}
-            autoCapitalize="sentences"
-            autoCorrect={false}
-            placeholder={''}
-            keyboardType={this.props.type}
-            style={style}
-            onFocus={this.props.onFocus}
-            onChangeText={this.updateText}
-            onBlur={() => this.commitEdit(this.state.value)}
-            autoFocus={this.props.autoFocus}
-            editable={!this.props.readonly}
-            multiline={this.props.multiline}
-            testID={this.props.testID}
-            onKeyPress={(event) => this.handleKeyEvent(event.keyCode)}
-          />
-        ) : (
-          <TextInput
-            value={this.state.value}
-            autoCapitalize="sentences"
-            autoCorrect={false}
-            placeholder={''}
-            keyboardType={this.props.type}
-            style={style}
-            onFocus={this.props.onFocus}
-            onChangeText={this.updateText}
-            onEndEditing={() => this.commitEdit(this.state.value)}
-            autoFocus={this.props.autoFocus}
-            editable={!this.props.readonly}
-            multiline={this.props.multiline}
-            testID={this.props.testID}
-          />
-        )} */}
-
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
         )}
