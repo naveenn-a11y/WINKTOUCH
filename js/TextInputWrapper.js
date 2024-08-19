@@ -120,25 +120,6 @@ export const TextInputWrapper: React.FC<Props> = ({
           </Dialog.Actions>
         </Dialog>
       </Portal>
-
-      {/* <Portal>
-        <Dialog visible={dialogVisible} onDismiss={handleCancel}>
-          <Dialog.Title>Edit Text</Dialog.Title>
-          <Dialog.Content>
-            <PaperTextInput
-              label="Text"
-              value={tempValue}
-              onChangeText={setTempValue}
-              multiline={true}
-              autoFocus={true}
-            />
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button onPress={handleCancel}>Cancel</Button>
-            <Button onPress={handleSave}>OK</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal> */}
     </View>
   );
 };
