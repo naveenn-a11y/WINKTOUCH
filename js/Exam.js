@@ -809,10 +809,12 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    const visitDate: string = formatMoment(exam?.visitDate)
-    
+    const visitDate: string = !isEmpty(exam?.visitId)
+    ? formatMoment(exam?.visitDate)
+    : strings.today
+
     // If Exam or exam definition is undefined
-    if (isEmpty(exam) || (isEmpty(exam.definition) || isEmpty(exam?.[exam.definition.name]))) {
+    if (isEmpty(exam) || (isEmpty(exam?.definition) || isEmpty(exam?.[exam?.definition?.name]))) {
       return null;
     }
     if (exam?.noaccess === true) {
