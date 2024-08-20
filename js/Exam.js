@@ -567,7 +567,8 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
       } else {
         try {
           const exam = await fetchVisitExam(visit, examDefinitionName);
-          examArray.push(exam);
+          const newExamDetails = {...exam, visitDate: visit?.date}
+          examArray.push(newExamDetails);
         } catch (error) {
           console.error('Error fetching exam', error);
         }
@@ -578,8 +579,9 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
   examArray = examArray.filter((exam: Exam) => !isEmpty(exam));
 
   examArray.sort(
-    (exam1, exam2) =>
-      new Date(getCachedItem(exam2?.visitId)?.date).getTime() - new Date(getCachedItem(exam1?.visitId)?.date).getTime(),
+    (exam1, exam2) => {
+      return new Date(exam2?.visitDate || 0) - new Date(exam1?.visitDate || 0)
+    }
   );
 
   return [...examArray];
@@ -807,9 +809,7 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    const visitDate: string = exam.visitId
-      ? formatMoment(getCachedItem(exam.visitId).date)
-      : 'Today';
+    const visitDate: string = formatMoment(exam?.visitDate)
     
     // If Exam or exam definition is undefined
     if (isEmpty(exam) || (isEmpty(exam.definition) || isEmpty(exam?.[exam.definition.name]))) {
