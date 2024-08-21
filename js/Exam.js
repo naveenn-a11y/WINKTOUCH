@@ -809,7 +809,7 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    const visitDate: string = !isEmpty(exam?.visitId)
+    const visitDate: string = !isEmpty(exam?.visitDate)
     ? formatMoment(exam?.visitDate)
     : strings.today
 
