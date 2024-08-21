@@ -595,6 +595,7 @@ export type Exam = {
   noaccess?: boolean,
   next?: string,
   previous?: string,
+  visitDate?: string,
 };
 
 export type Scene = {
