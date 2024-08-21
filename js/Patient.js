@@ -33,18 +33,19 @@ import { PatientSearch } from './FindPatient';
 import { ErrorCard, FormField, FormRow } from './Form';
 import { loadDocuments } from './ImageField';
 import { printBase64Pdf } from './Print';
-import { fetchItemById, searchItems, storeItem, stripDataType } from './Rest';
+import { fetchItemById, getPrivileges, searchItems, storeItem, stripDataType } from './Rest';
 import { strings } from './Strings';
 import { isWeb, styles } from './Styles';
-import type {
-  Appointment,
-  CodeDefinition,
-  Patient,
-  PatientDocument,
-  PatientInfo,
-  PatientTag,
-  RestResponse,
-  Upload,
+import {
+  PRIVILEGE,
+  type Appointment,
+  type CodeDefinition,
+  type Patient,
+  type PatientDocument,
+  type PatientInfo,
+  type PatientTag,
+  type RestResponse,
+  type Upload,
 } from './Types';
 import { fetchUpload, getMimeType } from './Upload';
 import { ManageUsers } from './User';
@@ -344,6 +345,8 @@ export class PatientContact extends Component {
   }
 
   render() {
+    const hasPatientFullAccess: boolean = getPrivileges().patientPrivilege === PRIVILEGE.FULLACCESS;
+
     return (
       <View style={styles.tabCard}>
         <Text style={styles.cardTitle}>Contact</Text>
@@ -352,12 +355,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="firstName"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="lastName"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -366,6 +371,7 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="alias"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -374,12 +380,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="streetNumber"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               type="numeric"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="streetName"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -388,6 +396,7 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="unit"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -396,12 +405,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="city"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="postalCode"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
@@ -410,12 +421,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="province"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="countryId"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
@@ -424,12 +437,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="phone"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               type="phone-pad"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="cell"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               type="phone-pad"
             />
@@ -438,12 +453,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="dateOfBirth"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               type="pastDate"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="gender"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
             />
           </FormRow>
@@ -451,6 +468,7 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="medicalCard"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
@@ -459,12 +477,14 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="medicalCardVersion"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
             <FormField
               value={this.props.patientInfo}
               fieldName="medicalCardExp"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
@@ -473,18 +493,21 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="familyDoctorId"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="characters"
             />
             <Binoculars
               style={styles.groupIcon}
               onClick={this.props.findDoctor}
+              disabled={!hasPatientFullAccess}
             />
           </FormRow>
           <FormRow>
             <FormField
               value={this.props.patientInfo}
               fieldName="occupation"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               autoCapitalize="words"
             />
@@ -493,6 +516,7 @@ export class PatientContact extends Component {
             <FormField
               value={this.props.patientInfo}
               fieldName="email"
+              readonly={!hasPatientFullAccess}
               onChangeValue={this.props.onUpdatePatientInfo}
               type="email-address"
             />
@@ -1175,6 +1199,7 @@ export class CabinetScreen extends Component {
   }
 
   renderNewPatient() {
+    const hasPatientFullAccess: boolean = getPrivileges().patientPrivilege === PRIVILEGE.FULLACCESS;
     return (
       <View style={styles.separator}>
         <PatientContact
@@ -1187,6 +1212,7 @@ export class CabinetScreen extends Component {
             title={strings.createPatient}
             onPress={this.onCreatePatient}
             loading={this.state.createPatientloading}
+            disabled={!hasPatientFullAccess}
             testID="createPatientButton"
           />
         </View>

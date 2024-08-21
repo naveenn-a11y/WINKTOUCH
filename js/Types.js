@@ -105,9 +105,16 @@ export type Privileges = {
   referralPrivilege?: Privilege,
   finalRxPrivilege?: Privilege,
   fittingPrivilege?: Privilege,
+  patientPrivilege?: Privilege,
 };
 
 export type TokenPrivilege = 'N' | 'R' | 'B' | 'F';
+
+export const PRIVILEGE = {
+  FULLACCESS: 'FULLACCESS',
+  NOACCESS: 'NOACCESS',
+  READONLY: 'READONLY',
+};
 
 export type TokenPrivileges = {
   pre: ?TokenPrivilege,
@@ -116,6 +123,7 @@ export type TokenPrivileges = {
   ref: ?TokenPrivilege,
   fin: ?TokenPrivilege,
   fit: ?TokenPrivilege,
+  pat: ?TokenPrivilege,
 };
 
 export type TokenPayload = {

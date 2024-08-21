@@ -245,6 +245,7 @@ export class CameraTile extends Component {
 export type BinocularsProps = {
   onClick: () => void,
   style: any,
+  disabled?: boolean,
 };
 export type BinocularsState = {};
 export class Binoculars extends PureComponent<
@@ -253,7 +254,7 @@ export class Binoculars extends PureComponent<
 > {
   render() {
     return (
-      <TouchableWithoutFeedback onPress={this.props.onClick}>
+      <TouchableWithoutFeedback disabled={this.props.disabled ?? false} onPress={this.props.onClick}>
         <Icon
           name="binoculars"
           style={this.props.style}
