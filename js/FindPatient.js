@@ -4,28 +4,28 @@
 
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import React, { Component, PureComponent } from 'react';
 import {
-  View,
-  TextInput,
-  LayoutAnimation,
-  InteractionManager,
-  FlatList,
-  TouchableOpacity,
   ActivityIndicator,
+  FlatList,
+  InteractionManager,
+  LayoutAnimation,
   Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import type {Patient, PatientInfo} from './Types';
-import {styles, isWeb, fontScale, selectionColor} from './Styles';
-import {strings} from './Strings';
-import {Button, SelectionListRow} from './Widgets';
-import {PatientCard, fetchPatientInfo, getPatientFullName} from './Patient';
-import {searchItems} from './Rest';
-import {cacheItemsById, getCachedItem} from './DataCache';
-import {fetchVisitHistory, VisitHistory} from './Visit';
-import {ErrorCard} from './Form';
-import {Close, BackInTimeIcon} from './Favorites';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { cacheItemsById, getCachedItem } from './DataCache';
+import { BackInTimeIcon, Close } from './Favorites';
+import { ErrorCard } from './Form';
+import { fetchPatientInfo, getPatientFullName, PatientCard } from './Patient';
+import { getPrivileges, searchItems } from './Rest';
+import { strings } from './Strings';
+import { fontScale, isWeb, selectionColor, styles } from './Styles';
+import { PRIVILEGE, type Patient, type PatientInfo } from './Types';
+import { fetchVisitHistory, VisitHistory } from './Visit';
+import { Button, SelectionListRow } from './Widgets';
 
 const maxPatientListSize: number = 100;
 
@@ -189,7 +189,7 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
       loading:false
     });
   }
-  newPatient() {
+  newPatient = () => {
     this.props.toggleRecentlyViewedLabel(false);
     this.setState({
       showPatientList: false,
@@ -278,6 +278,10 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
   }
 
   render() {
+    const privileges = getPrivileges();
+    const hasPatientReadAccess: boolean =  (privileges.patientPrivilege === PRIVILEGE.READONLY ||privileges.patientPrivilege === PRIVILEGE.FULLACCESS);
+
+    const hasPatientFullAccess: boolean = privileges.patientPrivilege === PRIVILEGE.FULLACCESS;
     return (
       <View style={styles.rightSearchColumn}>
         <TextInput
@@ -309,7 +313,8 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
           <View>
             <Button
               title={strings.newPatient}
-              onPress={() => this.newPatient()}
+              disabled={!hasPatientFullAccess}
+              onPress={hasPatientFullAccess ? this.newPatient : () => {}}
               testID="newPatientButton"
             />
             
@@ -317,11 +322,11 @@ export class FindPatient extends PureComponent<PatientProps, PatientState> {
         ) : null}
           {!this.state.showRecentlyViewed && 
             <TouchableOpacity
-              onPress={this.fetchRecentlyViewed}
-              disabled={this.state.loadRecentlyViewed}
+              onPress={hasPatientReadAccess ? this.fetchRecentlyViewed : () => {}}
+              disabled={this.state.loadRecentlyViewed || !hasPatientReadAccess}
               testID='recentlyViewedButton'
             >
-              <View style={styles.button}> 
+              <View style={hasPatientReadAccess ? styles.button : styles.buttonDisabled}> 
                 {!this.state.loadRecentlyViewed && <BackInTimeIcon  size={18} color="#fff" />}
                 {this.state.loadRecentlyViewed && <ActivityIndicator color={selectionColor} />}
               </View>
