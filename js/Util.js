@@ -731,7 +731,7 @@ export function getRanges(
   interval: number,
 ): number[] {
   let tempArray: number[] = [];
-  for (let i = minValue; i <= maxValue; i += interval) {
+  for (let i = minValue; i <= maxValue; i += Math.abs(interval)) {
     tempArray.push(Math.round((i + Number.EPSILON) * 100) / 100);
   }
   if (!tempArray.includes(maxValue)) {
