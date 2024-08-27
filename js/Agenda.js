@@ -991,11 +991,12 @@ export class AgendaScreen extends Component {
                 alignItems: 'center',
                 marginVertical: 5,
               }}>
-              <Text style={{fontSize: fontScale * 18, fontWeight: '500'}}>
+              <Text testID={'patient-name'} style={{fontSize: fontScale * 18, fontWeight: '500'}}>
                 {patient.firstName} {patient.lastName}
               </Text>
             </View>
             <View
+              testID={'cancelled-by-section'}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -1005,6 +1006,7 @@ export class AgendaScreen extends Component {
                 {strings.cancelledBy}
               </Text>
               <FormInput
+                testID={'cancelledBy-options'}
                 multiOptions
                 singleSelect
                 value={this.state.cancelReason}
@@ -1034,6 +1036,7 @@ export class AgendaScreen extends Component {
                 value={this.state.cancelNotes}
                 showLabel={false}
                 readonly={false}
+                testID={'cancelledBy-notes'}
                 onChangeValue={this.onChangeCancelNotes}
                 definition={{}}
                 multiline
