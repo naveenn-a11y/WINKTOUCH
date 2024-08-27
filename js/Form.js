@@ -1021,7 +1021,7 @@ export class FormCheckBox extends Component {
           onSelect={this.select}
           onDeselect={this.deSelect}
           style={this.props.style ? this.props.style : styles.checkButtonLabel}
-          testID={this.props.testID}
+          testID={this.props.testID + '.' + this.props?.label}
         />
         {this.props.suffix !== undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
@@ -1113,7 +1113,7 @@ export class FormMultiCheckBox extends Component {
                   ? this.props.style
                   : styles.multiCheckButtonLabel
               }
-              testID={this.props.testID}
+              testID={this.props.testID + '.' + option?.label ?? option ?? ''}
             />
             <Text>{option?.label || option}</Text>
           </View>
