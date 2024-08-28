@@ -355,7 +355,7 @@ export class TextField extends Component {
 
   updateText = (text: string) => {
     this.setState({value: text});
-    this.commitEdit(text)
+    this.commitEdit(text);
   };
 
   render() {
@@ -672,7 +672,7 @@ export class NumberField extends Component {
       this.props.onChangeValue(combinedValue);
     }
     //KeyEvent.removeKeyUpListener();
-    this.setState({isActive: false, isTyping: false});
+    this.setState({isActive: false, isTyping: this.props.isTyping});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
     }
@@ -1463,14 +1463,14 @@ export class TilesField extends Component {
     if (this.props.onChangeValue) {
       this.props.onChangeValue(combinedValue);
     }
-    this.setState({isActive: false, isTyping: false});
+    this.setState({isActive: false, isTyping: this.props.isTyping});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
     }
   };
 
   cancelEdit = () => {
-    this.setState({isActive: false, editedValue: undefined, isTyping: false});
+    this.setState({isActive: false, editedValue: undefined, isTyping: this.props.isTyping});
   };
 
   clear = () => {
