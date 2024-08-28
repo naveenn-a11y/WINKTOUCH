@@ -716,6 +716,7 @@ export class AppointmentSummary extends Component {
     appointment: Appointment,
     onPress: () => void,
     locked: boolean,
+    testID?: string,
   };
   state: {
     locked: ?boolean,
@@ -757,7 +758,7 @@ export class AppointmentSummary extends Component {
     const date: string = this.props.appointment.start;
     return (
       <TouchableOpacity onPress={this.props.onPress}>
-        <View style={cardStyle}>
+        <View style={cardStyle} testID={'AppointmentCard-'+this.props?.testID}>
           <View style={{flexDirection: 'row'}}>
             <AppointmentTypes appointment={this.props.appointment} />
             <AppointmentIcons appointment={this.props.appointment} />
@@ -844,6 +845,7 @@ export class AppointmentsSummary extends Component {
                 return (
                   <AppointmentSummary
                     key={index}
+                    testID={appointment?.id}
                     appointment={appointment}
                     locked={isAppointmentLocked(appointment)}
                     onPress={() =>
