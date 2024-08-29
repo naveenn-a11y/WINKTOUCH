@@ -567,12 +567,12 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
       } else {
         try {
           const exam = await fetchVisitExam(visit, examDefinitionName);
-          const newExamDetails = {...exam, visitDate: visit?.date}
+          const newExamDetails = {...exam, visitDate: visit?.date};
           examArray.push(newExamDetails);
         } catch (error) {
           console.error('Error fetching exam', error);
         }
-       } // end-else
+      } // end-else
     }),
   );
 
@@ -588,6 +588,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
 }
 
 export class ExamHistoryScreen extends Component {
+  pageSize = 10;
   props: {
     navigation: any,
   };
@@ -598,6 +599,9 @@ export class ExamHistoryScreen extends Component {
     examHistory: Exam[],
     patient: ?Patient,
     zoomScale: number,
+    isExamHistoryLoading: boolean,
+    examHistoryPagination: {currentIndex: number},
+    isMoreDataAvailable: boolean,
   };
 
   constructor(props: any) {
@@ -606,17 +610,14 @@ export class ExamHistoryScreen extends Component {
     let patient: Patient = getPatient(params.exam);
     let examHistory: Exam[] = [];
     this.state = {
-      examHistory, 
+      examHistory,
       patient,
       zoomScale: new Animated.Value(1),
       isExamHistoryLoading: true,
-      pageSize: 10,
       examHistoryPagination: {
-        startIndex: 0,
-        endIndex: 10,
-        pageNumber: 1,
+        currentIndex: 0,
       },
-      isMoreDataAvailable: true
+      isMoreDataAvailable: true,
     };
   }
 
@@ -627,38 +628,70 @@ export class ExamHistoryScreen extends Component {
       easing: Easing.ease,
     }).start();
 
-    this.loadMoreExamHistoryData()
+    this.loadMoreExamHistoryData();
   }
+
+  loadExamHistoryData = (
+    referenceExam: Exam,
+    loadedExams: Exam[],
+    startIndex: number,
+    stateUpdaterCallBack: (index: number, examHistory: Exam[]) => void,
+    pageSize: number,
+    totalHistorySize: number,
+  ) => {
+    if (loadedExams.length < pageSize && startIndex < totalHistorySize) {
+      getExamHistory(referenceExam, startIndex, startIndex + pageSize, (obj) => this.setState({...obj})).then(
+        (examHistory) => {
+          let ind = 0;
+          while (loadedExams.length < pageSize && ind < (examHistory?.length || 0)) {
+            const exam = examHistory[ind];
+            if (!isEmpty(exam) && exam.visitId) {
+              loadedExams.push(exam);
+            }
+            ind++;
+          }
+          this.loadExamHistoryData(
+            referenceExam,
+            loadedExams,
+            startIndex + ind,
+            stateUpdaterCallBack,
+            pageSize,
+            totalHistorySize,
+          );
+        },
+      );
+    } else {
+      stateUpdaterCallBack(startIndex, loadedExams);
+    }
+  };
 
   loadMoreExamHistoryData = () => {
-      // Setting Loading State
-      this.setState({ isExamHistoryLoading: true });
-      const params = this.props.route?.params;
+    // Setting Loading State
+    this.setState({isExamHistoryLoading: true});
+    const params = this.props.route?.params;
 
-      // Getting current state startIndex and endIndex
-      const currStartIndex = this.state?.examHistoryPagination?.startIndex;
-      const currEndIndex = this.state?.examHistoryPagination?.endIndex;
+    // Getting current state startIndex and endIndex
+    const newStartIndex = this.state?.examHistoryPagination?.currentIndex;
+    const visit = getCachedItem(params.exam.visitId);
+    const visitHistory: Visit[] = getCachedItems(getCachedItem('visitHistory-' + visit.patientId));
 
-      // Calculating new Start and End Index based on current state and page number
-      const newStartIndex =  currEndIndex;
-      const newEndIndex = (this.state.pageSize * (this.state?.examHistoryPagination?.pageNumber + 1));
-
-      // Calling Function to fetch data from History
-      getExamHistory(params.exam, currStartIndex, currEndIndex, (obj) => this.setState({ ...obj}))
-        .then(examHistory => this.setState( ps=> ({
-          examHistory: [
-            ...ps?.examHistory,
-            ...examHistory
-          ],
+    this.loadExamHistoryData(
+      params.exam,
+      [],
+      newStartIndex,
+      (index, examHistory) => {
+        this.setState((ps) => ({
+          examHistory: [...ps?.examHistory, ...examHistory],
           isExamHistoryLoading: false,
           examHistoryPagination: {
-            pageNumber: this.state.examHistoryPagination?.pageNumber + 1,
-            startIndex: newStartIndex,
-            endIndex: newEndIndex,
-          }
-        })
-      ));
-  }
+            currentIndex: index,
+          },
+        }));
+      },
+      this.pageSize,
+      visitHistory.length,
+    );
+  };
 
   addItem(item: any) {
     //TODO: check if visit is editable and show a confirmation ?
@@ -682,11 +715,7 @@ export class ExamHistoryScreen extends Component {
     this.forceUpdate(); //TODO update exam
   }
 
-  addHistoryGroupItem = (
-    groupDefinition: GroupDefinition,
-    groupValue: ?{},
-    childValue: ?{},
-  ) => {
+  addHistoryGroupItem = (groupDefinition: GroupDefinition, groupValue: ?{}, childValue: ?{}) => {
     let exam: Exam = this.props.route.params.exam;
     addGroupItem(exam, groupDefinition, groupValue, false, childValue);
     exam.isDirty = true;
@@ -694,11 +723,7 @@ export class ExamHistoryScreen extends Component {
   };
 
   copyFinalRx = (glassesRx: GlassesRx): void => {
-    const examStateKey =
-      this.props.route &&
-      this.props.route.params
-        ? this.props.route.params.stateKey
-        : undefined;
+    const examStateKey = this.props.route && this.props.route.params ? this.props.route.params.stateKey : undefined;
     const setParamsAction = CommonActions.setParams({
       copiedData: glassesRx,
       key: examStateKey,
@@ -710,20 +735,10 @@ export class ExamHistoryScreen extends Component {
 
   renderGroup(groupDefinition: GroupDefinition, value: any, index: number) {
     if (groupDefinition.mappedField) {
-      groupDefinition = Object.assign(
-        {},
-        getItemFieldDefinition(groupDefinition.mappedField),
-        groupDefinition,
-      );
+      groupDefinition = Object.assign({}, getItemFieldDefinition(groupDefinition.mappedField), groupDefinition);
     }
     if (groupDefinition.options != undefined) {
-      return (
-        <CheckList
-          definition={groupDefinition}
-          editable={this.props.editable}
-          value={value}
-        />
-      );
+      return <CheckList definition={groupDefinition} editable={this.props.editable} value={value} />;
     }
     if (groupDefinition.multiValue === true) {
       if (value instanceof Array === false || value.length === 0) {
@@ -746,11 +761,7 @@ export class ExamHistoryScreen extends Component {
                 hasAdd={groupDefinition.hasAdd}
                 hasBVD={groupDefinition.hasBVD}
                 examId={exam.id}
-                onCopy={
-                  groupDefinition.name == 'Final Rx'
-                    ? this.copyFinalRx
-                    : undefined
-                }
+                onCopy={groupDefinition.name == 'Final Rx' ? this.copyFinalRx : undefined}
               />
             );
           } else {
@@ -761,17 +772,9 @@ export class ExamHistoryScreen extends Component {
                 cloneable={true}
                 key={index}
                 form={childValue}
-                patientId={
-                  this.state.patient ? this.state.patient.id : undefined
-                }
+                patientId={this.state.patient ? this.state.patient.id : undefined}
                 examId={exam.id}
-                onCopy={(groupValue: ?{}) =>
-                  this.addHistoryGroupItem(
-                    groupDefinition,
-                    groupValue,
-                    childValue,
-                  )
-                }
+                onCopy={(groupValue: ?{}) => this.addHistoryGroupItem(groupDefinition, groupValue, childValue)}
               />
             );
           }
@@ -790,9 +793,7 @@ export class ExamHistoryScreen extends Component {
           hasAdd={groupDefinition.hasAdd}
           hasBVD={groupDefinition.hasBVD}
           examId={exam.id}
-          onCopy={
-            groupDefinition.name === 'Final Rx' ? this.copyFinalRx : undefined
-          }
+          onCopy={groupDefinition.name === 'Final Rx' ? this.copyFinalRx : undefined}
         />
       );
     }
@@ -809,12 +810,10 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderExam(exam: Exam) {
-    const visitDate: string = !isEmpty(exam?.visitDate)
-    ? formatMoment(exam?.visitDate)
-    : strings.today
+    const visitDate: string = !isEmpty(exam?.visitDate) ? formatMoment(exam?.visitDate) : strings.today;
 
     // If Exam or exam definition is undefined
-    if (isEmpty(exam) || (isEmpty(exam?.definition) || isEmpty(exam?.[exam?.definition?.name]))) {
+    if (isEmpty(exam) || isEmpty(exam?.definition) || isEmpty(exam?.[exam?.definition?.name])) {
       return null;
     }
     if (exam?.noaccess === true) {
@@ -838,11 +837,7 @@ export class ExamHistoryScreen extends Component {
             titleFields={exam.definition.titleFields}
             itemView={exam.definition.editable ? 'EditableItem' : 'ItemSummary'}
             key={exam.id}
-            style={
-              exam.id === this.props.route.params.exam.id
-                ? styles.historyBoardSelected
-                : styles.historyBoard
-            }
+            style={exam.id === this.props.route.params.exam.id ? styles.historyBoardSelected : styles.historyBoard}
             //orientation =
           />
         );
@@ -850,26 +845,15 @@ export class ExamHistoryScreen extends Component {
         return (
           <View
             style={[
-              exam.id === this.props.route.params.exam.id
-                ? styles.historyBoardSelected
-                : styles.historyBoard
-              , {width: '100%'}
-              ]
-            }
+              exam.id === this.props.route.params.exam.id ? styles.historyBoardSelected : styles.historyBoard,
+              {width: '100%'},
+            ]}
             key={exam.id}>
             <Text style={styles.cardTitle}>{visitDate}</Text>
             <View style={styles.flow}>
               {exam.definition.fields &&
-                exam.definition.fields.map(
-                  (
-                    groupDefinition: FieldDefinition | GroupDefinition,
-                    index: number,
-                  ) =>
-                    this.renderGroup(
-                      groupDefinition,
-                      exam[exam.definition.name][groupDefinition.name],
-                      index,
-                    ),
+                exam.definition.fields.map((groupDefinition: FieldDefinition | GroupDefinition, index: number) =>
+                  this.renderGroup(groupDefinition, exam[exam.definition.name][groupDefinition.name], index),
                 )}
             </View>
           </View>
@@ -883,27 +867,24 @@ export class ExamHistoryScreen extends Component {
   render() {
     //TODO flatlist
     return (
-      <Animated.ScrollView
-        minimumZoomScale={0.5}
-        maximumZoomScale={1}
-        zoomScale={this.state.zoomScale}>
+      <Animated.ScrollView minimumZoomScale={0.5} maximumZoomScale={1} zoomScale={this.state.zoomScale}>
         {this.state.examHistory.map((exam: Exam) => this.renderExam(exam))}
-        {
-          this.state?.isMoreDataAvailable &&
-          <View style={[styles.examHistoryScreenContainer, styles.rowContainer]} >
-            {
-              this.state.isExamHistoryLoading
-              ? <View style={styles.examHistoryScreenLoadingContainer}>
-                  <ActivityIndicator size="large" />
-                  <Text style={{textAlign: 'center'}}>Loading..</Text>
-                </View>
-              : <Button 
-                  title={'Load More'} 
-                  buttonStyle={styles.examHistoryLoadMoreBtn} 
-                  onPress={this.loadMoreExamHistoryData} />
-            }
+        {this.state?.isMoreDataAvailable && (
+          <View style={[styles.examHistoryScreenContainer, styles.rowContainer]}>
+            {this.state.isExamHistoryLoading ? (
+              <View style={styles.examHistoryScreenLoadingContainer}>
+                <ActivityIndicator size="large" />
+                <Text style={{textAlign: 'center'}}>Loading..</Text>
+              </View>
+            ) : (
+              <Button
+                title={'Load More'}
+                buttonStyle={styles.examHistoryLoadMoreBtn}
+                onPress={this.loadMoreExamHistoryData}
+              />
+            )}
           </View>
-        }
+        )}
       </Animated.ScrollView>
     );
   }
