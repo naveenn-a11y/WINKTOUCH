@@ -534,7 +534,6 @@ export class ExamCard extends Component {
 }
 
 export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, setStateHandler=()=>{}): Exam[] {
-  console.log(startIndex);
   const visit = getCachedItem(exam.visitId);
   if (!visit) {
     return [];
@@ -568,12 +567,12 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
       } else {
         try {
           const exam = await fetchVisitExam(visit, examDefinitionName);
-          const newExamDetails = {...exam, visitDate: visit?.date}
+          const newExamDetails = {...exam, visitDate: visit?.date};
           examArray.push(newExamDetails);
         } catch (error) {
           console.error('Error fetching exam', error);
         }
-       } // end-else
+      } // end-else
     }),
   );
 
@@ -589,6 +588,7 @@ export async function getExamHistory(exam: Exam, startIndex=0, endIndex=null, se
 }
 
 export class ExamHistoryScreen extends Component {
+  pageSize = 10;
   props: {
     navigation: any,
   };
@@ -599,6 +599,9 @@ export class ExamHistoryScreen extends Component {
     examHistory: Exam[],
     patient: ?Patient,
     zoomScale: number,
+    isExamHistoryLoading: boolean,
+    examHistoryPagination: {currentIndex: number},
+    isMoreDataAvailable: boolean,
   };
 
   constructor(props: any) {
@@ -611,11 +614,8 @@ export class ExamHistoryScreen extends Component {
       patient,
       zoomScale: new Animated.Value(1),
       isExamHistoryLoading: true,
-      pageSize: 10,
       examHistoryPagination: {
-        startIndex: 0,
-        endIndex: 10,
-        pageNumber: 1,
+        currentIndex: 0,
       },
       isMoreDataAvailable: true,
     };
@@ -644,13 +644,20 @@ export class ExamHistoryScreen extends Component {
         (examHistory) => {
           let ind = 0;
           while (loadedExams.length < pageSize && ind < (examHistory?.length || 0)) {
-              const exam = examHistory[ind];
-              if (!isEmpty(exam) && exam.visitId) {
-                loadedExams.push(exam);
-              }
-              ind++;
+            const exam = examHistory[ind];
+            if (!isEmpty(exam) && exam.visitId) {
+              loadedExams.push(exam);
+            }
+            ind++;
           }
-          this.loadExamHistoryData(referenceExam, loadedExams, startIndex + ind, stateUpdaterCallBack, pageSize, totalHistorySize);
+          this.loadExamHistoryData(
+            referenceExam,
+            loadedExams,
+            startIndex + ind,
+            stateUpdaterCallBack,
+            pageSize,
+            totalHistorySize,
+          );
         },
       );
     } else {
@@ -664,7 +671,7 @@ export class ExamHistoryScreen extends Component {
     const params = this.props.route?.params;
 
     // Getting current state startIndex and endIndex
-    const newStartIndex = this.state?.examHistoryPagination?.startIndex;
+    const newStartIndex = this.state?.examHistoryPagination?.currentIndex;
     const visit = getCachedItem(params.exam.visitId);
     const visitHistory: Visit[] = getCachedItems(getCachedItem('visitHistory-' + visit.patientId));
 
@@ -677,13 +684,11 @@ export class ExamHistoryScreen extends Component {
           examHistory: [...ps?.examHistory, ...examHistory],
           isExamHistoryLoading: false,
           examHistoryPagination: {
-            pageNumber: 0,
-            startIndex: index,
-            endIndex: index,
+            currentIndex: index,
           },
         }));
       },
-      this.state.pageSize,
+      this.pageSize,
       visitHistory.length,
     );
   };
