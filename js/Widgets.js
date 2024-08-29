@@ -2981,7 +2981,7 @@ export class CheckButton extends Component {
         }
         
         testID={
-          this.props.testID ? this.props.testID + '.CheckButton' : 'checkButton'
+          this.props.testID ? this.props.testID + 'CheckButton' : 'checkButton'
         }>
         <View role={this.props.isChecked ? 'checked' : 'unchecked'} style={styles.centeredRowLayout}>
           {this.props.prefix != undefined && (
