@@ -90,9 +90,8 @@ export const TextInputWrapper: React.FC<Props> = ({
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
           style={{
-            width: '70%',
-            minHeight: '60%',
-            maxHeight: '90%',
+            width: '800px',
+            height: '430px',
             alignSelf: 'center',
             backgroundColor: '#fff',
           }}
@@ -110,12 +109,11 @@ export const TextInputWrapper: React.FC<Props> = ({
               autoFocus={true}
               style={{
                 backgroundColor: '#FAFAFA',
-                height: '100%',
               }}
-             
+             rows={10}
             />
           </Dialog.ScrollArea>
-          <Dialog.Actions>
+          <Dialog.Actions>  {/* Set to half of the dialog's height */}
             <Button onPress={handleCancel}>Cancel</Button>
             <Button onPress={handleSave}>OK</Button>
           </Dialog.Actions>
