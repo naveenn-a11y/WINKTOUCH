@@ -71,6 +71,7 @@ import {
 } from './Util';
 import Dialog from './utilities/Dialog';
 import { CustomModal as Modal } from './utilities/Modal';
+import { TextInputWrapper } from './TextInputWrapper';
 
 const margin: number = 40;
 
@@ -354,6 +355,7 @@ export class TextField extends Component {
 
   updateText = (text: string) => {
     this.setState({value: text});
+    this.commitEdit(text);
   };
 
   render() {
@@ -373,40 +375,19 @@ export class TextField extends Component {
         {this.props.prefix != undefined && (
           <Text style={styles.formPrefix}>{this.props.prefix}</Text>
         )}
-        {isWeb ? (
-          <TextInput
-            value={this.state.value}
-            autoCapitalize="sentences"
-            autoCorrect={false}
-            placeholder={''}
-            keyboardType={this.props.type}
-            style={style}
-            onFocus={this.props.onFocus}
-            onChangeText={this.updateText}
-            onBlur={() => this.commitEdit(this.state.value)}
-            autoFocus={this.props.autoFocus}
-            editable={!this.props.readonly}
-            multiline={this.props.multiline}
-            testID={this.props.testID}
-            onKeyPress={(event) => this.handleKeyEvent(event.keyCode)}
-          />
-        ) : (
-          <TextInput
-            value={this.state.value}
-            autoCapitalize="sentences"
-            autoCorrect={false}
-            placeholder={''}
-            keyboardType={this.props.type}
-            style={style}
-            onFocus={this.props.onFocus}
-            onChangeText={this.updateText}
-            onEndEditing={() => this.commitEdit(this.state.value)}
-            autoFocus={this.props.autoFocus}
-            editable={!this.props.readonly}
-            multiline={this.props.multiline}
-            testID={this.props.testID}
-          />
-        )}
+        <TextInputWrapper
+          value={this.state.value}
+          onChangeText={this.updateText}
+          onFocus={this.props.onFocus}
+          onBlur={() => this.commitEdit(this.state.value)}
+          keyboardType={this.props.type}
+          autoFocus={this.props.autoFocus}
+          readonly={this.props.readonly}
+          multiline={this.props.multiline}
+          testID={this.props.testID}
+          style={style}
+          isWeb={isWeb}
+        />
 
         {this.props.suffix != undefined && (
           <Text style={styles.formSuffix}>{this.props.suffix}</Text>
@@ -691,7 +672,7 @@ export class NumberField extends Component {
       this.props.onChangeValue(combinedValue);
     }
     //KeyEvent.removeKeyUpListener();
-    this.setState({isActive: false, isTyping: false});
+    this.setState({isActive: false, isTyping: this.props.isTyping});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
     }
@@ -1482,14 +1463,14 @@ export class TilesField extends Component {
     if (this.props.onChangeValue) {
       this.props.onChangeValue(combinedValue);
     }
-    this.setState({isActive: false, isTyping: false});
+    this.setState({isActive: false, isTyping: this.props.isTyping});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
     }
   };
 
   cancelEdit = () => {
-    this.setState({isActive: false, editedValue: undefined, isTyping: false});
+    this.setState({isActive: false, editedValue: undefined, isTyping: this.props.isTyping});
   };
 
   clear = () => {
