@@ -39,12 +39,12 @@ export const TextInputWrapper: React.FC<Props> = ({
   const lastTap = useRef(0);
 
   const handleDoubleClick = (event: GestureResponderEvent) => {
-    const now = Date.now();
-    if (now - lastTap.current < DOUBLE_TAP_DELAY) {
-      setDialogVisible(true);
-      setTempValue(value);
-    }
-    lastTap.current = now;
+    // const now = Date.now();
+    // if (now - lastTap.current < DOUBLE_TAP_DELAY) {
+    //   setDialogVisible(true);
+    //   setTempValue(value);
+    // }
+    // lastTap.current = now;
   };
 
   const handleCancel = () => {
@@ -108,10 +108,11 @@ export const TextInputWrapper: React.FC<Props> = ({
               onChangeText={setTempValue}
               multiline={true}
               autoFocus={true}
-              rows={20}
               style={{
                 backgroundColor: '#FAFAFA',
+                height: '100%',
               }}
+             
             />
           </Dialog.ScrollArea>
           <Dialog.Actions>
