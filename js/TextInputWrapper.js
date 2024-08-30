@@ -113,7 +113,7 @@ export const TextInputWrapper: React.FC<Props> = ({
              rows={10}
             />
           </Dialog.ScrollArea>
-          <Dialog.Actions>  {/* Set to half of the dialog's height */}
+          <Dialog.Actions>
             <Button onPress={handleCancel}>Cancel</Button>
             <Button onPress={handleSave}>OK</Button>
           </Dialog.Actions>
