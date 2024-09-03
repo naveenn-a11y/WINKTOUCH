@@ -4,6 +4,7 @@ import { Portal, Button, TextInput as PaperTextInput } from 'react-native-paper'
 import { StyleSheet } from 'react-native';
 import Dialog from './utilities/Dialog';
 import { fontScale } from './Styles';
+import { strings } from './Strings';
 
 type Props = {
   value: string;
@@ -17,6 +18,7 @@ type Props = {
   testID?: string;
   style?: object;
   isWeb: boolean;
+  title?: string | null;
 };
 
 const DOUBLE_TAP_DELAY = 300; // ms
@@ -33,18 +35,19 @@ export const TextInputWrapper: React.FC<Props> = ({
   testID,
   style,
   isWeb,
+  title = null
 }) => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [tempValue, setTempValue] = useState(value);
   const lastTap = useRef(0);
 
   const handleDoubleClick = (event: GestureResponderEvent) => {
-    // const now = Date.now();
-    // if (now - lastTap.current < DOUBLE_TAP_DELAY) {
-    //   setDialogVisible(true);
-    //   setTempValue(value);
-    // }
-    // lastTap.current = now;
+    const now = Date.now();
+    if (now - lastTap.current < DOUBLE_TAP_DELAY) {
+      setDialogVisible(true);
+      setTempValue(value);
+    }
+    lastTap.current = now;
   };
 
   const handleCancel = () => {
@@ -81,6 +84,10 @@ export const TextInputWrapper: React.FC<Props> = ({
     />
   );
 
+  const getTitle = () => {
+    return title ? `${strings.textEditor} - ${title}` : `${strings.textEditor}`;
+  }
+
   return (
     <View style={{ width: '100%'}}>
       <TouchableWithoutFeedback onPress={handleDoubleClick}>
@@ -99,7 +106,7 @@ export const TextInputWrapper: React.FC<Props> = ({
           onDismiss={handleCancel}
           dismissable={true}>
           <Dialog.Title>
-            <Text style={{color: '#1db3b3'}}>Text Editor</Text>
+            <Text style={{color: '#1db3b3'}}>{getTitle()}</Text>
           </Dialog.Title>
           <Dialog.ScrollArea>
             <PaperTextInput
