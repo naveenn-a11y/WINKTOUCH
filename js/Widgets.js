@@ -317,6 +317,7 @@ export class TextField extends Component {
     onFocus?: () => void,
     testID: string,
     onOpenModal?: () => void,
+    title?: string | null,
   };
   state: {
     value: string,
@@ -324,6 +325,7 @@ export class TextField extends Component {
   static defaultProps = {
     type: 'default',
     autoFocus: false,
+    title: null,
   };
 
   constructor(props: any) {
@@ -387,6 +389,7 @@ export class TextField extends Component {
           testID={this.props.testID}
           style={style}
           isWeb={isWeb}
+          title={this.props.title}
         />
 
         {this.props.suffix != undefined && (
@@ -474,6 +477,7 @@ export class TextArrayField extends Component {
               editable={!this.props.readonly}
               onChangeValue={(text: string) => this.changeText(text, index)}
               testID={this.props.testID + '-' + (index + 1)}
+              title={this.props.label}
             />
           ))}
         {!this.props.readonly && <Button title=" + " onPress={this.addItem} />}
@@ -1294,6 +1298,7 @@ export class NumberField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           onChangeValue={(newValue) => this.commitTyping(newValue)}
           onOpenModal={this.openModal}
+          title={this.props.label}
         />
       );
     } else if (this.props.listField) {
@@ -1654,6 +1659,7 @@ export class TilesField extends Component {
           testID={
             this.props.testID ? this.props.testID + 'ActiveField' : undefined
           }
+          title={this.props.label}
         />
       );
     }
@@ -2137,6 +2143,7 @@ export class TimeField extends Component {
           autoFocus={false}
           style={style}
           onChangeValue={(newValue) => this.commitTyping(newValue)}
+          title={this.props.label}
         />
       );
     }
