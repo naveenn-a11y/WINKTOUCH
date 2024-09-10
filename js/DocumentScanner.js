@@ -18,6 +18,8 @@ import {
 import NativeScanner from '../src/components/DocumentScanner';
 import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 import type {Upload, CodeDefinition, PatientDocument, Dimension} from './Types';
 import {
   ClearTile,
@@ -178,7 +180,7 @@ export class DocumentScanner extends Component {
     }
     return pdfDoc;
   }
-  isPdf(upload?: Upload) {
+  isPdf(upload?: Upload) { 
     let mimeType: string = upload ? getMimeType(upload) : undefined;
     let isPdf: boolean = false;
     if (mimeType === undefined) {
