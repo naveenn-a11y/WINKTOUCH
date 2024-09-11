@@ -148,7 +148,7 @@ function isStoreOpen(
     }
     return true;
   }
-  if (date.getTime() < storeOpenTime || date.getTime() >= storeCloseTime) {
+  if (date.getTime() < storeOpenTime || date.getTime() > storeCloseTime) {
     return false;
   }
 
