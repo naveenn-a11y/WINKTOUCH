@@ -318,6 +318,7 @@ export class TextField extends Component {
     testID: string,
     onOpenModal?: () => void,
     title?: string | null,
+    onBlur?: () => void,
   };
   state: {
     value: string,
@@ -390,6 +391,7 @@ export class TextField extends Component {
           style={style}
           isWeb={isWeb}
           title={this.props.title}
+          onBlur={this.props.onBlur}
         />
 
         {this.props.suffix != undefined && (
@@ -572,6 +574,7 @@ export class NumberField extends Component {
     listField?: number,
     testID: string,
     unit?: string,
+    onBlur?: () => void,
   };
   state: {
     isActive: boolean,
@@ -1299,6 +1302,7 @@ export class NumberField extends Component {
           onChangeValue={(newValue) => this.commitTyping(newValue)}
           onOpenModal={this.openModal}
           title={this.props.label}
+          onBlur={this.props.onBlur}
         />
       );
     } else if (this.props.listField) {
