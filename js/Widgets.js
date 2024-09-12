@@ -1859,6 +1859,7 @@ export class TimeField extends Component {
     past?: boolean,
     future?: boolean,
     isTyping?: boolean,
+    onBlur?: () => void,
   };
   state: {
     isActive: boolean,
@@ -2148,6 +2149,7 @@ export class TimeField extends Component {
           style={style}
           onChangeValue={(newValue) => this.commitTyping(newValue)}
           title={this.props.label}
+          onBlur={this.props.onBlur}
         />
       );
     }

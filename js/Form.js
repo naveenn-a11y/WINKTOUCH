@@ -603,6 +603,7 @@ export class FormTimeInput extends Component {
     onChangeValue?: (time: ?string) => void,
     testID: string,
     isTyping?: boolean,
+    onBlur?: () => void,
   };
   static defaultProps = {
     showLabel: true,
@@ -642,6 +643,7 @@ export class FormTimeInput extends Component {
           onChangeValue={this.updateValue}
           isTyping={this.props.isTyping}
           testID={this.props.testID + 'Field'}
+          onBlur={this.props.onBlur}
         />
       </View>
     );
@@ -1699,7 +1701,7 @@ export class FormInput extends Component {
             {...this.props.definition}
             errorMessage={this.props.errorMessage}
             readonly={readonly}
-            onChangeValue={this.props.onChangeValue}
+            onChangeValue={this.handleChangeValue}
             label={label}
             showLabel={this.props.showLabel}
             prefix={this.props.definition.prefix}
@@ -1722,7 +1724,7 @@ export class FormInput extends Component {
           code={this.props.definition.options}
           errorMessage={this.props.errorMessage}
           readonly={readonly}
-          onChangeValue={this.props.onChangeValue}
+          onChangeValue={this.handleChangeValue}
           label={label}
           showLabel={this.props.showLabel}
           prefix={this.props.definition.prefix}
@@ -1876,12 +1878,13 @@ export class FormInput extends Component {
           label={label}
           showLabel={this.props.showLabel}
           readonly={readonly}
-          onChangeValue={this.props.onChangeValue}
+          onChangeValue={this.handleChangeValue}
           type={type}
           style={style}
           errorMessage={this.props.errorMessage}
           isTyping={this.props.isTyping}
           testID={this.props.testID}
+          onBlur={this.handleBlur}
         />
       );
     } else if (this.props.definition.image !== undefined) {
