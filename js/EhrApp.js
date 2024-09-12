@@ -338,7 +338,7 @@ export class EhrApp extends Component {
     this.tracker = new InactivityTracker({
       ttlInMins: ttlInMins ? ttlInMins : 5, //to be safe, 5min is default value
       onSessionTimeout: () => {
-        this.lockScreen();
+        // this.lockScreen();
       },
       onResume: () => {
         this.state.isLocked && this.unlockScreen();

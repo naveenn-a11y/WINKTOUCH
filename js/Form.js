@@ -101,7 +101,6 @@ export class FormTextInput extends Component {
     testID?: string,
     prefixStyle?: any,
     isTyping?: boolean,
-    onBlur?: () => void,
   };
   static defaultProps = {
     readonly: false,
@@ -239,12 +238,6 @@ export class FormTextInput extends Component {
     return lines.length;
   }
 
-  handleBlur = () => {
-    if (this.props.isTyping && this.props.onBlur) {
-      this.props.onBlur();
-    }
-  };
-
   render() {
     return (
       <TouchableWithoutFeedback
@@ -296,7 +289,7 @@ export class FormTextInput extends Component {
                   }
                   onFocus={this.dismissError}
                   onChangeText={this.updateText}
-                  onBlur={this.handleBlur}
+                  onBlur={(event) => this.commit(event.nativeEvent.text)}
                   editable={this.props.readonly !== true}
                   multiline={this.props.multiline === true}
                   maxLength={this.props.maxLength}
@@ -1982,7 +1975,6 @@ export class FormInput extends Component {
         value={this.props.value}
         errorMessage={this.props.errorMessage}
         onChangeText={this.props.onChangeValue}
-        onBlur={this.handleBlur}
         label={label}
         showLabel={this.props.showLabel}
         readonly={readonly}
