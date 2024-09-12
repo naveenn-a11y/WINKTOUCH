@@ -1154,7 +1154,6 @@ export class TableListRow extends React.PureComponent {
   }
   changeText(value: string) {
     this.setState({commentValue: value});
-    this.commitEdit(value);
   }
 
   render() {
@@ -1231,6 +1230,7 @@ export class TableListRow extends React.PureComponent {
             style={commentStyle}
             onChangeValue={(text: string) => this.changeText(text)}
             testID={this.props?.testID+ '.Filter'}
+            onBlur={() => this.commitEdit(this.state.commentValue)}
           />
         </View>
       </TouchableOpacity>
