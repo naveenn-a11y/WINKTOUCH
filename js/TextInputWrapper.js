@@ -1,10 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { Dimensions, Text, TextInput as RNTextInput, View, GestureResponderEvent, Platform, TouchableWithoutFeedback } from 'react-native';
-import { Portal, Button, TextInput as PaperTextInput } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
-import Dialog from './utilities/Dialog';
-import { fontScale } from './Styles';
+import React, { useRef, useState } from 'react';
+import { GestureResponderEvent, TextInput as RNTextInput, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
 import { strings } from './Strings';
+import Dialog from './utilities/Dialog';
 
 type Props = {
   value: string;
@@ -89,7 +87,7 @@ export const TextInputWrapper: React.FC<Props> = ({
   }
 
   return (
-    <View style={{ width: '100%'}}>
+    <View style={{ width: '100%', height: '100%'}}>
       <TouchableWithoutFeedback onPress={handleDoubleClick}>
         {renderTextInput()}
       </TouchableWithoutFeedback>
