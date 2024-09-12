@@ -109,6 +109,7 @@ export const TextInputWrapper: React.FC<Props> = ({
               autoFocus={true}
               style={{
                 backgroundColor: '#FAFAFA',
+                marginTop: 8,
               }}
              rows={10}
             />
