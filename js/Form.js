@@ -485,13 +485,6 @@ export class FormNumberInput extends Component {
     return undefined;
   }
 
-  // TODO: SMP - IS THIS NEEDED?
-  // handleBlur = () => {
-  //   if (this.props.isTyping && this.props.onBlur) {
-  //     this.props.onBlur();
-  //   }
-  // };
-
   render() {
     const style = this.props.style
       ? this.props.style
@@ -511,7 +504,6 @@ export class FormNumberInput extends Component {
           style={style}
           onChangeValue={(newValue: any) => this.commit(newValue)}
           testID={this.props.testID + 'Field'}
-          // onBlur={this.handleBlur} TODO: SMP - IS THIS NEEDED?
         />
       </View>
     );
@@ -1718,7 +1710,7 @@ export class FormInput extends Component {
           code={this.props.definition.options}
           errorMessage={this.props.errorMessage}
           readonly={readonly}
-          onChangeValue={this.handleChangeValue}
+          onChangeValue={this.props.onChangeValue}
           label={label}
           showLabel={this.props.showLabel}
           prefix={this.props.definition.prefix}
@@ -1727,7 +1719,6 @@ export class FormInput extends Component {
           autoFocus={this.props.autoFocus}
           style={style}
           testID={this.props.testID}
-          onBlur={this.handleBlur}
         />
       );
     } else if (this.props.multiOptions) {
@@ -2181,7 +2172,6 @@ export class FormCodeNumberInput extends Component {
     rangeFilter?: {},
     code: string,
     filter?: {},
-    // onBlur?: () => void, TODO: SMP IS THIS CODE NEEDED?
   };
   static defaultProps = {
     readonly: false,
@@ -2431,7 +2421,6 @@ export class FormCodeNumberInput extends Component {
           onChangeValue={(newValue: any) => this.commit(newValue)}
           errorMessage={this.state.errorMessage}
           testID={this.props.testID + 'Field'}
-          // onBlur={this.props.onBlur} TODO: SMP IS THIS CODE NEEDED?
         />
       </View>
     );
