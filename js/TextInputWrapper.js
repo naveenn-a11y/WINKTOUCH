@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { GestureResponderEvent, TextInput as RNTextInput, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { GestureResponderEvent, TextInput as RNTextInput, StyleSheet, Text, Pressable, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
 import Dialog from './utilities/Dialog';
 
@@ -38,6 +38,11 @@ export const TextInputWrapper: React.FC<Props> = ({
     setTempValue(value);
   };
 
+  const handleLongPress = () => {
+    setDialogVisible(true);
+    setTempValue(value);
+  };
+
   const handleCancel = () => {
     setTempValue(value);
     setDialogVisible(false);
@@ -48,6 +53,7 @@ export const TextInputWrapper: React.FC<Props> = ({
     setDialogVisible(false);
   };
 
+
   const renderTextInput = () => (
     <RNTextInput
       value={value}
@@ -55,7 +61,7 @@ export const TextInputWrapper: React.FC<Props> = ({
       autoCorrect={false}
       placeholder={''}
       keyboardType={keyboardType}
-      style={style}
+      style={[styles.textInput, style]}
       onFocus={onFocus}
       onChangeText={onChangeText}
       onBlur={onBlur}
@@ -74,9 +80,9 @@ export const TextInputWrapper: React.FC<Props> = ({
 
   return (
     <View style={{ width: '100%', height: '100%'}}>
-      <TouchableWithoutFeedback onPress={handleDoubleClick}>
+      <Pressable onLongPress={handleLongPress} delayLongPress={500}>
         {renderTextInput()}
-      </TouchableWithoutFeedback>
+      </Pressable>
 
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
@@ -118,6 +124,7 @@ export const TextInputWrapper: React.FC<Props> = ({
 const styles = StyleSheet.create({
   textInput: {
     width: '100%',
+    height: '100%',
   },
 });
 
