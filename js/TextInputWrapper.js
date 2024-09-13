@@ -19,8 +19,6 @@ type Props = {
   title?: string | null;
 };
 
-const DOUBLE_TAP_DELAY = 300; // ms
-
 export const TextInputWrapper: React.FC<Props> = ({
   value,
   onChangeText,
@@ -37,16 +35,6 @@ export const TextInputWrapper: React.FC<Props> = ({
 }) => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [tempValue, setTempValue] = useState(value);
-  const lastTap = useRef(0);
-
-  const handleDoubleClick = (event: GestureResponderEvent) => {
-    const now = Date.now();
-    if (now - lastTap.current < DOUBLE_TAP_DELAY) {
-      setDialogVisible(true);
-      setTempValue(value);
-    }
-    lastTap.current = now;
-  };
 
   const handleLongPress = () => {
     setDialogVisible(true);
@@ -62,7 +50,6 @@ export const TextInputWrapper: React.FC<Props> = ({
     onChangeText(tempValue);
     setDialogVisible(false);
   };
-
 
   const renderTextInput = () => (
     <RNTextInput
