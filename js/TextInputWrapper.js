@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { GestureResponderEvent, TextInput as RNTextInput, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { GestureResponderEvent, TextInput as RNTextInput, StyleSheet, Text, Pressable, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
 import { strings } from './Strings';
 import Dialog from './utilities/Dialog';
@@ -19,8 +19,6 @@ type Props = {
   title?: string | null;
 };
 
-const DOUBLE_TAP_DELAY = 300; // ms
-
 export const TextInputWrapper: React.FC<Props> = ({
   value,
   onChangeText,
@@ -37,15 +35,10 @@ export const TextInputWrapper: React.FC<Props> = ({
 }) => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [tempValue, setTempValue] = useState(value);
-  const lastTap = useRef(0);
 
-  const handleDoubleClick = (event: GestureResponderEvent) => {
-    const now = Date.now();
-    if (now - lastTap.current < DOUBLE_TAP_DELAY) {
-      setDialogVisible(true);
-      setTempValue(value);
-    }
-    lastTap.current = now;
+  const handleLongPress = () => {
+    setDialogVisible(true);
+    setTempValue(value);
   };
 
   const handleCancel = () => {
@@ -65,7 +58,7 @@ export const TextInputWrapper: React.FC<Props> = ({
       autoCorrect={false}
       placeholder={''}
       keyboardType={keyboardType}
-      style={style}
+      style={[styles.textInput, style]}
       onFocus={onFocus}
       onChangeText={onChangeText}
       onBlur={onBlur}
@@ -88,9 +81,9 @@ export const TextInputWrapper: React.FC<Props> = ({
 
   return (
     <View style={{ width: '100%', height: '100%'}}>
-      <TouchableWithoutFeedback onPress={handleDoubleClick}>
+      <Pressable onLongPress={handleLongPress} delayLongPress={500}>
         {renderTextInput()}
-      </TouchableWithoutFeedback>
+      </Pressable>
 
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
@@ -132,6 +125,7 @@ export const TextInputWrapper: React.FC<Props> = ({
 const styles = StyleSheet.create({
   textInput: {
     width: '100%',
+    height: '100%',
   },
 });
 

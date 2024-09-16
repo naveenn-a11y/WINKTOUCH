@@ -101,7 +101,6 @@ export class FormTextInput extends Component {
     testID?: string,
     prefixStyle?: any,
     isTyping?: boolean,
-    onBlur?: () => void,
   };
   static defaultProps = {
     readonly: false,
@@ -239,12 +238,6 @@ export class FormTextInput extends Component {
     return lines.length;
   }
 
-  handleBlur = () => {
-    if (this.props.isTyping && this.props.onBlur) {
-      this.props.onBlur();
-    }
-  };
-
   render() {
     return (
       <TouchableWithoutFeedback
@@ -296,7 +289,7 @@ export class FormTextInput extends Component {
                   }
                   onFocus={this.dismissError}
                   onChangeText={this.updateText}
-                  onBlur={this.handleBlur}
+                  onBlur={(event) => this.commit(event.nativeEvent.text)}
                   editable={this.props.readonly !== true}
                   multiline={this.props.multiline === true}
                   maxLength={this.props.maxLength}
@@ -492,12 +485,6 @@ export class FormNumberInput extends Component {
     return undefined;
   }
 
-  handleBlur = () => {
-    if (this.props.isTyping && this.props.onBlur) {
-      this.props.onBlur();
-    }
-  };
-
   render() {
     const style = this.props.style
       ? this.props.style
@@ -517,7 +504,6 @@ export class FormNumberInput extends Component {
           style={style}
           onChangeValue={(newValue: any) => this.commit(newValue)}
           testID={this.props.testID + 'Field'}
-          onBlur={this.handleBlur}
         />
       </View>
     );
@@ -1724,7 +1710,7 @@ export class FormInput extends Component {
           code={this.props.definition.options}
           errorMessage={this.props.errorMessage}
           readonly={readonly}
-          onChangeValue={this.handleChangeValue}
+          onChangeValue={this.props.onChangeValue}
           label={label}
           showLabel={this.props.showLabel}
           prefix={this.props.definition.prefix}
@@ -1733,7 +1719,6 @@ export class FormInput extends Component {
           autoFocus={this.props.autoFocus}
           style={style}
           testID={this.props.testID}
-          onBlur={this.handleBlur}
         />
       );
     } else if (this.props.multiOptions) {
@@ -1982,7 +1967,6 @@ export class FormInput extends Component {
         value={this.props.value}
         errorMessage={this.props.errorMessage}
         onChangeText={this.props.onChangeValue}
-        onBlur={this.handleBlur}
         label={label}
         showLabel={this.props.showLabel}
         readonly={readonly}
@@ -2188,7 +2172,6 @@ export class FormCodeNumberInput extends Component {
     rangeFilter?: {},
     code: string,
     filter?: {},
-    onBlur?: () => void,
   };
   static defaultProps = {
     readonly: false,
@@ -2438,7 +2421,6 @@ export class FormCodeNumberInput extends Component {
           onChangeValue={(newValue: any) => this.commit(newValue)}
           errorMessage={this.state.errorMessage}
           testID={this.props.testID + 'Field'}
-          onBlur={this.props.onBlur}
         />
       </View>
     );
