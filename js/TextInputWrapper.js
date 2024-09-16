@@ -38,11 +38,6 @@ export const TextInputWrapper: React.FC<Props> = ({
     setTempValue(value);
   };
 
-  const handleLongPress = () => {
-    setDialogVisible(true);
-    setTempValue(value);
-  };
-
   const handleCancel = () => {
     setTempValue(value);
     setDialogVisible(false);
@@ -52,7 +47,6 @@ export const TextInputWrapper: React.FC<Props> = ({
     onChangeText(tempValue);
     setDialogVisible(false);
   };
-
 
   const renderTextInput = () => (
     <RNTextInput
