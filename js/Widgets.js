@@ -326,6 +326,7 @@ export class TextField extends Component {
   static defaultProps = {
     type: 'default',
     autoFocus: false,
+    title: null,
   };
 
   constructor(props: any) {
@@ -478,6 +479,7 @@ export class TextArrayField extends Component {
               editable={!this.props.readonly}
               onChangeValue={(text: string) => this.changeText(text, index)}
               testID={this.props.testID + '-' + (index + 1)}
+              title={this.props.label}
             />
           ))}
         {!this.props.readonly && <Button title=" + " onPress={this.addItem} />}
@@ -1661,6 +1663,7 @@ export class TilesField extends Component {
           testID={
             this.props.testID ? this.props.testID + 'ActiveField' : undefined
           }
+          title={this.props.label}
         />
       );
     }

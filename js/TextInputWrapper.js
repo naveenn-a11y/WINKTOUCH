@@ -2,6 +2,8 @@ import React, { useRef, useState } from 'react';
 import { GestureResponderEvent, TextInput as RNTextInput, StyleSheet, Text, Pressable, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
 import Dialog from './utilities/Dialog';
+import { fontScale } from './Styles';
+import { strings } from './Strings';
 
 type Props = {
   value: string;
@@ -15,6 +17,7 @@ type Props = {
   testID?: string;
   style?: object;
   isWeb: boolean;
+  title?: string | null;
 };
 
 export const TextInputWrapper: React.FC<Props> = ({
@@ -29,6 +32,7 @@ export const TextInputWrapper: React.FC<Props> = ({
   testID,
   style,
   isWeb,
+  title = null
 }) => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [tempValue, setTempValue] = useState(value);
@@ -72,6 +76,10 @@ export const TextInputWrapper: React.FC<Props> = ({
     />
   );
 
+  const getTitle = () => {
+    return title ? `${strings.textEditor} - ${title}` : `${strings.textEditor}`;
+  }
+
   return (
     <View style={{ width: '100%', height: '100%'}}>
       <Pressable onLongPress={handleLongPress} delayLongPress={500}>
@@ -90,7 +98,7 @@ export const TextInputWrapper: React.FC<Props> = ({
           onDismiss={handleCancel}
           dismissable={true}>
           <Dialog.Title>
-            <Text style={{color: '#1db3b3'}}>Text Editor</Text>
+            <Text style={{color: '#1db3b3'}}>{getTitle()}</Text>
           </Dialog.Title>
           <Dialog.ScrollArea>
             <PaperTextInput

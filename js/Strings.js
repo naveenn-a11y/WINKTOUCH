@@ -437,7 +437,8 @@ export const strings = new LocalizedStrings({
     appUpdateContent: 'Any unsaved data will be lost if you proceed with the update',
     doItLater: 'Do it later',
     loadMore: 'Load more...',
-    today: 'Today'
+    today: 'Today',
+    textEditor: 'Text Editor',
   },
   fr: {
     enterRegisteredEmail:
@@ -878,7 +879,8 @@ export const strings = new LocalizedStrings({
     appUpdateContent: 'Toutes les données non enregistrées seront perdues si vous procédez à la mise à jour',
     doItLater: 'Fais-le plus tard',
     loadMore: 'Charger plus...',
-    today: 'Aujourd\'hui'
+    today: 'Aujourd\'hui',
+    textEditor: 'Éditeur de texte',
   },
   es: {
     enterRegisteredEmail:
@@ -1317,7 +1319,8 @@ export const strings = new LocalizedStrings({
     appUpdateContent: 'Cualquier dato no guardado se perderá si continúa con la actualización.',
     doItLater: 'Hazlo después',
     loadMore: 'Carga más',
-    today: 'Hoy'
+    today: 'Hoy',
+    textEditor: 'Editor de texto',
   },
 });
 
