@@ -4,8 +4,6 @@ import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper'
 import Dialog from './utilities/Dialog';
 import { fontScale } from './Styles';
 import { strings } from './Strings';
-import Dialog from './utilities/Dialog';
-import { fontScale } from './Styles';
 
 type Props = {
   value: string;
