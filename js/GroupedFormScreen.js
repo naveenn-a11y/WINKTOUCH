@@ -31,6 +31,7 @@ export function addGroupItem(
   if (values instanceof Array === false) {
     values = [values];
   } //auto convert old style exams to be nice
+
   if (
     groupDefinition.maxLength !== undefined &&
     values.length >= groupDefinition.maxLength
@@ -70,6 +71,7 @@ export function addGroupItem(
         newValue[fieldName] = lastValue[fieldName];
       });
     }
+
     values.unshift(newValue);
   }
 }
