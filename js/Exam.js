@@ -719,7 +719,10 @@ export class ExamHistoryScreen extends Component {
     let exam: Exam = this.props.route.params.exam;
     addGroupItem(exam, groupDefinition, groupValue, false, childValue);
     exam.isDirty = true;
-    this.props.navigation.goBack();
+    this.props.navigation.navigate('exam', {
+      exam
+    });
+    // this.props.navigation.goBack();
   };
 
   copyFinalRx = (glassesRx: GlassesRx): void => {
