@@ -4,6 +4,8 @@ import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper'
 import Dialog from './utilities/Dialog';
 import { fontScale } from './Styles';
 import { strings } from './Strings';
+import Dialog from './utilities/Dialog';
+import { fontScale } from './Styles';
 
 type Props = {
   value: string;
@@ -81,7 +83,7 @@ export const TextInputWrapper: React.FC<Props> = ({
   }
 
   return (
-    <View style={styles.textInput}>
+    <View style={styles.textInputWrapper}>
       <Pressable style={styles.textInput} onLongPress={handleLongPress} delayLongPress={500}>
         {renderTextInput()}
       </Pressable>
@@ -124,6 +126,10 @@ export const TextInputWrapper: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
+  textInputWrapper: {
+    width: '100%',
+    height: 40 * fontScale,
+  },
   textInput: {
     width: '100%',
     height: '100%',
