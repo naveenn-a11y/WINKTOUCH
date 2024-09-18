@@ -23,7 +23,8 @@ import {initialiseWinkCodes} from './codes/WinkDefinedCodes';
 import {initialiseUserCodes} from './codes/UserDefinedCodes';
 import {passesFilter} from './Util';
 import { cacheItem, getCachedItem } from './DataCache';
-import * as defaultSetting from './utilities/Settings.json'; 
+import * as defaultSetting from './utilities/Settings.json';
+import { processDuplicatesInTranslatedCodes } from './CodesUtils';
 
 export function formatCodeDefinition(
   option: ?CodeDefinition,
@@ -222,6 +223,8 @@ export function parseCode(
   return code;
 }
 
+
+
 export async function fetchCodeDefinitions(
   language: string,
   accountId: number,
@@ -269,8 +272,13 @@ export async function fetchCodeDefinitions(
         );
       return;
     }
-    //__DEV__ && console.log(JSON.stringify(translatedCodeDefinitions));
-    codeDefinitions = Object.assign(codeDefinitions, translatedCodeDefinitions);
+
+    const updatedTranslatedCodeDefinitions = processDuplicatesInTranslatedCodes(translatedCodeDefinitions);
+    codeDefinitions = Object.assign(codeDefinitions, updatedTranslatedCodeDefinitions);
+
+    if (__DEV__) {
+      console.log('Code definitions updated', codeDefinitions);
+    }
   } catch (error) {
     console.log(error);
     alert(
