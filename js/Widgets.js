@@ -319,6 +319,7 @@ export class TextField extends Component {
     onOpenModal?: () => void,
     title?: string | null,
     onBlur?: () => void,
+    isNumberInput?: boolean,
   };
   state: {
     value: string,
@@ -327,6 +328,7 @@ export class TextField extends Component {
     type: 'default',
     autoFocus: false,
     title: null,
+    isNumber: false,
   };
 
   constructor(props: any) {
@@ -375,28 +377,45 @@ export class TextField extends Component {
     }
     return (
       <View style={styles.fieldFlexContainer}>
-        {this.props.prefix != undefined && (
-          <Text style={styles.formPrefix}>{this.props.prefix}</Text>
-        )}
-        <TextInputWrapper
-          value={this.state.value}
-          onChangeText={this.updateText}
-          onFocus={this.props.onFocus}
-          onBlur={() => this.commitEdit(this.state.value)}
-          keyboardType={this.props.type}
-          autoFocus={this.props.autoFocus}
-          readonly={this.props.readonly}
-          multiline={this.props.multiline}
-          testID={this.props.testID}
-          style={style}
-          isWeb={isWeb}
-          title={this.props.title}
-          onBlur={this.props.onBlur}
-        />
+        {this.props.prefix != undefined && <Text style={styles.formPrefix}>{this.props.prefix}</Text>}
 
-        {this.props.suffix != undefined && (
-          <Text style={styles.formSuffix}>{this.props.suffix}</Text>
+        {!this.props.isNumberInput && (
+          <TextInputWrapper
+            value={this.state.value}
+            onChangeText={this.updateText}
+            onFocus={this.props.onFocus}
+            onBlur={() => this.commitEdit(this.state.value)}
+            keyboardType={this.props.type}
+            autoFocus={this.props.autoFocus}
+            readonly={this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+            style={style}
+            isWeb={isWeb}
+            title={this.props.title}
+            onBlur={this.props.onBlur}
+          />
         )}
+
+        {this.props.isNumberInput && (
+          <TextInput
+            value={this.state.value}
+            onChangeText={this.updateText}
+            onFocus={this.props.onFocus}
+            onBlur={() => this.commitEdit(this.state.value)}
+            keyboardType={this.props.type}
+            autoFocus={this.props.autoFocus}
+            readonly={this.props.readonly}
+            multiline={this.props.multiline}
+            testID={this.props.testID}
+            style={style}
+            isWeb={isWeb}
+            title={this.props.title}
+            onBlur={this.props.onBlur}
+          />
+        )}
+
+        {this.props.suffix != undefined && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}
       </View>
     );
   }
@@ -480,6 +499,7 @@ export class TextArrayField extends Component {
               onChangeValue={(text: string) => this.changeText(text, index)}
               testID={this.props.testID + '-' + (index + 1)}
               title={this.props.label}
+              isTextInput={false}
             />
           ))}
         {!this.props.readonly && <Button title=" + " onPress={this.addItem} />}
@@ -1303,6 +1323,7 @@ export class NumberField extends Component {
           onOpenModal={this.openModal}
           title={this.props.label}
           onBlur={this.props.onBlur}
+          isNumberInput
         />
       );
     } else if (this.props.listField) {
@@ -1664,6 +1685,7 @@ export class TilesField extends Component {
             this.props.testID ? this.props.testID + 'ActiveField' : undefined
           }
           title={this.props.label}
+          isTextInput={false}
         />
       );
     }
@@ -2150,6 +2172,7 @@ export class TimeField extends Component {
           onChangeValue={(newValue) => this.commitTyping(newValue)}
           title={this.props.label}
           onBlur={this.props.onBlur}
+          isNumberInput
         />
       );
     }

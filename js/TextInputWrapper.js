@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pressable, TextInput as RNTextInput, StyleSheet, Text, View } from 'react-native';
+import { TouchableWithoutFeedback, TextInput as RNTextInput, StyleSheet, Text, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
 import { strings } from './Strings';
 import Dialog from './utilities/Dialog';
@@ -82,9 +82,9 @@ export const TextInputWrapper: React.FC<Props> = ({
 
   return (
     <View style={styles.textInputWrapper}>
-      <Pressable style={styles.textInput} onLongPress={handleLongPress} delayLongPress={500}>
+      <TouchableWithoutFeedback style={styles.textInput} onLongPress={handleLongPress} delayLongPress={500}>
         {renderTextInput()}
-      </Pressable>
+      </TouchableWithoutFeedback>
 
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
