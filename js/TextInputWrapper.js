@@ -63,7 +63,7 @@ export const TextInputWrapper: React.FC<Props> = ({
       onFocus={onFocus}
       onChangeText={onChangeText}
       onBlur={onBlur}
-      autoFocus
+      autoFocus={this.props.autoFocus}
       editable={!readonly}
       multiline={multiline}
       testID={testID}
