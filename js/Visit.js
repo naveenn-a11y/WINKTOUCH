@@ -1890,6 +1890,7 @@ class VisitWorkFlow extends Component {
   renderConsultationDetails() {
     const store: Store = getCachedItem(this.state.visit.storeId);
     const doctor: User = getCachedItem(this.state.visit.userId);
+    const enteredBy: User = getCachedItem(this.state.visit.enteredByUserId);
     const sectionWidth: string = getSectionWidth('Consultation');
 
     return (
@@ -1910,6 +1911,11 @@ class VisitWorkFlow extends Component {
           <Text style={styles.text}>
             {strings.doctor}: {getDoctorFullName(doctor)}
           </Text>
+        )}
+        {enteredBy && (
+          <Text style={styles.text}>
+          {strings.preTests}: {getDoctorFullName(enteredBy)}
+        </Text>
         )}
         {!isEmpty(store?.name) && (
           <Text style={styles.text}>

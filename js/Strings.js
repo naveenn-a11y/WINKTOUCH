@@ -439,6 +439,7 @@ export const strings = new LocalizedStrings({
     loadMore: 'Load more...',
     today: 'Today',
     textEditor: 'Text Editor',
+    preTests: "Pre-tests",
   },
   fr: {
     enterRegisteredEmail:
@@ -881,6 +882,7 @@ export const strings = new LocalizedStrings({
     loadMore: 'Charger plus...',
     today: 'Aujourd\'hui',
     textEditor: 'Éditeur de texte',
+    preTests: "Pré-tests",
   },
   es: {
     enterRegisteredEmail:
@@ -1321,6 +1323,7 @@ export const strings = new LocalizedStrings({
     loadMore: 'Carga más',
     today: 'Hoy',
     textEditor: 'Editor de texto',
+    preTests: "Pruebas previas",
   },
 });
 
