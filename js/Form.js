@@ -1356,6 +1356,10 @@ export class FormInput extends Component {
   }
 
   componentDidUpdate(prevProps: any) {
+    // update newValue if value has changed
+    if (this.props.value !== prevProps.value) {
+      this.setState({newValue: this.props.value});
+    }
     if (this.state.validation === undefined) {
       let validation = this.generateValidationCode(
         this.props.value,
