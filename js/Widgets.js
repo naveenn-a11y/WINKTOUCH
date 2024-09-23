@@ -1559,80 +1559,82 @@ export class TilesField extends Component {
         accessible={false}
         testID="popupBackground">
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {postfix(this.props.label, ': ')}
-            {this.format(this.state.editedValue)}
-          </Text>
-          <FocusTile
-            type="previous"
-            commitEdit={this.commitEdit}
-            transferFocus={this.props.transferFocus}
-          />
-          <FocusTile
-            type="next"
-            commitEdit={this.commitEdit}
-            transferFocus={this.props.transferFocus}
-          />
-          <ScrollView horizontal={allOptions.length > 3}>
-            <Pressable onPress={this.commitEdit} >
-            <View style={styles.flexColumnLayout}>
-              <View style={styles.centeredRowLayout}>
-                {allOptions.map((options: string[], columnIndex: number) => (
-                  <View style={styles.modalColumn} key={columnIndex}>
-                    {options.map((option: string, rowIndex: number) => {
-                      let isSelected: boolean = this.isMultiColumn()
-                        ? this.state.editedValue[columnIndex] === option
-                        : this.state.editedValue === option;
-                      return (
-                        <TouchableOpacity
-                          key={rowIndex}
-                          onPress={() => this.updateValue(option, columnIndex)}
-                          testID={
-                            'option' +
-                            (this.isMultiColumn()
-                              ? columnIndex + 1 + ',' + (rowIndex + 1)
-                              : rowIndex + 1)
-                          }>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
+          <ScrollView horizontal={false}>
+            <Text style={styles.modalTitle}>
+              {postfix(this.props.label, ': ')}
+              {this.format(this.state.editedValue)}
+            </Text>
+            <FocusTile
+              type="previous"
+              commitEdit={this.commitEdit}
+              transferFocus={this.props.transferFocus}
+            />
+            <FocusTile
+              type="next"
+              commitEdit={this.commitEdit}
+              transferFocus={this.props.transferFocus}
+            />
+            <ScrollView horizontal={allOptions.length > 3}>
+              <Pressable onPress={this.commitEdit} >
+              <View style={styles.flexColumnLayout}>
+                <View style={styles.centeredRowLayout}>
+                  {allOptions.map((options: string[], columnIndex: number) => (
+                    <View style={styles.modalColumn} key={columnIndex}>
+                      {options.map((option: string, rowIndex: number) => {
+                        let isSelected: boolean = this.isMultiColumn()
+                          ? this.state.editedValue[columnIndex] === option
+                          : this.state.editedValue === option;
+                        return (
+                          <TouchableOpacity
+                            key={rowIndex}
+                            onPress={() => this.updateValue(option, columnIndex)}
+                            testID={
+                              'option' +
+                              (this.isMultiColumn()
+                                ? columnIndex + 1 + ',' + (rowIndex + 1)
+                                : rowIndex + 1)
                             }>
-                            <Text
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {option}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                    {allOptions.length === 1 && !this.props.hideClear && (
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {option}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                      {allOptions.length === 1 && !this.props.hideClear && (
+                        <ClearTile commitEdit={this.clear} />
+                      )}
+                      {allOptions.length === 1 &&
+                        this.props.freestyle === true && (
+                          <KeyboardTile commitEdit={this.startTyping} />
+                        )}
+                    </View>
+                  ))}
+                  {allOptions.length > 1 && !this.props.hideClear && (
+                    <View style={styles.modalColumn}>
+                      <UpdateTile commitEdit={this.commitEdit} />
                       <ClearTile commitEdit={this.clear} />
-                    )}
-                    {allOptions.length === 1 &&
-                      this.props.freestyle === true && (
+                      <RefreshTile commitEdit={this.cancelEdit} />
+                      {this.props.freestyle === true && (
                         <KeyboardTile commitEdit={this.startTyping} />
                       )}
-                  </View>
-                ))}
-                {allOptions.length > 1 && !this.props.hideClear && (
-                  <View style={styles.modalColumn}>
-                    <UpdateTile commitEdit={this.commitEdit} />
-                    <ClearTile commitEdit={this.clear} />
-                    <RefreshTile commitEdit={this.cancelEdit} />
-                    {this.props.freestyle === true && (
-                      <KeyboardTile commitEdit={this.startTyping} />
-                    )}
-                  </View>
-                )}
+                    </View>
+                  )}
+                </View>
               </View>
-            </View>
-            </Pressable>
+              </Pressable>
+            </ScrollView>
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
@@ -1766,23 +1768,25 @@ export class ListField extends Component {
     return (
       <TouchableWithoutFeedback onPress={this.cancelEdit}>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {this.state.editedValue}
-          </Text>
-          <View style={[styles.flexColumnLayout, this.props.popupStyle]}>
-            <View style={styles.modalColumn}>
-              <SelectionList
-                items={this.props.options}
-                selection={this.state.editedValue}
-                simpleSelect={this.props.simpleSelect}
-                multiValue={this.props.multiValue}
-                renderOptionsOnly={this.props.renderOptionsOnly}
-                required={false}
-                freestyle={this.props.freestyle}
-                onUpdateSelection={this.updateValue}
-              />
+          <ScrollView horizontal={false}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {this.state.editedValue}
+            </Text>
+            <View style={[styles.flexColumnLayout, this.props.popupStyle]}>
+              <View style={styles.modalColumn}>
+                <SelectionList
+                  items={this.props.options}
+                  selection={this.state.editedValue}
+                  simpleSelect={this.props.simpleSelect}
+                  multiValue={this.props.multiValue}
+                  renderOptionsOnly={this.props.renderOptionsOnly}
+                  required={false}
+                  freestyle={this.props.freestyle}
+                  onUpdateSelection={this.updateValue}
+                />
+              </View>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </TouchableWithoutFeedback>
     );
@@ -2063,58 +2067,60 @@ export class TimeField extends Component {
     return (
       <TouchableWithoutFeedback onPress={this.commitEdit}>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {formattedValue}
-          </Text>
-          <ScrollView horizontal={true} scrollEnabled={true}>
-            <View style={styles.centeredRowLayout}>
-              {fractions.map((options: string[], column: number) => {
-                return (
-                  <View style={styles.modalColumn} key={column}>
-                    {options.map((option: string, row: number) => {
-                      const formattedOption: string =
-                        column < 2 ? formatHour(option) : option;
-                      let isSelected: boolean =
-                        this.state.editedValue[column] === option;
-                      return (
-                        <TouchableOpacity
-                          key={row}
-                          onPress={() => this.updateValue(column, option)}>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
-                            }>
-                            <Text
+          <ScrollView horizontal={false}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {formattedValue}
+            </Text>
+            <ScrollView horizontal={true} scrollEnabled={true}>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={styles.modalColumn} key={column}>
+                      {options.map((option: string, row: number) => {
+                        const formattedOption: string =
+                          column < 2 ? formatHour(option) : option;
+                        let isSelected: boolean =
+                          this.state.editedValue[column] === option;
+                        return (
+                          <TouchableOpacity
+                            key={row}
+                            onPress={() => this.updateValue(column, option)}>
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {formattedOption}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-              <View style={styles.modalColumn}>
-                {this.props.future !== true && (
-                  <TouchableOpacity onPress={() => this.commitNow(0)}>
-                    <View style={styles.popupTile}>
-                      <Text style={styles.modalTileLabel}>{strings.now}</Text>
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {formattedOption}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
                     </View>
-                  </TouchableOpacity>
-                )}
-                <UpdateTile commitEdit={this.commitEdit} />
-                <ClearTile commitEdit={this.clear} />
-                <RefreshTile commitEdit={this.cancelEdit} />
-                <KeyboardTile commitEdit={this.startTyping} />
+                  );
+                })}
+                <View style={styles.modalColumn}>
+                  {this.props.future !== true && (
+                    <TouchableOpacity onPress={() => this.commitNow(0)}>
+                      <View style={styles.popupTile}>
+                        <Text style={styles.modalTileLabel}>{strings.now}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  <UpdateTile commitEdit={this.commitEdit} />
+                  <ClearTile commitEdit={this.clear} />
+                  <RefreshTile commitEdit={this.cancelEdit} />
+                  <KeyboardTile commitEdit={this.startTyping} />
+                </View>
               </View>
-            </View>
+            </ScrollView>
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
@@ -2588,64 +2594,66 @@ export class DateField extends Component {
         accessible={false}
         testID="popupBackground">
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {this.props.prefix}
-            {formattedValue}
-            {this.props.suffix}
-          </Text>
-          <ScrollView
-            horizontal={this.props.recent == false}
-            scrollEnabled={this.props.recent == false}>
-            <View style={styles.centeredRowLayout}>
-              {fractions.map((options: string[], column: number) => {
-                return (
-                  <View style={styles.modalColumn} key={column}>
-                    {options.map((option: string, row: number) => {
-                      let isSelected: boolean =
-                        this.state.editedValue[column] === option;
-                      return (
-                        <TouchableOpacity
-                          key={row}
-                          onPress={() => this.updateValue(column, option)}
-                          testID={'option' + (column + 1) + ',' + (row + 1)}>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
-                            }>
-                            <Text
+          <ScrollView horizontal={false}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {this.props.prefix}
+              {formattedValue}
+              {this.props.suffix}
+            </Text>
+            <ScrollView
+              horizontal={this.props.recent == false}
+              scrollEnabled={this.props.recent == false}>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={styles.modalColumn} key={column}>
+                      {options.map((option: string, row: number) => {
+                        let isSelected: boolean =
+                          this.state.editedValue[column] === option;
+                        return (
+                          <TouchableOpacity
+                            key={row}
+                            onPress={() => this.updateValue(column, option)}
+                            testID={'option' + (column + 1) + ',' + (row + 1)}>
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {option}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-              <View style={styles.modalColumn}>
-                {this.props.past !== true &&
-                  this.props.partial !== true &&
-                  this.props.recent !== true && (
-                    <TouchableOpacity onPress={this.commitToday}>
-                      <View style={styles.popupTile}>
-                        <Text style={styles.modalTileLabel}>
-                          {strings.today}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                <UpdateTile commitEdit={this.commitEdit} />
-                <ClearTile commitEdit={this.clear} />
-                <RefreshTile commitEdit={this.cancelEdit} />
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {option}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+                <View style={styles.modalColumn}>
+                  {this.props.past !== true &&
+                    this.props.partial !== true &&
+                    this.props.recent !== true && (
+                      <TouchableOpacity onPress={this.commitToday}>
+                        <View style={styles.popupTile}>
+                          <Text style={styles.modalTileLabel}>
+                            {strings.today}
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  <UpdateTile commitEdit={this.commitEdit} />
+                  <ClearTile commitEdit={this.clear} />
+                  <RefreshTile commitEdit={this.cancelEdit} />
+                </View>
               </View>
-            </View>
+            </ScrollView>
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
@@ -2819,51 +2827,53 @@ export class DurationField extends Component {
     return (
       <TouchableWithoutFeedback onPress={this.commitEdit}>
         <View style={styles.popupBackground}>
-          <Text style={styles.modalTitle}>
-            {this.props.label}: {this.props.prefix}
-            {formattedValue}
-            {this.props.suffix}
-          </Text>
-          <View>
-            <View style={styles.centeredRowLayout}>
-              {fractions.map((options: string[], column: number) => {
-                return (
-                  <View style={styles.modalColumn} key={column}>
-                    {options.map((option: string, row: number) => {
-                      let isSelected: boolean =
-                        this.state.editedValue[column] == option;
-                      return (
-                        <TouchableOpacity
-                          key={row}
-                          onPress={() => this.updateValue(column, option)}>
-                          <View
-                            style={
-                              isSelected
-                                ? styles.popupTileSelected
-                                : styles.popupTile
-                            }>
-                            <Text
+          <ScrollView horizontal={false}>
+            <Text style={styles.modalTitle}>
+              {this.props.label}: {this.props.prefix}
+              {formattedValue}
+              {this.props.suffix}
+            </Text>
+            <View>
+              <View style={styles.centeredRowLayout}>
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={styles.modalColumn} key={column}>
+                      {options.map((option: string, row: number) => {
+                        let isSelected: boolean =
+                          this.state.editedValue[column] == option;
+                        return (
+                          <TouchableOpacity
+                            key={row}
+                            onPress={() => this.updateValue(column, option)}>
+                            <View
                               style={
                                 isSelected
-                                  ? styles.modalTileLabelSelected
-                                  : styles.modalTileLabel
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
                               }>
-                              {option}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                );
-              })}
-              <View style={styles.modalColumn}>
-                <UpdateTile commitEdit={this.commitEdit} />
-                <ClearTile commitEdit={this.clear} />
-                <RefreshTile commitEdit={this.cancelEdit} />
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {option}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
+                <View style={styles.modalColumn}>
+                  <UpdateTile commitEdit={this.commitEdit} />
+                  <ClearTile commitEdit={this.clear} />
+                  <RefreshTile commitEdit={this.cancelEdit} />
+                </View>
               </View>
             </View>
-          </View>
+          </ScrollView>
         </View>
       </TouchableWithoutFeedback>
     );
@@ -3824,39 +3834,41 @@ export class SelectionDialog extends Component<
         accessible={false}
         testID="popupBackground">
         <View style={styles.popupBackground}>
-          {this.props.label && (
-            <Text style={styles.modalTitle}>{this.props.label}</Text>
-          )}
-          <ScrollView>
-            <View style={styles.flexColumnLayout}>
-              <View style={styles.centeredRowLayout}>
-                <View style={styles.modalColumn}>
-                  {this.props.options.map((option: any, rowIndex: number) => {
-                    const isSelected: boolean = this.props.value
-                      ? option.code === this.props.value.code
-                      : false;
-                    const popupTileStyle: any = isSelected
-                      ? styles.popupTileSelected
-                      : styles.popupTile;
-                    return (
-                      <TouchableOpacity
-                        key={rowIndex}
-                        onPress={() => this.selectOption(option)}
-                        testID={'option' + (rowIndex + 1)}>
-                        <View
-                          style={
-                            option.readonly ? styles.readOnly : popupTileStyle
-                          }>
-                          <Text style={styles.modalTileLabel}>
-                            {formatCodeDefinition(option)}
-                          </Text>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
+          <ScrollView horizontal={false}>
+            {this.props.label && (
+              <Text style={styles.modalTitle}>{this.props.label}</Text>
+            )}
+            <ScrollView>
+              <View style={styles.flexColumnLayout}>
+                <View style={styles.centeredRowLayout}>
+                  <View style={styles.modalColumn}>
+                    {this.props.options.map((option: any, rowIndex: number) => {
+                      const isSelected: boolean = this.props.value
+                        ? option.code === this.props.value.code
+                        : false;
+                      const popupTileStyle: any = isSelected
+                        ? styles.popupTileSelected
+                        : styles.popupTile;
+                      return (
+                        <TouchableOpacity
+                          key={rowIndex}
+                          onPress={() => this.selectOption(option)}
+                          testID={'option' + (rowIndex + 1)}>
+                          <View
+                            style={
+                              option.readonly ? styles.readOnly : popupTileStyle
+                            }>
+                            <Text style={styles.modalTileLabel}>
+                              {formatCodeDefinition(option)}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                 </View>
               </View>
-            </View>
+            </ScrollView>
           </ScrollView>
         </View>
       </TouchableWithoutFeedback>
