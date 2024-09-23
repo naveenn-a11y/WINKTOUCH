@@ -659,11 +659,27 @@ export class NumberField extends Component {
     this.setState({isActive: false, isTyping: true});
   };
 
+  isValidStringSuffix = () => {
+    return this.props.suffix && this.props.suffix instanceof Array === false && this.props.suffix.includes('Code') === false;
+  }
+
+  updateValueGivenSuffix = (value: ?string) => {
+    // if the value is a string ending with the specified suffix
+    // convert the value to a number
+    if (value && typeof value === 'string' &&
+      this.isValidStringSuffix() && value.endsWith(this.props.suffix)) {
+      // replace the suffix with empty string and convert to number
+      value = parseFloat(value.replace(this.props.suffix, ''));
+    }
+    return value;
+  };
+
   commitTyping = (newValue: string): void => {
+    const newValueWithoutSuffix = this.updateValueGivenSuffix(newValue);
     if (this.state.isActive) {
-      this.setState({isActive: false}, this.props.onChangeValue(newValue));
+      this.setState({isActive: false}, this.props.onChangeValue(newValueWithoutSuffix));
     } else {
-      this.props.onChangeValue(newValue);
+      this.props.onChangeValue(newValueWithoutSuffix);
     }
   };
 
