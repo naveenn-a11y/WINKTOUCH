@@ -617,10 +617,10 @@ function printWrappedLine(
   fontSize: number,
   dim: {x: number, y: number},
   lineHeight?: number, 
-  maxCharLength?: number
+  maxCharLength?: number = 90
 ) {
   const wrappedSentence = [];
-  maxCharLength ? wrapString(sentence, wrappedSentence, maxCharLength) : wrapString(sentence, wrappedSentence);
+  wrapString(sentence, wrappedSentence, maxCharLength ?? 90);
   wrappedSentence.forEach((newLine) => {
     const options: any = { x: dim.x, y: dim.y, size: fontSize };
     
@@ -629,7 +629,9 @@ function printWrappedLine(
     }
 
     page.drawText(newLine.trimStart(), options);
-    dim.y = dim.y - (lineHeight ? fontSize * 1.5 : fontSize * 1.15);
+    const defaultLineHeightMultiplier = 1.15;
+    const adjustedLineHeightMultiplier = 1.5;
+    dim.y = dim.y - (lineHeight ? fontSize * adjustedLineHeightMultiplier : fontSize * defaultLineHeightMultiplier);
   });
 }
 
