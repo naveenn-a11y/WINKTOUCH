@@ -3,36 +3,35 @@
  */
 
 'use strict';
-import {NativeModules, Image} from 'react-native';
-import PDFLib, {PDFDocument, PDFPage} from 'react-native-pdf-lib';
-import type {User, PatientInfo, Visit} from './Types';
+import { Image, NativeModules } from 'react-native';
 import RNFS from 'react-native-fs';
-import {getUserLanguage, strings} from './Strings';
-import {createPdf, fetchWinkRest} from './WinkRest';
-import {
-  formatDate,
-  now,
-  officialDateFormat,
-  prefix,
-  postfix,
-  isEmpty,
-  getDoctorFullName,
-} from './Util';
-import {getExam} from './Exam';
-import {getCachedItem} from './DataCache';
-import {getStore, getAccount} from './DoctorApp';
-import {fetchItemById} from './Rest';
+import PDFLib, { PDFDocument, PDFPage } from 'react-native-pdf-lib';
+import { base64ToBlob } from '../src/components/HtmlToPdf';
+import { getCachedItem } from './DataCache';
+import { getAccount, getStore } from './DoctorApp';
+import { getExam } from './Exam';
+import { loadBase64ImageForWeb } from './ImageField';
+import { getPatientFullName } from './Patient';
+import { fetchItemById } from './Rest';
+import { strings } from './Strings';
+import { isWeb } from './Styles';
+import type { PatientInfo, User, Visit } from './Types';
 import {
   fetchUpload,
   getJpeg64Dimension,
-  getPng64Dimension,
   getMimeType,
+  getPng64Dimension,
 } from './Upload';
-import {getWinkRestUrl} from './WinkRest';
-import {isWeb} from './Styles';
-import {base64ToBlob} from '../src/components/HtmlToPdf';
-import {loadBase64ImageForWeb} from './ImageField';
-import {getPatientFullName} from './Patient';
+import {
+  formatDate,
+  getDoctorFullName,
+  isEmpty,
+  now,
+  officialDateFormat,
+  postfix,
+  prefix,
+} from './Util';
+import { createPdf, fetchWinkRest, getWinkRestUrl } from './WinkRest';
 
 export async function printRx(
   visitId: string,
@@ -617,17 +616,27 @@ function printWrappedLine(
   page: PDFPage,
   fontSize: number,
   dim: {x: number, y: number},
+  lineHeight?: number, 
+  maxCharLength?: number = 90
 ) {
   const wrappedSentence = [];
-  wrapString(sentence, wrappedSentence);
+  wrapString(sentence, wrappedSentence, maxCharLength ?? 90);
   wrappedSentence.forEach((newLine) => {
-    page.drawText(newLine.trimStart(), {x: dim.x, y: dim.y, size: fontSize});
-    dim.y = dim.y - fontSize * 1.15;
+    const options: any = { x: dim.x, y: dim.y, size: fontSize };
+    
+    if (lineHeight !== undefined) {
+      options.lineHeight = lineHeight;
+    }
+
+    page.drawText(newLine.trimStart(), options);
+    const defaultLineHeightMultiplier = 1.15;
+    const adjustedLineHeightMultiplier = 1.5;
+    dim.y = dim.y - (lineHeight ? fontSize * adjustedLineHeightMultiplier : fontSize * defaultLineHeightMultiplier);
   });
 }
 
-function wrapString(sentence: string, splitSentence: []) {
-  const maximumCharLength: number = 90;
+function wrapString(sentence: string, splitSentence: [], maxCharLength?: number) {
+  const maximumCharLength: number = maxCharLength ?? 90;
   if (sentence.length > maximumCharLength) {
     const substr = sentence.substring(0, maximumCharLength);
     const lastSpaceIndex = substr.lastIndexOf(' ');
@@ -635,15 +644,15 @@ function wrapString(sentence: string, splitSentence: []) {
     if (lastSpaceIndex === -1 || lastSpaceIndex === maximumCharLength - 1) {
       //space does not exist and space is not the last character
       splitSentence.push(substr);
-      return wrapString(sentence.substring(maximumCharLength), splitSentence);
+      return wrapString(sentence.substring(maximumCharLength), splitSentence, maximumCharLength);
     } else if (sentence[maximumCharLength] === ' ') {
       //space exist and next character has space i.e can accommodate the last word
       splitSentence.push(substr);
-      return wrapString(sentence.substring(maximumCharLength), splitSentence);
+      return wrapString(sentence.substring(maximumCharLength), splitSentence, maximumCharLength);
     } else {
       //last word is too long - split and print excluding the last word
       splitSentence.push(substr.substring(0, lastSpaceIndex));
-      return wrapString(sentence.substring(lastSpaceIndex + 1), splitSentence);
+      return wrapString(sentence.substring(lastSpaceIndex + 1), splitSentence, maximumCharLength);
     }
   } else {
     splitSentence.push(sentence);
@@ -814,13 +823,14 @@ function addRxFootNote(
   const footNote = store.defaultMedicationRxNote
     ? store.defaultMedicationRxNote
     : '';
-  page.drawText(footNote, {
+  const dim = {x: border, y: border}
+  isWeb ? page.drawText(footNote, {
     x: border,
     y: border,
     size: fontSize,
     maxWidth: pageWidth - border * 2,
     lineHeight 
-  });
+  }) : printWrappedLine(footNote, page, fontSize, dim, lineHeight, 110);
 }
 
 export async function printMedicalRx(visitId: string, labelsArray: string[]) {
