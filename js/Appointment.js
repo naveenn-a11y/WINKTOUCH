@@ -1255,6 +1255,7 @@ export class AppointmentDetails extends Component {
               <View style={styles.formRow}>
                 <FormTextInput
                   label=""
+                  testID={this.props.testID}
                   multiline={true}
                   readonly={true}
                   value={appointment.comment}
@@ -1333,6 +1334,7 @@ export class AppointmentDetails extends Component {
           <FormTextInput
             labelWidth={labelWidth}
             label={strings.patient}
+            testID={this.props.testID}
             readonly={true}
             value={getPatientFullName(patient)}
           />
@@ -1376,6 +1378,7 @@ export class AppointmentDetails extends Component {
               labelWidth={labelWidth}
               label={strings.waitingListComment}
               value={this.state.editedAppointment.earlyRequestComment}
+              testID={this.props.testID}
               onChangeText={(newValue: ?string) =>
                 this.updateValue('earlyRequestComment', newValue)
               }
@@ -1422,6 +1425,7 @@ export class AppointmentDetails extends Component {
           <FormRow>
             <FormTextInput
               labelWidth={labelWidth}
+              testID={this.props.testID}
               label={strings.doctor}
               readonly={true}
               value={user.firstName + ' ' + user.lastName}
@@ -1437,6 +1441,7 @@ export class AppointmentDetails extends Component {
             onChangeText={(newValue: ?string) =>
               this.updateValue('comment', newValue)
             }
+            testID={this.props.testID}
           />
         </FormRow>
         {hasBookAccess && (

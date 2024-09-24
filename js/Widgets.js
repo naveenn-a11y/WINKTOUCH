@@ -2720,7 +2720,7 @@ export class DateField extends Component {
     if (this.props.readonly) {
       return (
         <View style={styles.fieldFlexContainer}>
-          <Text style={style}>
+          <Text testID={this.props?.testID || ''} style={style}>
             {this.props.prefix}
             {formattedValue}
             {this.props.suffix}

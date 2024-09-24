@@ -244,7 +244,7 @@ export class FormTextInput extends Component {
         disabled={this.state.errorMessage === undefined}
         testID={
           this.state.errorMessage === undefined
-            ? undefined
+            ? this.props.testID
             : this.props.testID + 'FieldDismissError'
         }
         accessible={false}>
@@ -569,7 +569,7 @@ export class FormDateInput extends Component {
           dateFormat={this.props.dateFormat}
           style={style}
           onChangeValue={this.updateValue}
-          testID={this.props.testID + 'Field'}
+          testID={this.props.testID + '.Field'}
         />
       </View>
     );
