@@ -4,131 +4,128 @@
 
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import RNBeep from '@dashdoc/react-native-system-sounds';
+import { Component, PureComponent } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
   FlatList,
   SafeAreaView,
-  ScrollView,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import {
+  Card,
+  Button as NativeBaseButton,
+  Paragraph,
+  Portal,
+  Title,
+} from 'react-native-paper';
 import CustomDateTimePicker from '../src/components/DateTimePicker/CustomDateTimePicker';
-import RNBeep from '@dashdoc/react-native-system-sounds';
-import {getAllCodes, getCodeDefinition, getDefaultUserSetting, getUserSetting} from './Codes';
-import type {
-  Exam,
-  Visit,
-  Appointment,
-  ExamDefinition,
-  PatientDocument,
-  PatientInfo,
-  Store,
-  FollowUp,
-  VisitType,
-  User,
-  Prescription,
-  CodeDefinition,
-  ExamRoom,
-  PatientInvoice,
-} from './Types';
-import {styles, fontScale, isWeb} from './Styles';
-import {strings, getUserLanguage} from './Strings';
-import {
-  Button,
-  FloatingButton,
-  Lock,
-  NativeBar,
-  Alert,
-  NoAccess,
-  SelectionDialog,
-  ListField,
-} from './Widgets';
-import {
-  formatMoment,
-  formatDate,
-  now,
-  jsonDateTimeFormat,
-  yearDateTimeFormat,
-  isEmpty,
-  compareDates,
-  isToyear,
-  dateFormat,
-  farDateFormat,
-  tomorrow,
-  yearDateFormat,
-  yearDateTime24Format,
-  isSameDay,
-  parseDate,
-  getDoctorFullName,
-  getValue,
-} from './Util';
-import {
-  ExamCard,
-  createExam,
-  storeExam,
-  getExam,
-  renderExamHtml,
-  UserAction,
-  getFieldValue,
-} from './Exam';
-import {allExamDefinitions} from './ExamDefinition';
-import {
-  PrescriptionCard,
-  AssessmentCard,
-  VisitSummaryCard,
-  VisitSummaryPlanCard,
-} from './Assessment';
-import {
-  cacheItem,
-  getCachedItem,
-  getCachedItems,
-  cacheItemsById,
-  cacheItemById,
-} from './DataCache';
-import {
-  searchItems,
-  storeItem,
-  performActionOnItem,
-  fetchItemById,
-  stripDataType,
-  getPrivileges,
-  getToken,
-  getRestUrl,
-} from './Rest';
+import { printHtml } from '../src/components/HtmlToPdf';
 import {
   fetchAppointment,
   hasAppointmentBookAccess,
   invoiceForAppointment,
 } from './Appointment';
-import {printRx, printClRx, printMedicalRx, emailRx, emailClRx} from './Print';
-import {printHtml} from '../src/components/HtmlToPdf';
-import {getPatientFullName, PatientDocumentPage, PatientTags} from './Patient';
-import {getDoctor, getStore} from './DoctorApp';
 import {
-  getVisitHtml,
-  printPatientHeader,
+  AssessmentCard,
+  PrescriptionCard,
+  VisitSummaryCard,
+  VisitSummaryPlanCard,
+} from './Assessment';
+import { formatCode, getAllCodes, getDefaultUserSetting, getUserSetting } from './Codes';
+import {
+  cacheItem,
+  cacheItemById,
+  cacheItemsById,
+  getCachedItem,
+  getCachedItems,
+} from './DataCache';
+import { getDoctor, getStore } from './DoctorApp';
+import { VisitErrorBoundary } from './ErrorBoundary';
+import {
+  createExam,
+  ExamCard,
+  getExam,
+  getFieldValue,
+  renderExamHtml,
+  storeExam,
+  UserAction,
+} from './Exam';
+import { allExamDefinitions } from './ExamDefinition';
+import { FollowUpScreen } from './FollowUp';
+import { formatLabel } from './Items';
+import { PatientDocumentPage } from './Patient';
+import {
   getScannedFiles,
-  setScannedFiles,
+  getVisitHtml,
   initValues,
+  printPatientHeader,
   renderAttachment,
+  setScannedFiles,
 } from './PatientFormHtml';
-import {fetchWinkRest} from './WinkRest';
-import {FollowUpScreen} from './FollowUp';
-import {isReferralsEnabled} from './Referral';
-import {formatCode} from './Codes';
+import { emailClRx, emailRx, printClRx, printMedicalRx, printRx } from './Print';
+import { isReferralsEnabled } from './Referral';
 import {
-  Card,
-  Title,
-  Paragraph,
-  Button as NativeBaseButton,
-  Portal,
-} from 'react-native-paper';
-import {getExamRoomCode, updateExamRoom} from './Room';
-import {VisitSummaryTable} from './VisitSummary';
-import {VisitErrorBoundary} from './ErrorBoundary';
-import {formatLabel} from './Items';
+  fetchItemById,
+  getPrivileges,
+  getRestUrl,
+  getToken,
+  performActionOnItem,
+  searchItems,
+  storeItem,
+  stripDataType,
+} from './Rest';
+import { getExamRoomCode, updateExamRoom } from './Room';
+import { getUserLanguage, strings } from './Strings';
+import { fontScale, isWeb, styles } from './Styles';
+import type {
+  Appointment,
+  CodeDefinition,
+  Exam,
+  ExamDefinition,
+  ExamRoom,
+  FollowUp,
+  PatientDocument,
+  PatientInfo,
+  PatientInvoice,
+  Store,
+  User,
+  Visit,
+  VisitType
+} from './Types';
+import {
+  compareDates,
+  dateFormat,
+  farDateFormat,
+  formatDate,
+  formatMoment,
+  getDoctorFullName,
+  getValue,
+  isEmpty,
+  isSameDay,
+  isToyear,
+  jsonDateTimeFormat,
+  now,
+  parseDate,
+  tomorrow,
+  yearDateFormat,
+  yearDateTime24Format,
+  yearDateTimeFormat,
+} from './Util';
 import Dialog from './utilities/Dialog';
+import { VisitSummaryTable } from './VisitSummary';
+import {
+  Alert,
+  Button,
+  FloatingButton,
+  ListField,
+  Lock,
+  NativeBar,
+  NoAccess,
+  SelectionDialog,
+} from './Widgets';
+import { fetchWinkRest } from './WinkRest';
 
 export const examSections: string[] = [
   'Amendments',
@@ -1853,7 +1850,7 @@ class VisitWorkFlow extends Component {
           visible={this.state.showVisitTypeAlert}
           onDismiss={this.hideVisitTypeAlert}
           dismissable={true}
-          style={styles.VisitTypeDialog}>
+          style={[styles.VisitTypeDialog, {height: 'auto', maxHeight: 200}]}>
           <Dialog.Title>
             <Text style={{color: 'black'}}> {strings.updateVisitType}</Text>
           </Dialog.Title>

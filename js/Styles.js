@@ -1545,7 +1545,7 @@ export const styles = StyleSheet.create({
   },
   VisitTypeDialog: {
     minWidth: '30%',
-    minHeight: '20%',
+    height: '50%',
     alignSelf: 'center',
     backgroundColor: '#fff',
   },
