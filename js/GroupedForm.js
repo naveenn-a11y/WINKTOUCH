@@ -393,8 +393,8 @@ export class GroupedForm extends Component {
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
         disableScroll={this.props.disableScroll}
-        fieldId={this.props.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
-        testID={this.props.fieldId ?? this.props.examId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
+        fieldId={this.props?.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
+        testID={(!isEmpty(this.props?.fieldId) ? (this.props?.fieldId + '.') : '') + fieldDefinition.name + (column === undefined ? '' : column)}
       />
     );
   }
