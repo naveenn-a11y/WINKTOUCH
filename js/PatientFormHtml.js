@@ -3,60 +3,60 @@
  */
 
 'use strict';
-import {Platform} from 'react-native';
-import type {
-  FieldDefinition,
-  GroupDefinition,
-  GlassesRx,
-  ImageDrawing,
-  Visit,
-  PatientInfo,
-  HtmlDefinition,
-  ImageBase64Definition,
-} from './Types';
-import {strings} from './Strings';
+import { Platform } from 'react-native';
+import { strings } from './Strings';
 import {
-  scaleStyle,
+  defaultFontSize,
   fontScale,
   imageStyle,
-  defaultFontSize,
   isWeb,
+  scaleStyle,
 } from './Styles';
+import type {
+  FieldDefinition,
+  GlassesRx,
+  GroupDefinition,
+  HtmlDefinition,
+  ImageBase64Definition,
+  ImageDrawing,
+  PatientInfo,
+  Visit,
+} from './Types';
 import {
+  formatAge,
   formatDate,
+  formatDegree,
+  formatDiopter,
+  getDoctorFullName,
+  getValue,
   isEmpty,
   officialDateFormat,
-  prefix,
   postfix,
-  formatDiopter,
-  formatDegree,
-  getValue,
-  formatAge,
-  getDoctorFullName,
+  prefix,
 } from './Util';
 
-import {formatPrism, hasBvd, hasPrism} from './Refraction';
+import { curveBasis, line } from 'd3-shape';
+import RNFS from 'react-native-fs';
+import { formatCode } from './Codes';
+import { getCachedItem } from './DataCache';
+import { getStore } from './DoctorApp';
 import {
-  getFieldDefinition as getExamFieldDefinition,
   getCurrentAction,
+  getFieldDefinition as getExamFieldDefinition,
   UserAction,
 } from './Exam';
+import { getColumnFieldIndex, hasColumns } from './GroupedForm';
+import { getBase64Image } from './ImageField';
 import {
-  formatLabel,
-  formatFieldValue,
-  getFieldDefinition,
   filterFieldDefinition,
+  formatFieldValue,
+  formatLabel,
+  getFieldDefinition,
 } from './Items';
-import RNFS from 'react-native-fs';
-import {line, curveBasis} from 'd3-shape';
-import {fetchUpload, getMimeType, getAspectRatio} from './Upload';
-import {getColumnFieldIndex, hasColumns} from './GroupedForm';
-import {getCachedItem} from './DataCache';
-import {getStore} from './DoctorApp';
-import {formatCode} from './Codes';
-import {getBase64Image} from './ImageField';
-import {getPatientFullName} from './Patient';
+import { getPatientFullName } from './Patient';
 import { getImageDimensions } from './Print';
+import { formatPrism, hasBvd, hasPrism } from './Refraction';
+import { fetchUpload, getAspectRatio, getMimeType } from './Upload';
 let smallMedia: Array<any> = [];
 let largeMedia: Array<any> = [];
 let PDFAttachment: Array<any> = [];
@@ -1008,6 +1008,7 @@ async function renderMedia(
     if (!isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
       if (base64Image) {
+        imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
         imageBase64Definition.push({
           key: imageValue,
           value: `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height: ${style.height}pt; object-fit: contain; border: 1pt"/>`,
