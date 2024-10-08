@@ -209,9 +209,9 @@ export class LockScreen extends Component {
                         <View>
                           {this.state.isSecureTextEntry 
                           ? 
-                          <Icon name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" /> 
+                          <Icon testID={'showPasswordIcon'} name="eye" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" /> 
                           : 
-                          <Icon name="eye-off" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />}
+                          <Icon testID={'hidePasswordIcon'} name="eye-off" style={[styles.screenIcon, styles.paddingLeftRight10]} color="gray" />}
                         </View>
                       </TouchableOpacity>
                     </View>
