@@ -31,6 +31,7 @@ import {
   getValue,
   isEmpty,
   officialDateFormat,
+  parseImageURL,
   postfix,
   prefix,
 } from './Util';
@@ -1004,6 +1005,7 @@ async function renderMedia(
   }
 
   if (filePath) {
+    filePath = parseImageURL(filePath);
     let imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     if (!isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
