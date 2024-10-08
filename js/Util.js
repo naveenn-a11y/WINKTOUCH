@@ -7,6 +7,8 @@ require('moment/locale/fr.js');
 require('moment/locale/fr-ca.js');
 require('moment/locale/es.js');
 import {strings} from './Strings';
+import { isWeb } from './Styles';
+import { WINK_APP_REST_URL } from '@env';
 
 export const shortTimeFormat: string = 'H:mm';
 export const timeFormat: string = 'h:mm a';
@@ -852,4 +854,18 @@ export function getCurrentRoute(navigationState) {
     return getCurrentRoute(route);
   }
   return route;
+}
+
+export function parseImageURL(image : String): String {
+  if(typeof image === "string" || image instanceof String){
+    const templateURL = "https://attachment.downloadwink.com/WinkRESTvWinkWeb/";
+    if (image.startsWith(templateURL)) {
+      let restUrl = isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL;
+      if(!restUrl.endsWith('/')){
+        restUrl += '/';
+      }
+      image = restUrl + image.substring(templateURL.length);
+    }
+  }
+  return image;
 }
