@@ -1796,7 +1796,7 @@ export function patientHeader(referral: boolean) {
     '}' +
     '.s-img {margin: 5px; page-break-inside:avoid;}' +
     '.img-wrap {' +
-    '  margin: 0px;' +
+    '  margin: 10px 0px;' +
     '  padding: 0px;' +
     '  float: left;' +
     '  position: relative;' +
@@ -1814,7 +1814,7 @@ export function patientHeader(referral: boolean) {
     '  top:0;' +
     '  left:0;' +
     '}' +
-    '.img-wrap img {display:block;}' +
+    '.img-wrap img {display:block; margin: auto;}' +
     'span.img-wrap p {' +
     '  border-bottom: 1.5px solid;' +
     '  padding: 5px;' +
@@ -1853,9 +1853,9 @@ export function patientHeader(referral: boolean) {
     'font-weight: bold;' +
     '}' +
     ' .wrap-imgs {' +
-    '   display: flex;' +
-    '   flex-wrap: wrap;' +
+    '   display: grid;' +
     '   width: 100%;' +
+    '   margin: auto;' +
     '   justify-content: space-around;' +
     ' }' +
     '.breakBeforeImage{ page-break-before: avoid; }';
@@ -1863,7 +1863,7 @@ export function patientHeader(referral: boolean) {
     ? '.breakBeforeImage{ page-break-before: avoid; } .breakBeforeImage ~ section{ page-break-before: always; }'
     : '.breakBeforeImage { page-break-before: always; }';
   htmlHeader += isWeb
-    ? '.images-warp{page-break-inside:avoid;} '
+    ? '.images-warp{page-break-inside:avoid; margin: auto; } '
     : '.wrap-imgs{} ';
 
   htmlHeader += '</style></head>';
