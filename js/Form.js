@@ -59,11 +59,11 @@ import {
   DurationField,
   Label,
   ListField,
-  NumberField,
   TextArrayField,
-  TilesField,
-  TimeField,
 } from './Widgets';
+import { NumberField } from './NumberField';
+import { TilesField } from './TilesField';
+import { TimeField } from './TimeField';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -467,7 +467,7 @@ export class FormNumberInput extends Component {
     if (typeof text === 'number') {
       return text;
     }
-    if (text === undefined || text === null || text.trim() === '') {
+    if (text === undefined || text === null || text?.trim() === '') {
       return undefined;
     }
     if (isFinite(text)) {
@@ -1394,6 +1394,7 @@ export class FormInput extends Component {
     }
     return false;
   }
+
   getLimitedValues(): any {
     if (this.props.definition.limitedValues) {
       const filterEntries: Object = this.props.definition.limitedValues;
@@ -1611,19 +1612,6 @@ export class FormInput extends Component {
     return null;
   }
 
-  handleBlur = () => {
-    if (this.props.isTyping) {
-      this.props.onChangeValue(this.state.newValue);
-    }
-  };
-
-  handleChangeValue = (value: any) => {
-    this.setState({newValue: value});
-    if (!this.props.isTyping) {
-      this.props.onChangeValue(value);
-    }
-  };
-
   renderFormInput() {
     const label: string = this.props.label
       ? this.props.label
@@ -1669,7 +1657,7 @@ export class FormInput extends Component {
           {...this.props.definition}
           errorMessage={this.props.errorMessage}
           readonly={readonly}
-          onChangeValue={this.handleChangeValue}
+          onChangeValue={this.props.onChangeValue}
           label={label}
           showLabel={this.props.showLabel}
           prefix={this.props.definition.prefix}
@@ -1679,7 +1667,7 @@ export class FormInput extends Component {
           style={style}
           testID={this.props.testID}
           unit={this.props.definition.unit}
-          onBlur={this.handleBlur}
+          onBlur={this.props.onBlur}
         />
       );
     } else if (this.props.definition.hasRange) {
@@ -1690,7 +1678,7 @@ export class FormInput extends Component {
             {...this.props.definition}
             errorMessage={this.props.errorMessage}
             readonly={readonly}
-            onChangeValue={this.handleChangeValue}
+            onChangeValue={this.props.onChangeValue}
             label={label}
             showLabel={this.props.showLabel}
             prefix={this.props.definition.prefix}
@@ -1700,7 +1688,7 @@ export class FormInput extends Component {
             style={style}
             testID={this.props.testID}
             unit={this.props.definition.unit}
-            onBlur={this.handleBlur}
+            onBlur={this.props.onBlur}
           />
         );
       }
@@ -1866,13 +1854,13 @@ export class FormInput extends Component {
           label={label}
           showLabel={this.props.showLabel}
           readonly={readonly}
-          onChangeValue={this.handleChangeValue}
+          onChangeValue={this.props.onChangeValue}
           type={type}
           style={style}
           errorMessage={this.props.errorMessage}
           isTyping={this.props.isTyping}
           testID={this.props.testID}
-          onBlur={this.handleBlur}
+          onBlur={this.props.onBlur}
         />
       );
     } else if (this.props.definition.image !== undefined) {
@@ -2320,7 +2308,7 @@ export class FormCodeNumberInput extends Component {
     if (typeof text === 'number') {
       return text;
     }
-    if (text === undefined || text === null || text.trim() === '') {
+    if (text === undefined || text === null || text?.trim() === '') {
       return undefined;
     }
     if (this.props.suffix && !(this.props.suffix instanceof Array)) {
