@@ -71,7 +71,8 @@ export const TilesField = ({
 
   const formatValue = () => {
     const updatedRawValue = editedValue;
-    setFormattedText(editedValue);
+    const updatedFormattedText = format(updatedRawValue);
+    setFormattedText(updatedFormattedText);
     setRawValue(updatedRawValue);
     setPrevEditedValue(editedValue);
     if (onChangeValue) {
@@ -144,6 +145,55 @@ export const TilesField = ({
       return updated.join(' ').trim();
     });
     setIsDirty(true);
+  };
+
+
+  const sumArray = (arr) => {
+    return arr.reduce((a, b) => {
+      let rightIndex = (a === undefined) ? 0 : Number(a);
+      let leftIndex = (b === undefined) ? 0 : Number(b);
+      return rightIndex + leftIndex;
+    });
+  };
+
+  const format = (inputValue) => {
+    if (inputValue === undefined || inputValue === null || inputValue === '') {
+      return '';
+    }
+    let formattedValue = '';
+    if (isPrism && inputValue instanceof Array && inputValue.length === 8) {
+      let prismSumA = sumArray([inputValue[0], inputValue[1], inputValue[2]]);
+      let suffixA = inputValue[3] !== undefined ? `${inputValue[3]} ` : '';
+      let prismSumB = sumArray([inputValue[4], inputValue[5], inputValue[6]]);
+      let suffixB = inputValue[7] !== undefined ? inputValue[7] : '';
+
+      formattedValue = `${(prismSumA === 0) ? '' : prismSumA} ${suffixA}${(prismSumB === 0) ? '' : prismSumB} ${suffixB}`;
+    } else if (inputValue instanceof Array) {
+      inputValue.forEach((columnValue, columnIndex) => {
+        if (columnValue !== undefined) {
+          if (prefix !== undefined && prefix !== null && prefix.length > columnIndex && prefix[columnIndex] !== undefined) {
+            formattedValue += prefix[columnIndex];
+          }
+          if (columnValue !== undefined && columnValue !== null) {
+            formattedValue += columnValue;
+          }
+          if (suffix !== undefined && suffix !== null && suffix.length > columnIndex && suffix[columnIndex] !== undefined) {
+            formattedValue += suffix[columnIndex];
+          }
+        }
+      });
+    } else {
+      if (prefix != undefined && !isMultiColumn()) {
+        formattedValue += prefix;
+      }
+      if (inputValue !== undefined && inputValue !== null) {
+        formattedValue += inputValue.toString();
+      }
+      if (suffix != undefined && !isMultiColumn()) {
+        formattedValue += suffix;
+      }
+    }
+    return formattedValue;
   };
 
   const isMultiColumn = () => {
