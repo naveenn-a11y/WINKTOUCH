@@ -124,6 +124,9 @@ export const TilesField = ({
     setIsActive(false);
     setIsFreestyleTyping(false);
     onChangeValue(rawValue);
+    if (nextFocusField != undefined && transferFocus) {	
+      transferFocus.onTransferFocus(nextFocusField);	
+    }
   };
 
   const cancelEdit = () => {
@@ -243,8 +246,8 @@ export const TilesField = ({
         <View style={styles.popupBackground}>
           <ScrollView horizontal={false}>
             <Text style={styles.modalTitle}>
-            {postfix(label, ': ')}
-            {format(editedValue)}
+              {postfix(label, ': ')}
+              {format(editedValue)}
             </Text>
             <FocusTile
               type="previous"
