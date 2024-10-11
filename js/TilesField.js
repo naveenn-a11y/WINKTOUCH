@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { TextField, ClearTile, KeyboardTile, UpdateTile, RefreshTile, FocusTile } from './Widgets';
 import { styles } from './Styles';
+import { postfix } from './Util';
 import { CustomModal as Modal } from './utilities/Modal';
 
 interface TilesFieldProps {
@@ -138,15 +139,43 @@ export const TilesField = ({
     onChangeValue('');
   };
 
-  const updateValue = (newColumnValue: string, column: number) => {
-    setEditedValue((prev) => {
-      const updated = [];
-      updated[column] = newColumnValue;
-      return updated.join(' ').trim();
-    });
-    setIsDirty(true);
+  const getEditedColumnValue = (columnIndex) => {
+    if (isMultiColumn()) {
+      if (editedValue === undefined || editedValue.length <= columnIndex) {
+        return undefined;
+      }
+      return editedValue[columnIndex];
+    }
+    return editedValue;
   };
 
+  const updateValue = (newValue: string, columnIndex: number) => {
+    let editedColumnValue = getEditedColumnValue(columnIndex);
+    if (newValue === editedColumnValue) {
+      newValue = undefined;
+    }
+    if (isMultiColumn()) {
+      let updatedEditedValue = editedValue instanceof Array ? [...editedValue] : options.map(() => undefined);
+      while (updatedEditedValue.length <= columnIndex) {
+        updatedEditedValue.push(undefined);
+      }
+      updatedEditedValue[columnIndex] = newValue;
+      if (updateConfirm()) {
+        setEditedValue(updatedEditedValue);
+      } else {
+        setEditedValue(updatedEditedValue);
+        commitEdit();
+      }
+    } else {
+      if (updateConfirm()) {
+        setEditedValue(newValue);
+      } else {
+        setEditedValue(newValue);
+        commitEdit();
+      }
+    }
+    setIsDirty(true);
+  };
 
   const sumArray = (arr) => {
     return arr.reduce((a, b) => {
@@ -200,6 +229,10 @@ export const TilesField = ({
     return options != undefined && options[0] instanceof Array;
   };
 
+  const updateConfirm =() => {
+    return transferFocus !== undefined || isMultiColumn();
+  }
+
   const renderPopup = () => {
     let allOptions = isMultiColumn() ? options : [options];
     return (
@@ -210,7 +243,8 @@ export const TilesField = ({
         <View style={styles.popupBackground}>
           <ScrollView horizontal={false}>
             <Text style={styles.modalTitle}>
-              {label}: {isDirty ? editedValue : value}
+            {postfix(label, ': ')}
+            {format(editedValue)}
             </Text>
             <FocusTile
               type="previous"
