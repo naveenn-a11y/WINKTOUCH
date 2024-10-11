@@ -308,6 +308,7 @@ export class TextField extends Component {
     onOpenModal?: () => void,
     title?: string | null,
     onBlur?: () => void,
+    onKeyPress?: (keyCode: Number) => void,
   };
   state: {
     value: string,
@@ -379,6 +380,7 @@ export class TextField extends Component {
           isWeb={isWeb}
           title={this.props.title}
           onBlur={this.props.onBlur}
+          onKeyPress={this.props.onKeyPress}
         />
 
         {this.props.suffix != undefined && <Text style={styles.formSuffix}>{this.props.suffix}</Text>}

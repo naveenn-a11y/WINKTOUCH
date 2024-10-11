@@ -230,9 +230,9 @@ export const NumberField = (props: NumberFieldProps) => {
     }));
   };
 
-  const handleBlur = (value) => {
+  const handleBlur = (input) => {
     if (props.isTyping || state.isFreestyleTyping) {
-      const newValue = value?.target?.value ?? state.rawValue;
+      const newValue = input?.target?.value ?? state.rawValue;
       setState(prevState => ({ ...prevState, editedValue: newValue }));
       if (props.onBlur) {
         props.onBlur();

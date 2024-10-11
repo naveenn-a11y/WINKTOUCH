@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { TextField, ClearTile, KeyboardTile, UpdateTile, RefreshTile, FocusTile } from './Widgets';
 import { styles } from './Styles';
-import { postfix, split } from './Util';
 import { CustomModal as Modal } from './utilities/Modal';
 
 interface TilesFieldProps {
@@ -36,6 +35,7 @@ interface TilesFieldProps {
   isTyping?: boolean;
   isPrism?: boolean;
   hideClear?: boolean;
+  onBlur?: () => void;
 }
 
 export const TilesField = ({
@@ -57,160 +57,98 @@ export const TilesField = ({
   isTyping: propIsTyping,
   isPrism,
   hideClear,
+  onBlur,
 }: TilesFieldProps) => {
   const [isActive, setIsActive] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const [isFreestyleTyping, setIsFreestyleTyping] = useState(false);
-  const [editedValue, setEditedValue] = useState(undefined);
+  const [editedValue, setEditedValue] = useState(value);
+  const [rawValue, setRawValue] = useState(value);
+  const [prevPropsValue, setPrevPropsValue] = useState('');
+  const [prevRawValue, setPrevRawValue] = useState('');
+  const [prevEditedValue, setPrevEditedValue] = useState('');
+  const [formattedText, setFormattedText] = useState('');
+
+  const formatValue = () => {
+    const updatedRawValue = editedValue;
+    setFormattedText(editedValue);
+    setRawValue(updatedRawValue);
+    setPrevEditedValue(editedValue);
+    if (onChangeValue) {
+      onChangeValue(updatedRawValue);
+    }
+  }
 
   useEffect(() => {
-    setEditedValue(value);
+    if (value !== prevPropsValue && !isActive) {
+      setEditedValue(value);
+      setPrevPropsValue(value);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
-  const startTyping = useCallback(() => {
+  useEffect(() => {
+    if (rawValue !== prevRawValue) {
+      formatValue();
+      setPrevRawValue(rawValue);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rawValue]);
+
+  useEffect(() => {
+    if (editedValue !== prevEditedValue) {
+      formatValue();
+      setPrevEditedValue(editedValue);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedValue]);
+
+  const startEditing = () => {
+    if (readonly) return;
+    setIsActive(true);
+    setIsDirty(false);
+    setEditedValue(value);
+  };
+
+  const startTyping = () => {
     if (readonly) return;
     setIsActive(false);
     setIsFreestyleTyping(true);
-  }, [readonly]);
-
-  const commitTyping = useCallback((newValue) => {
-    setEditedValue(newValue);
-    if (onChangeValue) {
-      onChangeValue(newValue);
-    }
-  }, [onChangeValue]);
-
-  const isUndefinedArray = (arr) => {
-    // return true if array is an array and each element is undefined
-    return arr instanceof Array && arr.every((element) => element === undefined);
+    setEditedValue(editedValue);
+    setIsDirty(true);
   };
 
-  const startEditing = useCallback(() => {
-    if (readonly) return;
-    setIsActive(true);
-    const updatedValue = isUndefinedArray(editedValue) ? '' : editedValue;
-    setEditedValue(combineOptions ? split(updatedValue ?? '', options) : updatedValue);
-  }, [readonly, combineOptions, editedValue, options]);
-
-  const isMultiColumn = useCallback(() => {
-    return options != undefined && options[0] instanceof Array;
-  }, [options]);
-
-  const getEditedColumnValue = useCallback((columnIndex) => {
-    if (isMultiColumn()) {
-      if (editedValue === undefined || editedValue.length <= columnIndex) {
-        return undefined;
-      }
-      return editedValue[columnIndex];
-    }
-    return editedValue;
-  }, [editedValue, isMultiColumn]);
-
-  const updateValue = useCallback((newValue, columnIndex) => {
-    let editedColumnValue = getEditedColumnValue(columnIndex);
-    if (newValue === editedColumnValue) {
-      newValue = undefined;
-    }
-    if (isMultiColumn()) {
-      let updatedEditedValue = editedValue instanceof Array ? [...editedValue] : options.map(() => undefined);
-      while (updatedEditedValue.length <= columnIndex) {
-        updatedEditedValue.push(undefined);
-      }
-      updatedEditedValue[columnIndex] = newValue;
-      if (updateConfirm()) {
-        setEditedValue(updatedEditedValue);
-      } else {
-        setEditedValue(updatedEditedValue);
-        commitEdit();
-      }
-    } else {
-      if (updateConfirm()) {
-        setEditedValue(newValue);
-      } else {
-        setEditedValue(newValue);
-        commitEdit();
-      }
-    }
-  }, [getEditedColumnValue, isMultiColumn, editedValue, options, updateConfirm, commitEdit]);
-
-  const commitEdit = useCallback((nextFocusField) => {
-    let combinedValue = combineOptions && editedValue instanceof Array
-      ? format(editedValue)
-      : editedValue;
-    if (onChangeValue) {
-      onChangeValue(combinedValue);
-    }
+  const commitEdit = (nextFocusField) => {
     setIsActive(false);
-    if (nextFocusField != undefined && transferFocus) {
-      transferFocus.onTransferFocus(nextFocusField);
-    }
-  }, [combineOptions, editedValue, format, onChangeValue, transferFocus]);
-
-  const cancelEdit = useCallback(() => {
-    setIsActive(false);
-    setEditedValue('');
     setIsFreestyleTyping(false);
-  }, []);
+    onChangeValue(rawValue);
+  };
 
-  const clear = useCallback(() => {
-    let clearedValue = '';
-    if (editedValue instanceof Array) {
-      clearedValue = editedValue.map(() => undefined);
-    }
-    setEditedValue(clearedValue);
-    commitEdit();
-  }, [editedValue, commitEdit]);
+  const cancelEdit = () => {
+    setIsActive(false);
+    setIsFreestyleTyping(false);
+    setEditedValue(value);
+  };
 
-  const sumArray = useCallback((arr) => {
-    return arr.reduce((a, b) => {
-      let rightIndex = (a === undefined) ? 0 : Number(a);
-      let leftIndex = (b === undefined) ? 0 : Number(b);
-      return rightIndex + leftIndex;
+  const clearValue = () => {
+    setEditedValue('');
+    setRawValue('');
+    setIsActive(false);
+    onChangeValue('');
+  };
+
+  const updateValue = (newColumnValue: string, column: number) => {
+    setEditedValue((prev) => {
+      const updated = [];
+      updated[column] = newColumnValue;
+      return updated.join(' ').trim();
     });
-  }, []);
+    setIsDirty(true);
+  };
 
-  const format = useCallback((inputValue) => {
-    if (inputValue === undefined || inputValue === null || inputValue === '') {
-      return '';
-    }
-    let formattedValue = '';
-    if (isPrism && inputValue instanceof Array && inputValue.length === 8) {
-      let prismSumA = sumArray([inputValue[0], inputValue[1], inputValue[2]]);
-      let suffixA = inputValue[3] !== undefined ? `${inputValue[3]} ` : '';
-      let prismSumB = sumArray([inputValue[4], inputValue[5], inputValue[6]]);
-      let suffixB = inputValue[7] !== undefined ? inputValue[7] : '';
-
-      formattedValue = `${(prismSumA === 0) ? '' : prismSumA} ${suffixA}${(prismSumB === 0) ? '' : prismSumB} ${suffixB}`;
-    } else if (inputValue instanceof Array) {
-      inputValue.forEach((columnValue, columnIndex) => {
-        if (columnValue !== undefined) {
-          if (prefix !== undefined && prefix !== null && prefix.length > columnIndex && prefix[columnIndex] !== undefined) {
-            formattedValue += prefix[columnIndex];
-          }
-          if (columnValue !== undefined && columnValue !== null) {
-            formattedValue += columnValue;
-          }
-          if (suffix !== undefined && suffix !== null && suffix.length > columnIndex && suffix[columnIndex] !== undefined) {
-            formattedValue += suffix[columnIndex];
-          }
-        }
-      });
-    } else {
-      if (prefix != undefined && !isMultiColumn()) {
-        formattedValue += prefix;
-      }
-      if (inputValue !== undefined && inputValue !== null) {
-        formattedValue += inputValue.toString();
-      }
-      if (suffix != undefined && !isMultiColumn()) {
-        formattedValue += suffix;
-      }
-    }
-    return formattedValue;
-  }, [isPrism, sumArray, isMultiColumn, prefix, suffix]);
-
-  const updateConfirm = useCallback(() => {
-    return transferFocus !== undefined || isMultiColumn();
-  }, [transferFocus, isMultiColumn]);
+  const isMultiColumn = () => {
+    return options != undefined && options[0] instanceof Array;
+  };
 
   const renderPopup = () => {
     let allOptions = isMultiColumn() ? options : [options];
@@ -222,8 +160,7 @@ export const TilesField = ({
         <View style={styles.popupBackground}>
           <ScrollView horizontal={false}>
             <Text style={styles.modalTitle}>
-              {postfix(label, ': ')}
-              {format(editedValue)}
+              {label}: {isDirty ? editedValue : value}
             </Text>
             <FocusTile
               type="previous"
@@ -274,7 +211,7 @@ export const TilesField = ({
                           );
                         })}
                         {allOptions.length === 1 && !hideClear && (
-                          <ClearTile commitEdit={clear} />
+                          <ClearTile commitEdit={clearValue} />
                         )}
                         {allOptions.length === 1 && freestyle === true && (
                           <KeyboardTile commitEdit={startTyping} />
@@ -284,7 +221,7 @@ export const TilesField = ({
                     {allOptions.length > 1 && !hideClear && (
                       <View style={styles.modalColumn}>
                         <UpdateTile commitEdit={commitEdit} />
-                        <ClearTile commitEdit={clear} />
+                        <ClearTile commitEdit={clearValue} />
                         <RefreshTile commitEdit={cancelEdit} />
                         {freestyle === true && (
                           <KeyboardTile commitEdit={startTyping} />
@@ -301,48 +238,65 @@ export const TilesField = ({
     );
   };
 
-  const fieldStyle = style
-    ? style
-    : isActive
-    ? styles.inputFieldActive
-    : styles.inputField;
+  const handleKeyPress = (input) => {
+    setIsDirty(true);
+  };
 
-  const finalStyle = width ? [{width}, fieldStyle] : fieldStyle;
+  const handleBlur = (input) => {
+    if (isDirty && (propIsTyping || isFreestyleTyping)) {
+      const newValue = input?.target?.value ?? rawValue;
+      onChangeValue(newValue);
+      if (onBlur) {
+        onBlur();
+      }
+    }
+  };
 
-  let formattedValue = format(value);
-  if (editedValue?.length > 0) {
-    formattedValue = format(editedValue);
+  const handleChangeValue = (newValue: string) => {
+    if (!propIsTyping && !isFreestyleTyping) {
+      setEditedValue(newValue);
+      onChangeValue(rawValue);
+    }
+  }
+
+  const fieldStyle = style ? style : styles.formField;
+
+  if (readonly) {
+    return (
+      <View style={styles.fieldFlexContainer}>
+        <Text style={style}>
+          {prefix}
+          {formattedText}
+          {suffix}
+        </Text>
+      </View>
+    );
   }
 
   if (propIsTyping || isFreestyleTyping) {
     return (
       <TextField
-        value={formattedValue}
+        testID={testID}
+        prefix={prefix}
+        value={formattedText}
+        suffix={suffix}
         autoFocus
-        style={finalStyle}
-        multiline={multiline}
-        onChangeValue={commitTyping}
-        testID={testID ? testID + 'ActiveField' : undefined}
+        style={fieldStyle}
+        onChangeValue={handleChangeValue}
         title={label}
+        onBlur={handleBlur}
+        onKeyPress={handleKeyPress}
       />
     );
   }
 
   return (
     <View style={styles.fieldFlexContainer}>
-      <TouchableOpacity
-        style={styles.fieldFlexContainer}
-        onPress={startEditing}
-        disabled={readonly}
-        testID={testID}>
-        <Text style={finalStyle}>{formattedValue}</Text>
+      <TouchableOpacity style={styles.fieldFlexContainer} onPress={startEditing} disabled={readonly}>
+        <Text style={style}>{formattedText}</Text>
       </TouchableOpacity>
       {isActive && (
-        <Modal
-          visible={isActive}
-          transparent={true}
-          animationType={'slide'}
-          onRequestClose={cancelEdit}>
+        <Modal visible={isActive} transparent={true} animationType={'slide'} onRequestClose={cancelEdit}>
           {renderPopup()}
         </Modal>
       )}
@@ -351,10 +305,5 @@ export const TilesField = ({
 };
 
 TilesField.defaultProps = {
-  combineOptions: false,
-  freestyle: false,
-  multiline: false,
   readonly: false,
-  isPrism: false,
-  hideClear: false,
 };

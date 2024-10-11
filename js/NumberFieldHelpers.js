@@ -6,7 +6,8 @@ export const generateFractions = (props) => {
   if (
     props.groupSize !== undefined &&
     props.groupSize !== 0 &&
-    props.range[1] / props.groupSize > 40
+    props.range?.[1] &&
+    props.range?.[1] / props.groupSize > 40
   ) {
     return undefined;
   }
@@ -26,16 +27,16 @@ export const generateFractions = (props) => {
   if (
     props.groupSize != undefined &&
     props.groupSize > 1 &&
-    (props.range[0] < -props.groupSize || props.range[1] > props.groupSize)
+    (props.range?.[0] < -props.groupSize || props.range?.[1] > props.groupSize)
   ) {
-    let minGroup = Math.abs(props.range[0]);
-    let maxGroup = Math.abs(props.range[1]);
+    let minGroup = Math.abs(props.range?.[0]);
+    let maxGroup = Math.abs(props.range?.[1]);
     if (minGroup > maxGroup) {
       let c = maxGroup;
       maxGroup = minGroup;
       minGroup = c;
     }
-    if (props.range[0] < 0 && props.range[1] > 0) {
+    if (props.range?.[0] < 0 && props.range?.[1] > 0) {
       minGroup = 0;
     }
     minGroup = minGroup - (minGroup % props.groupSize);
@@ -49,44 +50,44 @@ export const generateFractions = (props) => {
   }
   //integer
   let minInt = 0;
-  if (props.range[0] < 0 && props.range[1] > 0) {
+  if (props.range?.[0] < 0 && props.range?.[1] > 0) {
     //Range includes 0
     minInt = 0;
   } else {
     //All positive or All negative range
     if (props.groupSize > 1) {
       //Grouped range
-      if (props.range[0] >= 0) {
+      if (props.range?.[0] >= 0) {
         //Only positive range
-        if (props.groupSize > props.range[1]) {
+        if (props.groupSize > props.range?.[1]) {
           //Unused group size
-          minInt = props.range[0];
+          minInt = props.range?.[0];
         }
       } else {
         //Only negative range
-        if (props.groupSize > -props.range[0]) {
+        if (props.groupSize > -props.range?.[0]) {
           //Unused group size
-          minInt = -props.range[1];
+          minInt = -props.range?.[1];
         }
       }
     } else {
       //All positive or negative with no group
-      if (props.range[0] >= 0) {
+      if (props.range?.[0] >= 0) {
         //Only positive range
-        minInt = props.range[0];
+        minInt = props.range?.[0];
       } else {
         //Only negative range
-        minInt = -props.range[1];
+        minInt = -props.range?.[1];
       }
     }
   }
   let maxInt =
     props.groupSize > 1
       ? Math.min(
-          Math.max(Math.abs(props.range[0]), Math.abs(props.range[1])),
+          Math.max(Math.abs(props.range?.[0]), Math.abs(props.range?.[1])),
           props.groupSize - 1,
         )
-      : props.range[1];
+      : props.range?.[1];
   if (props.stepSize instanceof Array) {
     let c = 0;
     for (let i = minInt; i <= maxInt; c++) {
@@ -261,11 +262,11 @@ export const calculateCombinedValue = (state, props) => {
     }
     if (
       state.editedValue[0] === '-' ||
-      (updatedCombinedValue !== 0 && props.range[1] <= 0)
+      (updatedCombinedValue !== 0 && props.range?.[1] <= 0)
     ) {
       updatedCombinedValue = -updatedCombinedValue;
     }
-    updatedCombinedValue = Math.max(props.range[0], Math.min(updatedCombinedValue, props.range[1]));
+    updatedCombinedValue = Math.max(props.range?.[0], Math.min(updatedCombinedValue, props.range?.[1]));
   }
   let suffix;
   if (state.editedValue[4] !== undefined) {
@@ -303,4 +304,3 @@ export const calculateCombinedValue = (state, props) => {
   }
   return (updatedCombinedValue !== undefined ? updatedCombinedValue : '') + unit;
 };
-
