@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { TextField, ClearTile, KeyboardTile, UpdateTile, RefreshTile, FocusTile } from './Widgets';
 import { styles } from './Styles';
-import { postfix } from './Util';
+import { postfix, split } from './Util';
 import { CustomModal as Modal } from './utilities/Modal';
 
 interface TilesFieldProps {
@@ -105,11 +105,18 @@ export const TilesField = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedValue]);
 
+
+  const isUndefinedArray = (arr) => {
+    // return true if array is an array and each element is undefined
+    return arr instanceof Array && arr.every((element) => element === undefined);
+  };
+
   const startEditing = () => {
     if (readonly) return;
     setIsActive(true);
     setIsDirty(false);
-    setEditedValue(value);
+    const updatedValue = isUndefinedArray(value) ? '' : value;
+    setEditedValue(combineOptions ? split(updatedValue ?? '', options) : updatedValue);
   };
 
   const startTyping = () => {
@@ -124,8 +131,8 @@ export const TilesField = ({
     setIsActive(false);
     setIsFreestyleTyping(false);
     onChangeValue(rawValue);
-    if (nextFocusField != undefined && transferFocus) {	
-      transferFocus.onTransferFocus(nextFocusField);	
+    if (nextFocusField != undefined && transferFocus) {
+      transferFocus.onTransferFocus(nextFocusField);
     }
   };
 
