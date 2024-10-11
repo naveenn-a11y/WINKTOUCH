@@ -416,27 +416,6 @@ export const NumberField = (props: NumberFieldProps) => {
   );
 };
 
-// NumberField.propTypes = {
-//   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-//   onChangeValue: PropTypes.func.isRequired,
-//   label: PropTypes.string,
-//   readonly: PropTypes.bool,
-//   isTyping: PropTypes.bool,
-//   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
-//   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-//   autoFocus: PropTypes.bool,
-//   listField: PropTypes.bool,
-//   freestyle: PropTypes.bool,
-//   options: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
-//   prefix: PropTypes.string,
-//   suffix: PropTypes.string,
-//   onBlur: PropTypes.func,
-//   testID: PropTypes.string,
-//   decimals: PropTypes.number,
-//   stepSize: PropTypes.number,
-//   groupSize: PropTypes.number,
-// };
-
 NumberField.defaultProps = {
   stepSize: 1,
   groupSize: 10,
