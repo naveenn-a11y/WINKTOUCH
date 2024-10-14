@@ -1812,7 +1812,6 @@ export function patientHeader(referral: boolean) {
     '.img-wrap svg {' +
     '  position:absolute;' +
     '  top:0;' +
-    '  left:0;' +
     '}' +
     '.img-wrap img {display:block; margin: auto;}' +
     'span.img-wrap p {' +
