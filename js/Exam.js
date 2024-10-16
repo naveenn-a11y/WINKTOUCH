@@ -867,13 +867,11 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderFooter = () => {
-    return this.state.isExamHistoryLoading ? (
+    return this.state.isExamHistoryLoading && (
       <View style={styles.examHistoryScreenLoadingContainer}>
         <ActivityIndicator size="large" />
         <Text style={{textAlign: 'center'}}>Loading..</Text>
       </View>
-    ) : (
-      <View />
     )
   }
 
