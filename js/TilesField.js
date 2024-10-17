@@ -371,9 +371,7 @@ export const TilesField = ({
     return (
       <TextField
         testID={testID}
-        prefix={prefix}
         value={formattedText}
-        suffix={suffix}
         autoFocus
         style={fieldStyle}
         onChangeValue={handleChangeValue}
