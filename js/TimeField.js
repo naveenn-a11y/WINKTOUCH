@@ -106,7 +106,15 @@ export const TimeField = ({
     if (twelveHourTimeB) {
       updatedRawValue = convertTo24HourTime(twelveHourTimeB[0]) + remaining12HourTextB;
     }
-    console.log('formatValue', updatedFormattedText, updatedRawValue, combinedEditedValue);
+
+    if (!prefix) {
+      updatedFormattedText = prefix + updatedFormattedText;
+    }
+
+    if (!suffix) {
+      updatedFormattedText = updatedFormattedText + suffix
+    }
+
     setFormattedText(updatedFormattedText);
     setRawValue(updatedRawValue);
     setPrevEditedValue(combinedEditedValue);
@@ -275,9 +283,7 @@ export const TimeField = ({
     return (
       <View style={styles.fieldFlexContainer}>
         <Text style={style}>
-          {prefix}
           {formattedText}
-          {suffix}
         </Text>
       </View>
     );
@@ -287,9 +293,7 @@ export const TimeField = ({
     return (
       <TextField
         testID={testID}
-        prefix={prefix}
         value={formattedText}
-        suffix={suffix}
         autoFocus
         style={fieldStyle}
         onChangeValue={handleChangeValue}
