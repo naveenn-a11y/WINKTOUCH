@@ -57,7 +57,6 @@ import { ErrorCard } from './Form';
 import { exportData, Machine } from './Machine';
 import { PatientCard } from './Patient';
 import { renderItemsHtml, renderParentGroupHtml } from './PatientFormHtml';
-import { Button } from './Widgets';
 
 export async function fetchExam(
   examId: string,
@@ -868,17 +867,11 @@ export class ExamHistoryScreen extends Component {
   }
 
   renderFooter = () => {
-    return this.state.isExamHistoryLoading ? (
+    return this.state.isExamHistoryLoading && (
       <View style={styles.examHistoryScreenLoadingContainer}>
         <ActivityIndicator size="large" />
         <Text style={{textAlign: 'center'}}>Loading..</Text>
       </View>
-    ) : (
-      <Button
-        title={'Load More'}
-        buttonStyle={styles.examHistoryLoadMoreBtn}
-        onPress={this.loadMoreExamHistoryData}
-      />
     )
   }
 
