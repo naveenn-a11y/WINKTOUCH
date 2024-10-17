@@ -51,6 +51,7 @@ export const NumberField = (props: NumberFieldProps) => {
     prevPropsValue: '',
     prevRawValue: '',
     prevEditedValue: '',
+    displayedText: '',
   });
 
   const formatValue = useCallback(() => {
@@ -173,6 +174,12 @@ export const NumberField = (props: NumberFieldProps) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.editedValue]);
 
+  useEffect(() => {
+    if (!state.isActive) {
+      setState(prevState => ({ ...prevState, displayedText: state.formattedText }));
+    }
+  }, [state.formattedText, state.isActive]);
+
   const startEditing = () => {
     if (props.readonly) return;
     setState(prevState => ({
@@ -193,8 +200,9 @@ export const NumberField = (props: NumberFieldProps) => {
   };
 
   const commitEdit = useCallback(() => {
-    setState(prevState => ({ ...prevState, isActive: false, isFreestyleTyping: false }));
+    setState(prevState => ({ ...prevState, isActive: false, isFreestyleTyping: false, displayedText: state.formattedText }));
     props.onChangeValue(state.rawValue);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props, state.rawValue]);
 
   const cancelEdit = () => {
@@ -401,7 +409,7 @@ export const NumberField = (props: NumberFieldProps) => {
         onPress={startEditing}
         disabled={props.readonly}
         testID={props.testID}>
-        <Text style={finalStyle}>{state.formattedText}</Text>
+        <Text style={finalStyle}>{state.displayedText}</Text>
       </TouchableOpacity>
       {state.isActive && (
         <Modal

@@ -54,6 +54,7 @@ export const TimeField = ({
   const [prevRawValue, setPrevRawValue] = useState('');
   const [prevEditedValue, setPrevEditedValue] = useState('');
   const [formattedText, setFormattedText] = useState('');
+  const [displayedText, setDisplayedText] = useState('');
 
   const formatValue = ()=> {
     let updatedFormattedText = '';
@@ -107,11 +108,11 @@ export const TimeField = ({
       updatedRawValue = convertTo24HourTime(twelveHourTimeB[0]) + remaining12HourTextB;
     }
 
-    if (!prefix) {
+    if (!prefix && prefix !== undefined) {
       updatedFormattedText = prefix + updatedFormattedText;
     }
 
-    if (!suffix) {
+    if (!suffix && suffix !== undefined) {
       updatedFormattedText = updatedFormattedText + suffix
     }
 
@@ -144,6 +145,12 @@ export const TimeField = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedValue]);
 
+  useEffect(() => {
+    if (!isActive) {
+      setDisplayedText(formattedText);
+    }
+  }, [formattedText, isActive]);
+
   const startEditing = () => {
     if (readonly) return;
     setIsActive(true);
@@ -162,6 +169,7 @@ export const TimeField = ({
   const commitEdit = (nextFocusField) => {
     setIsActive(false);
     setIsFreestyleTyping(false);
+    setDisplayedText(formattedText);
     onChangeValue(rawValue);
   };
 
@@ -307,7 +315,7 @@ export const TimeField = ({
   return (
     <View style={styles.fieldFlexContainer}>
       <TouchableOpacity style={styles.fieldFlexContainer} onPress={startEditing} disabled={readonly}>
-        <Text style={style}>{formattedText}</Text>
+        <Text style={style}>{displayedText}</Text>
       </TouchableOpacity>
       {isActive && (
         <Modal visible={isActive} transparent={true} animationType={'slide'} onRequestClose={cancelEdit}>

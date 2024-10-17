@@ -69,6 +69,7 @@ export const TilesField = ({
   const [prevRawValue, setPrevRawValue] = useState('');
   const [prevEditedValue, setPrevEditedValue] = useState('');
   const [formattedText, setFormattedText] = useState('');
+  const [displayedText, setDisplayedText] = useState('');
 
   const formatValue = () => {
     const updatedRawValue = editedValue;
@@ -105,6 +106,11 @@ export const TilesField = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedValue]);
 
+  useEffect(() => {
+    if (!isActive) {
+      setDisplayedText(formattedText);
+    }
+  }, [formattedText, isActive]);
 
   const isUndefinedArray = (arr) => {
     // return true if array is an array and each element is undefined
@@ -130,6 +136,7 @@ export const TilesField = ({
   const commitEdit = (nextFocusField) => {
     setIsActive(false);
     setIsFreestyleTyping(false);
+    setDisplayedText(formattedText);
     onChangeValue(rawValue);
     if (nextFocusField != undefined && transferFocus) {
       transferFocus.onTransferFocus(nextFocusField);
@@ -358,10 +365,8 @@ export const TilesField = ({
   if (readonly) {
     return (
       <View style={styles.fieldFlexContainer}>
-        <Text style={style}>
-          {prefix}
+        <Text style={style} testID={testID + 'ReadOnlyField'}>
           {formattedText}
-          {suffix}
         </Text>
       </View>
     );
@@ -370,11 +375,11 @@ export const TilesField = ({
   if (propIsTyping || isFreestyleTyping) {
     return (
       <TextField
-        testID={testID}
         value={formattedText}
         autoFocus
         style={fieldStyle}
         onChangeValue={handleChangeValue}
+        testID={testID + 'ActiveField'}
         title={label}
         onBlur={handleBlur}
         onKeyPress={handleKeyPress}
@@ -385,7 +390,7 @@ export const TilesField = ({
   return (
     <View style={styles.fieldFlexContainer}>
       <TouchableOpacity testID={testID + 'Field'} style={styles.fieldFlexContainer} onPress={startEditing} disabled={readonly}>
-        <Text style={style}>{formattedText}</Text>
+        <Text style={style}>{displayedText}</Text>
       </TouchableOpacity>
       {isActive && (
         <Modal visible={isActive} transparent={true} animationType={'slide'} onRequestClose={cancelEdit}>
