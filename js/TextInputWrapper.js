@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import { TouchableWithoutFeedback, TextInput as RNTextInput, StyleSheet, Text, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
@@ -10,6 +11,7 @@ type Props = {
   onChangeText: (text: string) => void;
   onFocus?: () => void;
   onBlur?: () => void;
+  onKeyPress?: (keyCode: Number) => void;
   keyboardType?: string;
   autoFocus?: boolean;
   readonly?: boolean;
@@ -25,6 +27,7 @@ export const TextInputWrapper: React.FC<Props> = ({
   onChangeText,
   onFocus,
   onBlur,
+  onKeyPress,
   keyboardType,
   autoFocus,
   readonly,
@@ -71,6 +74,7 @@ export const TextInputWrapper: React.FC<Props> = ({
         if (isWeb && event.nativeEvent.key === 'Enter' && !multiline) {
           onBlur?.();
         }
+        onKeyPress?.(event.nativeEvent.keyCode);
       }}
       onEndEditing={() => !isWeb && onBlur && onBlur()}
     />
@@ -133,4 +137,3 @@ const styles = StyleSheet.create({
     height: '100%',
   },
 });
-

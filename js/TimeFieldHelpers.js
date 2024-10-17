@@ -117,3 +117,43 @@ export const combinedValue = (editedValue) => {
   const minute = editedValue[2] || editedValue[3];
   return hour.substring(0, 2) + minute;
 };
+
+export const convertToHHMM = (timeString) => {
+  // Check if the input is a valid string
+  if (typeof timeString !== 'string' || timeString.trim() === '') {
+    return '';
+  }
+
+  // Use a regular expression to match the hh:mm:ss format
+  const match = timeString.match(/^(\d{1,2}):(\d{2}):\d{2}$/);
+
+  // If the input doesn't match the expected format, return the original string
+  if (!match) {
+    return timeString;
+  }
+
+  // Extract hours and minutes
+  const [, hours, minutes] = match;
+
+  // Pad hours with a leading zero if necessary
+  const paddedHours = hours.padStart(2, '0');
+
+  // Return the formatted hh:mm string
+  return `${paddedHours}:${minutes}`;
+}
+
+export const processTimeString = (inputString) => {
+  // Regular expression to match HH:MM:SS format with optional text after
+  const regex = /^(\d{1,2}:\d{2}:\d{2})(.*)$/;
+  const match = inputString.match(regex);
+
+  if (match) {
+    // If there's a match, we have HH:MM:SS format
+    const [, timepart, textpart] = match;
+    const convertedTime = convertToHHMM(timepart);
+    return convertedTime + textpart; // Append any text that was after the time
+  } else {
+    // If no match, return the original string
+    return inputString;
+  }
+}
