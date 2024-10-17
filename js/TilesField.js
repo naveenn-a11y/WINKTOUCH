@@ -386,7 +386,7 @@ export const TilesField = ({
 
   return (
     <View style={styles.fieldFlexContainer}>
-      <TouchableOpacity style={styles.fieldFlexContainer} onPress={startEditing} disabled={readonly}>
+      <TouchableOpacity testID={testID + 'Field'} style={styles.fieldFlexContainer} onPress={startEditing} disabled={readonly}>
         <Text style={style}>{formattedText}</Text>
       </TouchableOpacity>
       {isActive && (
