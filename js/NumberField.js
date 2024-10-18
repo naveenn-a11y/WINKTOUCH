@@ -57,14 +57,16 @@ export const NumberField = (props: NumberFieldProps) => {
   const formatValue = useCallback(() => {
     let formattedText = '';
     if (Array.isArray(state.editedValue)) {
-      // review state.fractions. if one of the objects in state.fractions is an empty array
-      // then set the same object in rawValue to an empty array
+
       if (state.fractions) {
         state.fractions.forEach((fraction, index) => {
           if (fraction.length === 0) {
             state.editedValue[index] = [];
           }
         });
+      }
+      if (!state.fractions) {
+        console.log('Fractions not defined');
       }
     }
     let rawValue = state.editedValue;
