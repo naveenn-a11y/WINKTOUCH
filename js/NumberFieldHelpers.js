@@ -219,7 +219,7 @@ export const splitValue = (props, value, fractions) => {
 
   let intPart = Math.floor(value - groupPart);
 
-  let decimals: ?string =
+  let decimals =
     hasDecimalSteps(props) && suffix === undefined
       ? formatDecimals(value - groupPart - intPart, props.decimals)
       : undefined;
