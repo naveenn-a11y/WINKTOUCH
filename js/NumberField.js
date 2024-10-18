@@ -184,11 +184,15 @@ export const NumberField = (props: NumberFieldProps) => {
 
   const startEditing = () => {
     if (props.readonly) return;
+    const newEditedValiue =
+      state.fractions ?
+        splitValue(props, state.prevRawValue, state.fractions) :
+        state.prevRawValue;
     setState(prevState => ({
       ...prevState,
       isActive: true,
       isDirty: false,
-      editedValue: splitValue(props, prevState.rawValue, prevState.fractions),
+      editedValue: newEditedValiue,
     }));
   };
 
@@ -202,7 +206,12 @@ export const NumberField = (props: NumberFieldProps) => {
   };
 
   const commitEdit = useCallback(() => {
-    setState(prevState => ({ ...prevState, isActive: false, isFreestyleTyping: false, displayedText: state.formattedText }));
+    setState(prevState => ({
+      ...prevState,
+      isActive: false,
+      isFreestyleTyping: false,
+      displayedText: state.formattedText
+    }));
     props.onChangeValue(state.rawValue);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props, state.rawValue]);
@@ -225,20 +234,91 @@ export const NumberField = (props: NumberFieldProps) => {
     props.onChangeValue('');
   };
 
-  const updateValue = (column, newColumnValue) => {
-    let newEditedValue;
-    if (state.fractions) {
-      newEditedValue = [...state.editedValue]
-      newEditedValue[column] = newColumnValue;
+  const handleInput = (column, newColumnValue) => {
+    if (state.fractions === undefined) {
+      handleSimpleInput(newColumnValue.toString());
     } else {
-      newEditedValue = state.editedValue + newColumnValue.toString();
+      handleFractionInput(newColumnValue, column);
     }
+  }
+
+  const handleSimpleInput = (newValue) =>{
+    let editedValue = state.editedValue;
+
+    if (editedValue === undefined || editedValue === null) {
+      editedValue = newValue;
+    } else {
+      editedValue = updateEditedValue(editedValue, newValue);
+    }
+
     setState(prevState => ({
       ...prevState,
-      editedValue: newEditedValue,
+      editedValue,
       isDirty: true,
     }));
-  };
+  }
+
+  const updateEditedValue = (currentValue, newValue) => {
+    switch (newValue) {
+      case '.':
+        return currentValue.includes('.') ? currentValue : currentValue + '.';
+      case '-':
+        return currentValue.startsWith('-') ? currentValue.substring(1) : '-' + currentValue;
+      default:
+        return currentValue + newValue;
+    }
+  }
+
+  const handleFractionInput = (newValue, column) => {
+    let editedValue = [...state.editedValue];
+    const submitColumn = isSubmitColumn(column);
+
+    if (column >= 1 && newValue === editedValue[column]) {
+      newValue = undefined;
+    }
+
+    editedValue[column] = newValue;
+
+    if (!submitColumn) {
+      clearFollowingColumns(editedValue, column);
+    }
+
+    setState(prevState => ({
+      ...prevState,
+      editedValue,
+      isDirty: true,
+    }));
+
+    if (submitColumn) {
+      commitEdit();
+    }
+  }
+
+  const isSubmitColumn = (column) => {
+    const { suffix, freestyle, decimals } = props;
+    const fractions = state.fractions;
+
+    if (suffix && typeof suffix === 'string' && !suffix.includes('code')) {
+      return column === 4;
+    }
+
+    let submitColumn;
+    if (fractions[4].length > (freestyle ? 4 : 3)) {
+      submitColumn = 4;
+    } else if (decimals && decimals > 0) {
+      submitColumn = 3;
+    } else {
+      submitColumn = 2;
+    }
+
+    return column >= submitColumn;
+  }
+
+  const clearFollowingColumns = (editedValue, column) => {
+    for (let i = column + 1; i < 5; i++) {
+      editedValue[i] = undefined;
+    }
+  }
 
   const handleBlur = (input) => {
     if (props.isTyping || state.isFreestyleTyping) {
@@ -299,7 +379,7 @@ export const NumberField = (props: NumberFieldProps) => {
                       if (option === '\u2714') {
                         return (
                           <UpdateTile
-                            commitEdit={this.commitEdit}
+                            commitEdit={commitEdit}
                             key={row}
                           />
                         );
@@ -320,7 +400,7 @@ export const NumberField = (props: NumberFieldProps) => {
                       return (
                         <TouchableOpacity
                           key={row}
-                          onPress={() => updateValue(column, option)}
+                          onPress={() => handleInput(column, option)}
                           testID={`option${column + 1}-${row + 1}`}>
                           <View
                             style={

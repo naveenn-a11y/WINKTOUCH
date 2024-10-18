@@ -16,8 +16,8 @@ export const generateFractions = (props) => {
     return fractions;
   }
   //sign + -
-  if (props.range[0] < 0) {
-    if (props.range[1] <= 0) {
+  if (props.range?.[0] < 0) {
+    if (props.range?.[1] <= 0) {
       fractions[0].push('-');
     } else {
       fractions[0].push('+', '-');
@@ -132,7 +132,6 @@ export const generateFractions = (props) => {
       );
     }
   }
-  
   //Clear Button
   fractions[4].push('\u2715');
   //Refresh Button
@@ -171,69 +170,68 @@ const hasDecimalSteps = (props) => {
 };
 
 export const splitValue = (props, value, fractions) => {
+  if (fractions === undefined) {
+    return value;
+  }
+
   const originalValue = value;
   if (value === undefined || value === null) {
-    return [undefined, undefined, undefined, undefined, undefined, undefined];
+    return [undefined, undefined, undefined, undefined, undefined];
   }
-  if (props.prefix && props.prefix !== '+' && value instanceof String) {
-    if (value?.startsWith(props.prefix)) {
-      value = value.substring(props.prefix.length);
+
+  // Remove prefix
+  if (props.prefix && props.prefix !== '+' && typeof value === 'string' && value.startsWith(props.prefix)) {
+    value = value.substring(props.prefix.length);
+  }
+
+  // Parse suffix
+  let suffix;
+  if (props.suffix !== undefined && typeof value === 'string' && fractions[4] !== undefined) {
+    for (let i = 0; i < fractions[4].length; i++) {
+      if (value.toLowerCase().endsWith(fractions[4][i].toLowerCase())) {
+        suffix = fractions[4][i];
+        value = value.substring(0, value.length - suffix.length);
+        if (value === '') {
+          return [undefined, undefined, undefined, undefined, suffix];
+        }
+        value = parseFloat(value);
+        if (isNaN(value)) {
+          return [undefined, undefined, undefined, undefined, originalValue];
+        }
+        break;
+      }
     }
   }
-  let suffix;
-  if (
-    props.suffix !== undefined &&
-    value.toLowerCase &&
-    fractions && 
-    Array.isArray(fractions) && 
-    fractions[5] !== undefined
-  ) {
-    const lowercaseValue = value.toLowerCase();
-    const updatedSuffix = fractions[5].find((fraction) => lowercaseValue.endsWith(fraction.toLowerCase()));
-    if (!updatedSuffix) return [undefined, originalValue];
 
-    const numericPart = value.slice(0, -updatedSuffix.length);
-    if (numericPart === '') return [undefined, undefined, undefined, undefined, undefined, updatedSuffix];
-
-    const parsedValue = parseFloat(numericPart);
-    if (isNaN(parsedValue)) return [undefined, undefined, undefined, undefined, undefined, originalValue];
-
-    return [parsedValue, updatedSuffix];
-  }
   if (typeof value === 'string') {
     value = parseFloat(value);
     if (isNaN(value)) {
-      return [undefined, undefined, undefined, undefined, undefined, undefined];
+      return [undefined, undefined, undefined, undefined, undefined];
     }
   }
-  let sign =
-    value < 0
-      ? '-'
-      : props.prefix != undefined && props.prefix.endsWith('+')
-      ? '+'
-      : undefined;
+
+  let sign = value < 0 ? '-' : (props.prefix !== undefined && props.prefix.endsWith('+') ? '+' : undefined);
   value = Math.abs(value);
-  let groupPart =
-    props.groupSize != undefined && props.groupSize > 0
-      ? props.groupSize * Math.floor(value / props.groupSize)
-      : 0;
+
+  let groupPart = (props.groupSize !== undefined && props.groupSize > 0)
+    ? props.groupSize * Math.floor(value / props.groupSize)
+    : 0;
+
   let intPart = Math.floor(value - groupPart);
-  let decimals =
+
+  let decimals: ?string =
     hasDecimalSteps(props) && suffix === undefined
       ? formatDecimals(value - groupPart - intPart, props.decimals)
       : undefined;
+
   const splittedValue = [
     sign,
-    props.groupSize != undefined &&
-    props.groupSize > 0 &&
-    groupPart > 0
-      ? groupPart.toString()
-      : undefined,
+    (props.groupSize !== undefined && props.groupSize > 0 && groupPart > 0) ? groupPart.toString() : undefined,
     intPart.toString(),
     decimals,
-    suffix,
-    undefined,
+    suffix
   ];
+
   return splittedValue;
 };
 
@@ -302,5 +300,6 @@ export const calculateCombinedValue = (state, props) => {
         : String(updatedCombinedValue);
     return formattedValue + unit + suffix;
   }
+
   return (updatedCombinedValue !== undefined ? updatedCombinedValue : '') + unit;
 };
