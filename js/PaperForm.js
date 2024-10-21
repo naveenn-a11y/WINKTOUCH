@@ -6,28 +6,19 @@
 import React, {Component} from 'react';
 import {
   View,
-  Text,
-  Image,
   ScrollView,
-  TextInput,
   StyleSheet,
 } from 'react-native';
 import type {
   Exam,
   GlassesRx,
-  FieldDefinition,
-  ExamDefinition,
-  GroupDefinition,
   PatientInfo,
 } from './Types';
-import {styles, fontScale, imageStyle} from './Styles';
-import {DiopterField, DegreeField} from './Refraction';
-import {CheckButton, DateField, NumberField, TilesField} from './Widgets';
+import {fontScale} from './Styles';
+import {CheckButton} from './Widgets';
 import {ImageField} from './ImageField';
 import {FormInput} from './Form';
-import {formatLabel} from './Items';
-import {getCachedItem} from './DataCache';
-import {deepClone, setValue} from './Util';
+import {setValue} from './Util';
 import {
   storeExam,
   getFieldDefinition,

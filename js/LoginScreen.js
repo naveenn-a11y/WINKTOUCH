@@ -30,7 +30,7 @@ import type {
 } from './Types';
 import base64 from 'base-64';
 import { styles, fontScale, isWeb } from './Styles';
-import { Button, ListField, TilesField } from './Widgets';
+import { Button, ListField } from './Widgets';
 import {
   strings,
   switchLanguage,
