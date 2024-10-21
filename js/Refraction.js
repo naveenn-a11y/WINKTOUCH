@@ -19,7 +19,6 @@ import {strings} from './Strings';
 import {
   NoAccess,
 } from './Widgets';
-import {RulerField} from './RulerField';
 import { NumberField } from './NumberField';
 import { TilesField } from './TilesField';
 import {
