@@ -72,10 +72,7 @@ export const TilesField = ({
   const [displayedText, setDisplayedText] = useState('');
 
   const formatValue = () => {
-    let updatedRawValue = editedValue;
-    if (typeof updatedRawValue === 'string') {
-      updatedRawValue = updatedRawValue.trim();
-    }
+    const updatedRawValue = Array.isArray(editedValue) ? editedValue : editedValue?.trim() ?? editedValue;
     const updatedFormattedText = format(updatedRawValue);
     setFormattedText(updatedFormattedText);
     setRawValue(updatedRawValue);
@@ -86,9 +83,10 @@ export const TilesField = ({
   }
 
   useEffect(() => {
-    if (value.trim() !== prevPropsValue && !isActive) {
-      setEditedValue(value);
-      setPrevPropsValue(value);
+    const updatedValue = Array.isArray(value) ? value : value?.trim() ?? value;
+    if (updatedValue !== prevPropsValue && !isActive) {
+      setEditedValue(updatedValue);
+      setPrevPropsValue(updatedValue);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -102,9 +100,10 @@ export const TilesField = ({
   }, [rawValue]);
 
   useEffect(() => {
-    if (editedValue.trim() !== prevEditedValue) {
+    const updatedEditedValue = Array.isArray(editedValue) ? editedValue : editedValue?.trim() ?? editedValue;
+    if (updatedEditedValue !== prevEditedValue) {
       formatValue();
-      setPrevEditedValue(editedValue);
+      setPrevEditedValue(updatedEditedValue);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedValue]);
