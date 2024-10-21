@@ -72,7 +72,10 @@ export const TilesField = ({
   const [displayedText, setDisplayedText] = useState('');
 
   const formatValue = () => {
-    const updatedRawValue = editedValue;
+    let updatedRawValue = editedValue;
+    if (typeof updatedRawValue === 'string') {
+      updatedRawValue = updatedRawValue.trim();
+    }
     const updatedFormattedText = format(updatedRawValue);
     setFormattedText(updatedFormattedText);
     setRawValue(updatedRawValue);
@@ -83,7 +86,7 @@ export const TilesField = ({
   }
 
   useEffect(() => {
-    if (value !== prevPropsValue && value !== ' ' && !isActive) {
+    if (value.trim() !== prevPropsValue && !isActive) {
       setEditedValue(value);
       setPrevPropsValue(value);
     }
@@ -99,7 +102,7 @@ export const TilesField = ({
   }, [rawValue]);
 
   useEffect(() => {
-    if (editedValue !== prevEditedValue && editedValue !== ' ') {
+    if (editedValue.trim() !== prevEditedValue) {
       formatValue();
       setPrevEditedValue(editedValue);
     }
