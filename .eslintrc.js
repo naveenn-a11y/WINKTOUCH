@@ -8,5 +8,6 @@ module.exports = {
     'eqeqeq': 'off',
     'react/no-string-refs': 'off',
     'no-eval': 'off',
+    "radix": "off",
   },
 };
