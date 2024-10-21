@@ -7,7 +7,7 @@ import DeviceInfo from 'react-native-device-info';
 import { strings } from './Strings';
 import { isWeb } from './Styles';
 
-export const deploymentVersion: string = 'v414';
+export const deploymentVersion: string = 'v413';
 export const ehrApiVersion: string = 'EHR-413';
 export const dbVersion: string = '2058';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '1';
