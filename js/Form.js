@@ -884,7 +884,9 @@ export class FormOptions extends Component {
 
   changeValue = (text: ?string) => {
     let newValue: ?string | ?number = this.parseValue(text);
-    this.props.onChangeValue(newValue);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(newValue);
+    }
   };
 
   dismissError = () => {
