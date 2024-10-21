@@ -72,40 +72,40 @@ export const NumberField = (props: NumberFieldProps) => {
       rawValue = calculateCombinedValue(state, props);
     }
 
-    if (rawValue === undefined || rawValue === null || rawValue.toString().trim() === '') {
+    if (rawValue === undefined || rawValue === null || rawValue?.toString().trim() === '') {
       setState(prevState => ({ ...prevState, formattedText: '', rawValue: '' }));
       return;
     }
 
     if (Array.isArray(rawValue)) {
-      formattedText = rawValue.filter(v => v !== undefined).join(' / ');
-    } else if (Array.isArray(props.options) && props.options.includes(rawValue)) {
+      formattedText = rawValue?.filter(v => v !== undefined)?.join(' / ');
+    } else if (Array.isArray(props.options) && props.options?.includes(rawValue)) {
       formattedText = rawValue;
     } else if (isNaN(rawValue)) {
       formattedText = rawValue;
-      if (props.prefix && props.prefix !== '+' && !formattedText.startsWith(props.prefix)) {
+      if (props.prefix && props.prefix !== '+' && !formattedText?.startsWith(props.prefix)) {
         formattedText = props.prefix + formattedText;
       }
     } else {
       let numericValue = Number(rawValue);
       formattedText = props.decimals !== undefined && props.decimals > 0
-        ? numericValue.toFixed(props.decimals)
+        ? numericValue?.toFixed(props.decimals)
         : String(numericValue);
 
       if (props.prefix) {
-        if (props.prefix.endsWith('+') && numericValue >= 0) {
-          if (!formattedText.includes(props.prefix)) {
+        if (props.prefix?.endsWith('+') && numericValue >= 0) {
+          if (!formattedText?.includes(props.prefix)) {
         formattedText = props.prefix + formattedText;
           }
-        } else if (!props.prefix.endsWith('+')) {
-          if (!formattedText.includes(props.prefix)) {
+        } else if (!props.prefix?.endsWith('+')) {
+          if (!formattedText?.includes(props.prefix)) {
         formattedText = props.prefix + formattedText;
           }
         }
       }
 
-      if (props.suffix && typeof props.suffix === 'string' && !props.suffix.includes('Code')) {
-        if (!formattedText.includes(props.suffix)) {
+      if (props.suffix && typeof props.suffix === 'string' && !props.suffix?.includes('Code')) {
+        if (!formattedText?.includes(props.suffix)) {
           formattedText += props.suffix;
         }
       }
@@ -119,16 +119,16 @@ export const NumberField = (props: NumberFieldProps) => {
         updatedRawValue = Number(rawValue);
       } else {
         // Check if the string starts with "20/"
-        if (rawValue.startsWith('20/')) {
-          const numericPart = rawValue.substring(3);
+        if (rawValue?.startsWith('20/')) {
+          const numericPart = rawValue?.substring(3);
           if (!isNaN(numericPart)) {
           updatedRawValue = Number(numericPart);
           }
         }
 
         // Check if the string ends with a suffix
-        if (props.suffix && typeof props.suffix === 'string' && rawValue.endsWith(props.suffix)) {
-          const numericPart = rawValue.slice(0, -props.suffix.length);
+        if (props.suffix && typeof props.suffix === 'string' && rawValue?.endsWith(props.suffix)) {
+          const numericPart = rawValue?.slice(0, -props.suffix.length);
           if (!isNaN(numericPart)) {
           updatedRawValue = Number(numericPart);
           }
@@ -259,9 +259,9 @@ export const NumberField = (props: NumberFieldProps) => {
   const updateEditedValue = (currentValue, newValue) => {
     switch (newValue) {
       case '.':
-        return currentValue.includes('.') ? currentValue : currentValue + '.';
+        return currentValue?.includes('.') ? currentValue : currentValue + '.';
       case '-':
-        return currentValue.startsWith('-') ? currentValue.substring(1) : '-' + currentValue;
+        return currentValue?.startsWith('-') ? currentValue?.substring(1) : '-' + currentValue;
       default:
         return currentValue + newValue;
     }
