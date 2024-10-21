@@ -83,7 +83,7 @@ export const TilesField = ({
   }
 
   useEffect(() => {
-    if (value !== prevPropsValue && !isActive) {
+    if (value !== prevPropsValue && value !== ' ' && !isActive) {
       setEditedValue(value);
       setPrevPropsValue(value);
     }
@@ -99,7 +99,7 @@ export const TilesField = ({
   }, [rawValue]);
 
   useEffect(() => {
-    if (editedValue !== prevEditedValue) {
+    if (editedValue !== prevEditedValue && editedValue !== ' ') {
       formatValue();
       setPrevEditedValue(editedValue);
     }
