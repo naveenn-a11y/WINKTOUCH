@@ -662,7 +662,6 @@ export class GeneralPrismInput extends Component {
     let prismVLastDigit =
       isNaN(prism.prismV) || prism.prismV == 0
         ? 0
-         
         : parseInt(prism.prismV) % 10;
     let prismVTenthValue =
       isNaN(prism.prismV) || prism.prismV == 0
