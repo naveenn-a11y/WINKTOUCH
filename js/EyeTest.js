@@ -10,9 +10,9 @@ import {
   Button,
 } from 'react-native';
 import {styles} from './Styles';
-import {ImageField} from './ImageField';
 import { TilesField } from './TilesField';
 import { NumberField } from './NumberField';
+import {ImageField} from './ImageField';
 
 const strabismusTypes: string[] = [
   'Exotropia',
