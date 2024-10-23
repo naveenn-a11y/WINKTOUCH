@@ -75,7 +75,6 @@ import {Microphone} from './Voice';
 import {HtmlEditor} from '../src/components/TinyMceEditor/HtmlEditor';
 import {CustomModal as Modal} from './utilities/Modal';
 
-
 export function isReferralsEnabled(): boolean {
   const referralTemplates: string[] = getAllCodes('referralTemplates');
   if (
