@@ -17,10 +17,10 @@ import type {
 import {fontScale, styles} from './Styles';
 import {strings} from './Strings';
 import {
+  NumberField,
+  TilesField,
   NoAccess,
 } from './Widgets';
-import { NumberField } from './NumberField';
-import { TilesField } from './TilesField';
 import {
   formatDegree,
   formatDiopter,

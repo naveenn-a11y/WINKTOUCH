@@ -38,8 +38,7 @@ import type {
   Upload,
 } from './Types';
 import { fetchReferralFollowUpHistory, fetchVisit } from './Visit';
-import { Alert, Button, TextField } from './Widgets';
-import { TilesField } from './TilesField';
+import { Alert, Button, TextField, TilesField } from './Widgets';
 import { fetchWinkRest } from './WinkRest';
 
 import RNBeep from '@dashdoc/react-native-system-sounds';

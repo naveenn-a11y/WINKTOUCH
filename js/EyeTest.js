@@ -10,8 +10,7 @@ import {
   Button,
 } from 'react-native';
 import {styles} from './Styles';
-import { TilesField } from './TilesField';
-import { NumberField } from './NumberField';
+import {TilesField, NumberField} from './Widgets';
 import {ImageField} from './ImageField';
 
 const strabismusTypes: string[] = [
