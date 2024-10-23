@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {Component} from 'react';
 import {ScrollView, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import {TextField, ClearTile, KeyboardTile, UpdateTile, RefreshTile} from './Widgets';
 import {strings} from './Strings';
@@ -15,246 +15,272 @@ import {
   processTimeString,
 } from './TimeFieldHelpers';
 
-interface TimeFieldProps {
-  value?: string;
-  onChangeValue: (value: string) => void;
-  label?: string;
-  readonly?: boolean;
-  past?: boolean;
-  future?: boolean;
-  isTyping?: boolean;
-  style?: React.CSSProperties | React.CSSProperties[];
-  prefix?: string;
-  suffix?: string;
-  onBlur?: () => void;
-  testID?: string;
-}
+export class TimeField extends Component {
+  props: {
+    value: string, //Time should always be in 24h format 23:05
+    label: string,
+    readonly?: boolean,
+    past?: boolean,
+    future?: boolean,
+    isTyping?: boolean,
+    onBlur?: () => void,
+  };
+  state: {
+    isActive: boolean,
+    isDirty: boolean,
+    fractions: string[][],
+    editedValue: (?string)[],
+    isTyping: boolean,
+  };
+  static defaultProps = {
+    readonly: false,
+    past: false,
+    future: false,
+  };
 
-export const TimeField = ({
-  value,
-  onChangeValue,
-  label,
-  readonly = false,
-  past = false,
-  future = false,
-  isTyping: propIsTyping,
-  style,
-  prefix,
-  suffix,
-  onBlur,
-  testID,
-}: TimeFieldProps) => {
-  const fractions = generateFractions({past, future});
-  const [isActive, setIsActive] = useState(false);
-  const [isDirty, setIsDirty] = useState(false);
-  const [isFreestyleTyping, setIsFreestyleTyping] = useState(false);
-  const [editedValue, setEditedValue] = useState(value);
-  const [rawValue, setRawValue] = useState(value);
-  const [prevPropsValue, setPrevPropsValue] = useState('');
-  const [prevRawValue, setPrevRawValue] = useState('');
-  const [prevEditedValue, setPrevEditedValue] = useState('');
-  const [formattedText, setFormattedText] = useState('');
-  const [displayedText, setDisplayedText] = useState('');
-
-  const formatValue = ()=> {
-    let updatedFormattedText = '';
-
-    if (!editedValue) {
-      updatedFormattedText = '';
-    }
-
-    const time24Regex = /\b([01][0-9]|2[0-3]):([0-5][0-9])\b/;
-    const time12Regex = /\b(1[0-2]|0?[1-9]):([0-5][0-9])\s?(AM|PM)\b/i;
-
-    // check if the editedValue contains a 24 hour time. if it does, replace
-    // it with a 12 hour time; however, be sure to leave any non time text as is:
-    // 10:10 -> 10:10 AM, 13:10 -> 1:10 PM, 00:10 -> 12:10 AM, 23:10 -> 11:10 PM
-    // 10:10 abc -> 10:10 AM abc, 13:10 abc -> 1:10 PM abc, 00:10 abc -> 12:10 AM abc, 23:10 abc -> 11:10 PM abc
-    let combinedEditedValue = Array.isArray(editedValue) ? combinedValue(editedValue) : editedValue;
-    combinedEditedValue = combinedEditedValue ?? '';
-    combinedEditedValue = processTimeString(combinedEditedValue)
-
-
-    const twentyFourHourTimeA = combinedEditedValue.match(time24Regex);
-    const remaining24HourTextA = combinedEditedValue.replace(time24Regex, '');
-    if (twentyFourHourTimeA) {
-      updatedFormattedText = convertTime(twentyFourHourTimeA[0]) + remaining24HourTextA;
-    } else {
-      updatedFormattedText = combinedEditedValue;
-    }
-
-    let updatedRawValue = '';
-
-    if (!editedValue) {
-      updatedRawValue = '';
-    }
-
-    if (updatedFormattedText === '') {
-      updatedRawValue = '';
-    }
-
-    // check the editedValue for a 24 hour time
-    // if it contains a 24 hour time, leave it as
-    // if editedValue contains a 12 hour time, convert it to 24 hour time
-    // if there is text after the 12 hour time, ensure it remains
-
-    const twentyFourHourTimeB = combinedEditedValue.match(time24Regex);
-    if (twentyFourHourTimeB) {
-      updatedRawValue = combinedEditedValue
-    }
-    const twelveHourTimeB = combinedEditedValue.match(time12Regex);
-    const remaining12HourTextB = combinedEditedValue.replace(time12Regex, '');
-    if (twelveHourTimeB) {
-      updatedRawValue = convertTo24HourTime(twelveHourTimeB[0]) + remaining12HourTextB;
-    }
-
-    if (!prefix && prefix !== undefined) {
-      updatedFormattedText = prefix + updatedFormattedText;
-    }
-
-    if (!suffix && suffix !== undefined) {
-      updatedFormattedText = updatedFormattedText + suffix
-    }
-
-    setFormattedText(updatedFormattedText);
-    setRawValue(updatedRawValue);
-    setPrevEditedValue(combinedEditedValue);
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      editedValue: [],
+      isActive: false,
+      fractions: this.generateFractions(),
+      isDirty: false,
+      isTyping: props.isTyping,
+    };
   }
 
-  useEffect(() => {
-    if (value !== prevPropsValue && !isActive) {
-      setEditedValue(value);
-      setPrevPropsValue(value);
+  componentDidUpdate(prevProps: any) {
+    if (this.props.isTyping === prevProps.isTyping) {
+      return;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
+    this.setState({
+      isTyping: this.props.isTyping,
+    });
+  }
 
-  useEffect(() => {
-    if (rawValue !== prevRawValue) {
-      formatValue();
-      setPrevRawValue(rawValue);
+  commitTyping = (newValue: string) => {
+    const formattedTime = parseTime24Format(newValue);
+    this.setState({
+      editedValue: (formattedTime === 'Invalid date') ? [] : this.splitValue(formattedTime) 
+    }, 
+      this.commitEdit
+    );
+  };
+
+  startTyping = () => {
+    if (this.props.readonly) {
+      return;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawValue]);
+    this.setState({isActive: false, isTyping: true});
+  };
 
-  useEffect(() => {
-    if (editedValue !== prevEditedValue) {
-      formatValue();
-      setPrevEditedValue(editedValue);
+  startEditing = () => {
+    if (this.props.readonly) {
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editedValue]);
+    this.setState({
+      editedValue: this.splitValue(this.props.value),
+      isActive: true,
+      isDirty: false,
+    });
+  };
 
-  useEffect(() => {
-    if (!isActive) {
-      setDisplayedText(formattedText);
+  commitEdit = () => {
+    const editedValue: ?Date = this.combinedValue();
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
     }
-  }, [formattedText, isActive]);
-
-  const startEditing = () => {
-    if (readonly) return;
-    setIsActive(true);
-    setIsDirty(false);
-    setEditedValue(splitValue(value, fractions));
+    this.setState({isActive: false, isTyping: this.props.isTyping});
   };
 
-  const startTyping = () => {
-    if (readonly) return;
-    setIsActive(false);
-    setIsFreestyleTyping(true);
-    setEditedValue(editedValue);
-    setIsDirty(true);
-  };
-
-  const commitEdit = (nextFocusField) => {
-    setIsActive(false);
-    setIsFreestyleTyping(false);
-    setDisplayedText(formattedText);
-    onChangeValue(rawValue);
-  };
-
-  const cancelEdit = () => {
-    setIsActive(false);
-    setIsFreestyleTyping(false);
-    setEditedValue(editedValue);
-  };
-
-  const clearValue = () => {
-    setEditedValue('');
-    setRawValue('');
-    setIsActive(false);
-    onChangeValue('');
-  };
-
-  const commitNow = (offset) => {
-    let time = now();
-    if (offset) {
-      const minutes = parseInt(offset, 10);
+  commitNow = (offset?: ?string) => {
+    let time: Date = now();
+    if (
+      offset !== undefined &&
+      offset != null &&
+      offset != 0 &&
+      offset != '0'
+    ) {
+      let minutes: number = parseInt(offset.substring(0, offset.indexOf(' ')));
       time.setMinutes(time.getMinutes() + minutes);
     }
-    const newValue = formatDate(time, time24Format);
-    setEditedValue(newValue);
-    // Use the current editedValue to calculate the new rawValue
-    const newRawValue = convertTo24HourTime(convertToAMPMTime(newValue));
-    setIsActive(false);
-    onChangeValue(newRawValue);
+    const editedValue: string = formatDate(time, time24Format);
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(editedValue);
+    }
+    this.setState({isActive: false});
   };
 
-  const updateValue = (column, newColumnValue) => {
-    if (column < 4) {
-      setEditedValue((prev) => {
-        const updated = Array.isArray(prev) ? [...prev] : splitValue(prev, fractions);
-        updated[column] = newColumnValue === updated[column] ? undefined : newColumnValue;
-        if (column < 4) {
-          updated[column % 2 === 0 ? column + 1 : column - 1] = undefined;
-        }
-        return updated;
-      });
-      setIsDirty(true);
+  cancelEdit = () => {
+    this.setState({isActive: false, isTyping: this.props.isTyping});
+  };
+
+  clear = () => {
+    if (this.props.onChangeValue) {
+      this.props.onChangeValue(undefined);
+    }
+    this.setState({isActive: false});
+  };
+
+  format(time24: ?string): string {
+    return formatTime(time24);
+  }
+
+  generateFractions(): string[][] {
+    return [
+      ['07:00', '09:00', '11:00', '13:00', '15:00', '17:00', '19:00'],
+      ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+      [':00', ':10', ':20', ':30', ':40', ':50'],
+      [':05', ':15', ':25', ':35', ':45', ':55'],
+      this.props.past
+        ? this.props.future
+          ? [
+              '+15 min',
+              '+10 min',
+              '+5 min',
+              '+1 min',
+              '-1 min',
+              '-5 min',
+              '-10 min',
+              '-15 min',
+            ]
+          : ['-1 min', '-5 min', '-10 min', '-15 min', '-30 min']
+        : ['+1 min', '+5 min', '+10 min', '+15 min', '+30 min'],
+    ];
+  }
+
+  splitValue(value: string): (?string)[] {
+    if (!value || value.length < 5) {
+      return [];
+    }
+    const time24: string = value;
+    const hour: string = time24.substring(0, 2) + ':00';
+    let hour1, hour2, minute1, minute2: ?string;
+    if (this.state.fractions[0].indexOf(hour) >= 0) {
+      hour1 = hour;
+      hour2 = undefined;
+    } else {
+      hour1 = undefined;
+      hour2 = hour;
+    }
+    const minute: string = ':' + time24.substring(3, 5);
+    if (this.state.fractions[2].indexOf(minute) >= 0) {
+      minute1 = minute;
+      minute2 = undefined;
+    } else {
+      minute1 = undefined;
+      minute2 = minute;
+    }
+    return [hour1, hour2, minute1, minute2, undefined];
+  }
+
+  combinedValue(): string {
+    const editedValue = this.state.editedValue;
+    //validate for freetyping
+    if (typeof editedValue === 'string') {
+      const formattedTime = parseTime24Format(editedValue);
+      return formattedTime === 'Invalid date' ? undefined : `${formattedTime.substring(0,2)}${formattedTime.substring(3,5)}`;
     }
 
-    if (column === 4) commitNow(newColumnValue);
-  };
+    let hour: ?string =
+      this.state.editedValue[0] === undefined
+        ? this.state.editedValue[1]
+        : this.state.editedValue[0];
+    if (hour === undefined) {
+      return undefined;
+    }
+    hour = hour.substring(0, 2);
+    const minute: ?string =
+      this.state.editedValue[2] === undefined
+        ? this.state.editedValue[3]
+        : this.state.editedValue[2];
+    return hour + minute;
+  }
 
-  const renderPopup = () => {
+  updateValue(column: number, newColumnValue: ?string): void {
+    let editedValue: (?string)[] = this.state.editedValue;
+    if (newColumnValue === this.state.editedValue[column]) {
+      newColumnValue = undefined;
+    }
+    editedValue[column] = newColumnValue;
+    if (column === 0) {
+      editedValue[1] = undefined;
+    }
+    if (column === 1) {
+      editedValue[0] = undefined;
+    }
+    if (column === 2) {
+      editedValue[3] = undefined;
+    }
+    if (column === 3) {
+      editedValue[2] = undefined;
+    }
+    if (column === 4) {
+      this.commitNow(newColumnValue);
+    } else {
+      this.setState({editedValue, isDirty: true});
+    }
+  }
+
+  renderPopup(): Component {
+    const fractions: string[][] = this.state.fractions;
+    let formattedValue = this.format(
+      this.state.isDirty ? this.combinedValue() : this.props.value,
+    );
     return (
-      <TouchableWithoutFeedback>
+      <TouchableWithoutFeedback onPress={this.commitEdit}>
         <View style={styles.popupBackground}>
           <ScrollView horizontal={false}>
             <Text style={styles.modalTitle}>
-              {label}: {formatTime(isDirty ? combinedValue(editedValue) : value)}
+              {this.props.label}: {formattedValue}
             </Text>
             <ScrollView horizontal={true} scrollEnabled={true}>
               <View style={styles.centeredRowLayout}>
-                {fractions.map((options, column) => (
-                  <View style={styles.modalColumn} key={column}>
-                    {options.map((option, row) => {
-                      const formattedOption = column < 2 ? formatHour(option) : option;
-                      const isSelected = editedValue[column] === option;
-                      return (
-                        <TouchableOpacity key={row} onPress={() => updateValue(column, option)}>
-                          <View style={isSelected ? styles.popupTileSelected : styles.popupTile}>
-                            <Text style={isSelected ? styles.modalTileLabelSelected : styles.modalTileLabel}>
-                              {formattedOption}
-                            </Text>
-                          </View>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ))}
+                {fractions.map((options: string[], column: number) => {
+                  return (
+                    <View style={styles.modalColumn} key={column}>
+                      {options.map((option: string, row: number) => {
+                        const formattedOption: string =
+                          column < 2 ? formatHour(option) : option;
+                        let isSelected: boolean =
+                          this.state.editedValue[column] === option;
+                        return (
+                          <TouchableOpacity
+                            key={row}
+                            onPress={() => this.updateValue(column, option)}>
+                            <View
+                              style={
+                                isSelected
+                                  ? styles.popupTileSelected
+                                  : styles.popupTile
+                              }>
+                              <Text
+                                style={
+                                  isSelected
+                                    ? styles.modalTileLabelSelected
+                                    : styles.modalTileLabel
+                                }>
+                                {formattedOption}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                })}
                 <View style={styles.modalColumn}>
-                  {!future && (
-                    <TouchableOpacity onPress={() => commitNow(0)}>
+                  {this.props.future !== true && (
+                    <TouchableOpacity onPress={() => this.commitNow(0)}>
                       <View style={styles.popupTile}>
                         <Text style={styles.modalTileLabel}>{strings.now}</Text>
                       </View>
                     </TouchableOpacity>
                   )}
-                  <UpdateTile commitEdit={commitEdit} />
-                  <ClearTile commitEdit={clearValue} />
-                  <RefreshTile commitEdit={cancelEdit} />
-                  <KeyboardTile commitEdit={startTyping} />
+                  <UpdateTile commitEdit={this.commitEdit} />
+                  <ClearTile commitEdit={this.clear} />
+                  <RefreshTile commitEdit={this.cancelEdit} />
+                  <KeyboardTile commitEdit={this.startTyping} />
                 </View>
               </View>
             </ScrollView>
@@ -262,72 +288,55 @@ export const TimeField = ({
         </View>
       </TouchableWithoutFeedback>
     );
-  };
+  }
 
-  const handleKeyPress = (input) => {
-    setIsDirty(true);
-  };
-
-  const handleBlur = (input) => {
-    if (isDirty && (propIsTyping || isFreestyleTyping)) {
-      const newValue = input?.target?.value ?? rawValue;
-      onChangeValue(newValue);
-      if (onBlur) {
-        onBlur();
-      }
+  render() {
+    const style = this.props.style ? this.props.style : styles.formField;
+    const formattedValue: string = this.format(this.props.value);
+    if (this.props.readonly) {
+      return (
+        <View style={styles.fieldFlexContainer}>
+          <Text style={style}>
+            {this.props.prefix}
+            {formattedValue}
+            {this.props.suffix}
+          </Text>
+        </View>
+      );
     }
-  };
-
-  const handleChangeValue = (newValue) => {
-    if (!propIsTyping && !isFreestyleTyping) {
-      setEditedValue(newValue);
-      onChangeValue(rawValue);
+    if (this.state.isTyping) {
+      return (
+        <TextField
+          testID={this.props?.testID}
+          prefix={this.props.prefix}
+          value={formattedValue}
+          suffix={this.props.suffix}
+          autoFocus={false}
+          style={style}
+          onChangeValue={(newValue) => this.commitTyping(newValue)}
+          title={this.props.label}
+          onBlur={this.props.onBlur}
+        />
+      );
     }
-  };
-
-  const fieldStyle = style ? style : styles.formField;
-
-  if (readonly) {
     return (
       <View style={styles.fieldFlexContainer}>
-        <Text style={style}>
-          {formattedText}
-        </Text>
+        <TouchableOpacity
+          style={styles.fieldFlexContainer}
+          onPress={this.startEditing}
+          disabled={this.props.readonly}>
+          <Text style={style}>{formattedValue}</Text>
+        </TouchableOpacity>
+        {this.state.isActive === true && (
+          <Modal
+            visible={this.state.isActive === true}
+            transparent={true}
+            animationType={'slide'}
+            onRequestClose={this.cancelEdit}>
+            {this.renderPopup()}
+          </Modal>
+        )}
       </View>
     );
   }
-
-  if (propIsTyping || isFreestyleTyping) {
-    return (
-      <TextField
-        testID={testID}
-        value={formattedText}
-        autoFocus
-        style={fieldStyle}
-        onChangeValue={handleChangeValue}
-        title={label}
-        onBlur={handleBlur}
-        onKeyPress={handleKeyPress}
-      />
-    );
-  }
-
-  return (
-    <View style={styles.fieldFlexContainer}>
-      <TouchableOpacity style={styles.fieldFlexContainer} onPress={startEditing} disabled={readonly}>
-        <Text style={style}>{displayedText}</Text>
-      </TouchableOpacity>
-      {isActive && (
-        <Modal visible={isActive} transparent={true} animationType={'slide'} onRequestClose={cancelEdit}>
-          {renderPopup()}
-        </Modal>
-      )}
-    </View>
-  );
-};
-
-TimeField.defaultProps = {
-  readonly: false,
-  past: false,
-  future: false,
-};
+}
