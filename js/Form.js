@@ -59,11 +59,11 @@ import {
   DurationField,
   Label,
   ListField,
+  NumberField,
   TextArrayField,
+  TilesField,
+  TimeField,
 } from './Widgets';
-import { NumberField } from './NumberField';
-import { TilesField } from './TilesField';
-import { TimeField } from './TimeField';
 
 var phoneUtil = PhoneNumberUtil.getInstance();
 
