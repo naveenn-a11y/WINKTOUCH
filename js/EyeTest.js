@@ -7,11 +7,14 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
+  Image,
+  TouchableWithoutFeedback,
   Button,
 } from 'react-native';
-import {styles} from './Styles';
+import {styles, fontScale} from './Styles';
 import {TilesField, NumberField} from './Widgets';
 import {ImageField} from './ImageField';
+import {ImagePicker} from './ImagePicker';
 
 const strabismusTypes: string[] = [
   'Exotropia',
