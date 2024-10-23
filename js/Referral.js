@@ -9,20 +9,24 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
+  ScrollView,
   TouchableWithoutFeedback,
   ActivityIndicator,
   Keyboard,
 } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {styles, selectionColor, isWeb} from './Styles';
 import {
   Button,
+  TilesField,
   Label,
+  SelectionList,
   Binoculars,
   Alert,
 } from './Widgets';
-import {FormRow, FormTextInput, FormCode} from './Form';
-import {getAllCodes, getCodeDefinition} from './Codes';
+import {FormRow, FormTextInput, FormField, FormCode} from './Form';
+import {getAllCodes, getCodeDefinition, formatCodeDefinition} from './Codes';
 import {fetchWinkRest} from './WinkRest';
 import type {
   HtmlDefinition,
@@ -31,6 +35,7 @@ import type {
   ReferralDefinition,
   CodeDefinition,
   EmailDefinition,
+  FollowUp,
 } from './Types';
 import {allExamIds, fetchVisit, getPreviousVisits} from './Visit';
 import {getCachedItems, getCachedItem} from './DataCache';
@@ -52,14 +57,24 @@ import {
 } from '../src/components/HtmlToPdf';
 import RNBeep from '@dashdoc/react-native-system-sounds';
 import {getStore} from './DoctorApp';
-import { isEmpty } from './Util';
+import {
+  isEmpty,
+  sort,
+  yearDateFormat,
+  yearDateTime24Format,
+  formatDate,
+  isSameDay,
+  parseDate,
+} from './Util';
 import {strings} from './Strings';
 import {FollowUpScreen} from './FollowUp';
+import {getVisitHistory} from './Visit';
 import {ManageUsers} from './User';
 import {FormOptions} from './Form';
 import {Microphone} from './Voice';
 import {HtmlEditor} from '../src/components/TinyMceEditor/HtmlEditor';
 import {CustomModal as Modal} from './utilities/Modal';
+
 
 export function isReferralsEnabled(): boolean {
   const referralTemplates: string[] = getAllCodes('referralTemplates');
