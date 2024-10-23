@@ -10,6 +10,7 @@ import {
   FlatList,
   Image,
   Keyboard,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -17,7 +18,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import type { FieldDefinition } from './Types';
+import type { CodeDefinition, FieldDefinition } from './Types';
 
 import {
   Divider,
@@ -29,7 +30,7 @@ import {
   Snackbar,
 } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { formatCodeDefinition } from './Codes';
+import { formatAllCodes, formatCodeDefinition } from './Codes';
 import { isInTranslateMode, updateLabel } from './ExamDefinition';
 import { strings } from './Strings';
 import {
@@ -52,10 +53,18 @@ import {
   deAccent,
   formatAge,
   formatDate,
+  formatDecimals,
   formatDuration,
+  formatHour,
+  formatTime,
   isEmpty,
   isToyear,
+  now,
   officialDateFormat,
+  parseTime24Format,
+  postfix,
+  split,
+  time24Format,
   today,
   yearDateFormat,
   yearDateTime24Format,
@@ -63,6 +72,8 @@ import {
 import Dialog from './utilities/Dialog';
 import { CustomModal as Modal } from './utilities/Modal';
 import { TextInputWrapper } from './TextInputWrapper';
+
+const margin: number = 40;
 
 export class Label extends PureComponent {
   props: {
