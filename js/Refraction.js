@@ -198,50 +198,50 @@ export function isPDEmpty(pd: ?any): boolean {
   );
 }
 
-function isAstigmatic(glassesRx: GlassesRx): boolean {	
-  if (!glassesRx) {	
-    return false;	
-  }	
-  if (	
-    glassesRx.od &&	
-    glassesRx.od.cylinder != undefined &&	
-    glassesRx.od.cylinder != null &&	
-    glassesRx.od.cylinder != 0.0	
-  ) {	
-    return true;	
-  }	
-  if (	
-    glassesRx.os &&	
-    glassesRx.os.cylinder != undefined &&	
-    glassesRx.os.cylinder != null &&	
-    glassesRx.os.cylinder != 0.0	
-  ) {	
-    return true;	
-  }	
-  return false;	
-}	
+function isAstigmatic(glassesRx: GlassesRx): boolean {
+  if (!glassesRx) {
+    return false;
+  }
+  if (
+    glassesRx.od &&
+    glassesRx.od.cylinder != undefined &&
+    glassesRx.od.cylinder != null &&
+    glassesRx.od.cylinder != 0.0
+  ) {
+    return true;
+  }
+  if (
+    glassesRx.os &&
+    glassesRx.os.cylinder != undefined &&
+    glassesRx.os.cylinder != null &&
+    glassesRx.os.cylinder != 0.0
+  ) {
+    return true;
+  }
+  return false;
+}
 
-function isMultiFocal(glassesRx: GlassesRx): boolean {	
-  if (!glassesRx) {	
-    return false;	
-  }	
-  if (	
-    glassesRx.od &&	
-    glassesRx.od.add != undefined &&	
-    glassesRx.od.add != null &&	
-    glassesRx.od.add != 0.0	
-  ) {	
-    return true;	
-  }	
-  if (	
-    glassesRx.os &&	
-    glassesRx.os.add != undefined &&	
-    glassesRx.os.add != null &&	
-    glassesRx.os.add != 0.0	
-  ) {	
-    return true;	
-  }	
-  return false;	
+function isMultiFocal(glassesRx: GlassesRx): boolean {
+  if (!glassesRx) {
+    return false;
+  }
+  if (
+    glassesRx.od &&
+    glassesRx.od.add != undefined &&
+    glassesRx.od.add != null &&
+    glassesRx.od.add != 0.0
+  ) {
+    return true;
+  }
+  if (
+    glassesRx.os &&
+    glassesRx.os.add != undefined &&
+    glassesRx.os.add != null &&
+    glassesRx.os.add != 0.0
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function parsePrismDiopter(text?: string): ?number {
