@@ -4,43 +4,108 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import {
   View,
   Text,
+  Switch,
+  ScrollView,
+  LayoutAnimation,
+  TouchableOpacity,
+  TextInput,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type {
   GlassesRx,
+  Patient,
+  Exam,
+  GroupDefinition,
   GlassRx,
   Prism,
+  Visit,
+  Measurement,
+  User,
+  FieldDefinition,
 } from './Types';
 import {fontScale, styles} from './Styles';
 import {strings} from './Strings';
 import {
   NumberField,
   TilesField,
+  Button,
+  Label,
+  NativeBar,
+  Alert,
   NoAccess,
 } from './Widgets';
 import {
   formatDegree,
   formatDiopter,
+  deepClone,
   isEmpty,
+  formatDate,
+  dateFormat,
+  farDateFormat,
+  isToyear,
+  now,
+  jsonDateTimeFormat,
   prefix,
   postfix,
   getValue,
+  getDoctorFullName,
 } from './Util';
+import {FormInput} from './Form';
 import {
   getFieldDefinition,
+  filterFieldDefinition,
   formatLabel,
   formatFieldValue,
 } from './Items';
 import {
+  getCodeDefinition,
   formatCode,
   formatAllCodes,
   parseCode,
 } from './Codes';
+import {getVisitHistory, fetchVisitHistory} from './Visit';
+import {
+  CopyRow,
+  Garbage,
+  Plus,
+  Copy,
+  ImportIcon,
+  ExportIcon,
+  Paste,
+  Star,
+} from './Favorites';
+import {importData, exportData} from './Machine';
 import {getCachedItem} from './DataCache';
-import { getExam } from './Exam';
+import {getConfiguration} from './Configuration';
+import {getPatient, getExam} from './Exam';
+import {ModeContext} from '../src/components/Context/ModeContextProvider';
+
+function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
+  let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
+  if (!visitHistory) {
+    return undefined;
+  }
+  let refractions: GlassesRx[] = [];
+  visitHistory.forEach((visit: Visit) => {
+    if (visit.prescription) {
+      const refraction: GlassesRx = visit.prescription;
+      const doctor: User = getCachedItem(visit.userId);
+      refraction.doctor = getDoctorFullName(doctor);
+      if (!refraction.prescriptionDate) {
+        refraction.prescriptionDate = visit.date;
+      }
+      refractions = [...refractions, refraction];
+    }
+  });
+  if (refractions.length > 3) {
+    refractions = refractions.slice(0, 3);
+  }
+  return refractions;
+}
 
 export function newRefraction(): GlassesRx {
   return {
