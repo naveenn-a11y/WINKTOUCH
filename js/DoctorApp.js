@@ -305,7 +305,7 @@ export class DoctorApp extends Component {
               scene={{}}
               navigation={{
                 state: this.state.currentRoute,
-                navigate: this.navigate,
+                navigate: this.navigate
               }}
               screenProps={{
                 onLogout: this.logout,

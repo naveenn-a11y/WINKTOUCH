@@ -93,7 +93,7 @@ export async function storeExam(
       refresh: true,
       key: refreshStateKey,
     });
-    navigation.dispatch({...setParamsAction, source: refreshStateKey});
+    navigation?.dispatch({...setParamsAction, source: refreshStateKey});
   }
   return exam;
 }

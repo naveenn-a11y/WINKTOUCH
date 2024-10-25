@@ -32,6 +32,7 @@ export function configRightKeyOnExam() {
           params: {
             exam: nextExam,
             stateKey: currentRoute.key,
+            appointmentStateKey: currentRoute.params.appointmentStateKey,
           }
         })
     );
@@ -63,6 +64,7 @@ export function configureLeftKeyOnExam() {
           params: {
             exam: previousExam,
             stateKey: currentRoute.key,
+            appointmentStateKey: currentRoute.params.appointmentStateKey,
           }
         })
     );
