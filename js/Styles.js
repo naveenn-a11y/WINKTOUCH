@@ -680,8 +680,6 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
     width: '100%',
-    textWrap: 'nowrap',
-    overflow: 'hidden',
   },
   translateField: {
     borderColor: 'purple',
@@ -705,8 +703,6 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
     width: '100%',
-    textWrap: 'nowrap',
-    overflow: 'hidden',
   },
   formValidationError: {
     fontSize: 20 * fontScale,
