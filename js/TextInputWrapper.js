@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { TouchableWithoutFeedback, TextInput as RNTextInput, StyleSheet, Text, View } from 'react-native';
+import { TextInput as RNTextInput, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';
-import Dialog from './utilities/Dialog';
-import { fontScale } from './Styles';
 import { strings } from './Strings';
+import { fontScale } from './Styles';
+import Dialog from './utilities/Dialog';
 
 type Props = {
   value: string;
@@ -69,10 +69,10 @@ export const TextInputWrapper: React.FC<Props> = ({
       testID={testID}
       onKeyPress={(event) => {
         if (isWeb && event.nativeEvent.key === 'Enter' && !multiline) {
-          onBlur?.();
+          onBlur?.(event);
         }
       }}
-      onEndEditing={() => !isWeb && onBlur && onBlur()}
+      onEndEditing={(event) => !isWeb && onBlur && onBlur(event)}
     />
   );
 
