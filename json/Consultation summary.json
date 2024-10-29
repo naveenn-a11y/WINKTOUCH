@@ -86,7 +86,7 @@
           "size": "M",
           "fields": [
               {
-                  "maxLength": 250,
+                  "maxLength": 5000,
                   "name": "Treatment",
                   "label": "",
                   "freestyle": false
