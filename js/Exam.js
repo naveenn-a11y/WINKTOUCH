@@ -1557,7 +1557,7 @@ export class ExamScreen extends Component {
   renderExamTitle() {
     return (
       <View style={styles.examLabel}>
-        <Text style={styles.sectionTitle}>
+        <Text style={styles.sectionTitle} testID={'exam-tile-title'}>
           {formatLabel(this.state.exam.definition)}
         </Text>
       </View>
