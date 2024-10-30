@@ -74,6 +74,7 @@ import {FormOptions} from './Form';
 import {Microphone} from './Voice';
 import {HtmlEditor} from '../src/components/TinyMceEditor/HtmlEditor';
 import {CustomModal as Modal} from './utilities/Modal';
+import { WINK_APP_REST_URL } from '@env';
 
 export function isReferralsEnabled(): boolean {
   const referralTemplates: string[] = getAllCodes('referralTemplates');
@@ -317,6 +318,7 @@ export class ReferralScreen extends Component<
                   .template
               : template;
           let html = htmlHeader + htmlContent.content + htmlEnd;
+          html = html.replace(/https?:\/\/[^\s]*\/webresources\//g, `${isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL}webresources/`);
           const referralHtml = this.mapImageWithBase64(html);
           const builtInTemplates = htmlContent.builtInTemplates;
           this.updateSignatureState(htmlContent.content);
