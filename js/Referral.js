@@ -67,9 +67,9 @@ import {
   parseDate,
 } from './Util';
 import {strings} from './Strings';
-import {FollowUpScreen} from './FollowUp';
+import {FollowUpScreen, rewriteHTMLWithRightRest} from './FollowUp';
 import {getVisitHistory} from './Visit';
-import {ManageUsers} from './User';
+import {ManageUsers} from './User'; 
 import {FormOptions} from './Form';
 import {Microphone} from './Voice';
 import {HtmlEditor} from '../src/components/TinyMceEditor/HtmlEditor';
@@ -318,7 +318,7 @@ export class ReferralScreen extends Component<
                   .template
               : template;
           let html = htmlHeader + htmlContent.content + htmlEnd;
-          html = html.replace(/https?:\/\/[^\s]*\/webresources\//g, `${isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL}webresources/`);
+          html = rewriteHTMLWithRightRest(html);
           const referralHtml = this.mapImageWithBase64(html);
           const builtInTemplates = htmlContent.builtInTemplates;
           this.updateSignatureState(htmlContent.content);

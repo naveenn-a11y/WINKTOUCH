@@ -67,6 +67,8 @@ const PRIVILEGE = {
   READONLY: 'READONLY',
 };
 
+export const rewriteHTMLWithRightRest = (html: string): string => html.replace(/https?:\/\/[^\s]*\/webresources\//g, `${isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL}webresources/`);
+
 function hasReferralFollowUpReadAccess(followUp: FollowUp): boolean {
   if (!followUp) {
     return false;
@@ -525,7 +527,7 @@ export class FollowUpScreen extends Component<
       const mimeType: string = getMimeType(upload).toLowerCase();
       if (mimeType === 'html') {
         html += upload.data;
-        html = html.replace(/https?:\/\/[^\s]*\/webresources\//g, `${isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL}webresources/`);
+        html = rewriteHTMLWithRightRest(html);
         let PDFAttachment = getPDFAttachmentFromHtml(html);
         await printHtml(html, PDFAttachment);
       } else {
