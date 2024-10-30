@@ -53,6 +53,7 @@ import { strings } from './Strings';
 import { getMimeType } from './Upload';
 import { deAccent, formatDate, isEmpty, jsonDateFormat } from './Util';
 import { CustomModal as Modal } from './utilities/Modal';
+import { WINK_APP_REST_URL } from '@env';
 
 const COMMAND = {
   RESEND: 0,
@@ -65,6 +66,8 @@ const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
   READONLY: 'READONLY',
 };
+
+export const rewriteHTMLWithRightRest = (html: string): string => html.replace(/https?:\/\/[^\s]*\/webresources\//g, `${isWeb ? process.env.WINK_APP_REST_URL : WINK_APP_REST_URL}webresources/`);
 
 function hasReferralFollowUpReadAccess(followUp: FollowUp): boolean {
   if (!followUp) {
@@ -524,6 +527,7 @@ export class FollowUpScreen extends Component<
       const mimeType: string = getMimeType(upload).toLowerCase();
       if (mimeType === 'html') {
         html += upload.data;
+        html = rewriteHTMLWithRightRest(html);
         let PDFAttachment = getPDFAttachmentFromHtml(html);
         await printHtml(html, PDFAttachment);
       } else {
