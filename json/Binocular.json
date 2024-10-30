@@ -1016,7 +1016,7 @@
           "options": ["Fusion", "Suppression OD", "Suppression OS", "Uncrossed diplopia/ ESO deviation", "Crossed diplopia/ EXO deviation"]
         },
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Notes",
           "freestyle": true
         }
@@ -1029,7 +1029,7 @@
       "size": "L",
       "fields": [
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Notes",
           "label": "",
           "freestyle": true

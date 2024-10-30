@@ -69,7 +69,7 @@
           "freestyle": true
         },
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Main Amendment",
           "freestyle": true,
           "label": ""

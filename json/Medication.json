@@ -100,7 +100,7 @@
       "type": "pastDate"
     },
     {
-      "maxLength": 999,
+      "maxLength": 5000,
       "name": "Notes"
     }
   ]
