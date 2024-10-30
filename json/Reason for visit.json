@@ -74,13 +74,13 @@
       "size": "M",
       "fields": [
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Main Reason",
           "freestyle": true,
           "highlightedLabel": true
         },
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Secondary Reason",
           "freestyle": true,
           "highlightedLabel": true

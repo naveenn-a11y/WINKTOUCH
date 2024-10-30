@@ -19,7 +19,7 @@
       "size": "M",
       "fields": [
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Notes",
           "freestyle": true,
           "highlightedLabel": true
