@@ -85,7 +85,7 @@
       "options": "drugUseCodes"
     },
     {
-      "maxLength": 500,
+      "maxLength": 5000,
       "normalValue": "None",
       "name": "Other",
       "freestyle": true,

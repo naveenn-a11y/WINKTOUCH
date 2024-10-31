@@ -62,6 +62,9 @@
       "name": "Auto refractor",
       "multiValue": true,
       "type": "SRx",
+      "showTextInfoTip": false,
+      "maxLength": 5000,
+      "maxRows": 1000,
       "import": ["machine.autorefractor.rx", "machine.tonoref.rx"],
       "fields": [
         {

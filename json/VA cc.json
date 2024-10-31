@@ -494,7 +494,7 @@
           ]
         },
         {
-          "maxLength": 500,
+          "maxLength": 5000,
           "name": "Notes",
           "highlightedLabel": true
         }
