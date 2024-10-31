@@ -1367,7 +1367,7 @@ export class NumberField extends Component {
             onRequestClose={this.cancelEdit}
             onDismiss={this.handleModalDismissal}
         >
-          {this.renderPopup()}
+          {this.state.isActive && this.renderPopup()}
         </Modal>
       </View>
     );
@@ -1736,7 +1736,7 @@ export class TilesField extends Component {
             animationType={'slide'}
             onRequestClose={this.cancelEdit}
             onDismiss={this.handleModalDismissal}>
-            {this.renderPopup()}
+            {this.state.isActive && this.renderPopup()}
           </Modal>
       </View>
     );
@@ -2227,7 +2227,7 @@ export class TimeField extends Component {
             animationType={'slide'}
             onRequestClose={this.cancelEdit}
             onDismiss={this.handleModalDismissal}>
-            {this.renderPopup()}
+            {this.state.isActive && this.renderPopup()}
           </Modal>
       </View>
     );
