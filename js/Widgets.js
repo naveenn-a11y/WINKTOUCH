@@ -589,7 +589,6 @@ export class NumberField extends Component {
 
   constructor(props: any) {
     super(props);
-    this.textRef = React.createRef();
     this.state = {
       editedValue: props.isTyping
         ? props.value
