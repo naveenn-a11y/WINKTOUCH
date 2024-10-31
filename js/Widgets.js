@@ -40,6 +40,7 @@ import {
   selectionFontColor,
   styles
 } from './Styles';
+import { TextInputWrapper } from './TextInputWrapper';
 import {
   addDays,
   capitalize,
@@ -71,7 +72,6 @@ import {
 } from './Util';
 import Dialog from './utilities/Dialog';
 import { CustomModal as Modal } from './utilities/Modal';
-import { TextInputWrapper } from './TextInputWrapper';
 
 const margin: number = 40;
 
@@ -579,6 +579,7 @@ export class NumberField extends Component {
     isTyping: boolean,
     editedValue: (?string)[] | ?string,
     fractions: ?(string[][]),
+    startTyping?: boolean,
   };
   static defaultProps = {
     stepSize: 1,
@@ -588,6 +589,7 @@ export class NumberField extends Component {
 
   constructor(props: any) {
     super(props);
+    this.textRef = React.createRef();
     this.state = {
       editedValue: props.isTyping
         ? props.value
@@ -596,6 +598,7 @@ export class NumberField extends Component {
       isDirty: false,
       isTyping: props.isTyping,
       fractions: undefined,
+      startTyping: false,
     };
   }
 
@@ -656,7 +659,7 @@ export class NumberField extends Component {
       return;
     }
     //KeyEvent.removeKeyUpListener();
-    this.setState({isActive: false, isTyping: true});
+    this.setState({isActive: false, startTyping: true});
   };
 
   isValidStringSuffix = () => {
@@ -1285,6 +1288,12 @@ export class NumberField extends Component {
     );
   }
 
+  handleModalDismissal = () => {
+    if (this.state.startTyping) {
+      this.setState({startTyping: false, isTyping: true})
+    }
+  }
+
   render() {
     let style = this.props.style
       ? this.props.style
@@ -1345,15 +1354,15 @@ export class NumberField extends Component {
           testID={this.props.testID}>
           <Text style={style}>{formattedValue}</Text>
         </TouchableOpacity>
-        {this.state.isActive === true && (
-          <Modal
+        <Modal
             visible={this.state.isActive === true}
             transparent={true}
             animationType={'slide'}
-            onRequestClose={this.cancelEdit}>
-            {this.renderPopup()}
-          </Modal>
-        )}
+            onRequestClose={this.cancelEdit}
+            onDismiss={this.handleModalDismissal}
+        >
+          {this.renderPopup()}
+        </Modal>
       </View>
     );
   }
@@ -1388,6 +1397,7 @@ export class TilesField extends Component {
     isActive: boolean,
     isTyping: boolean,
     editedValue?: string[] | string,
+    startTyping: boolean,
   };
 
   constructor(props: any) {
@@ -1396,6 +1406,7 @@ export class TilesField extends Component {
       isActive: false,
       isTyping: props.isTyping,
       editedValue: undefined,
+      startTyping: false,
     };
   }
   componentDidUpdate(prevProps: any) {
@@ -1410,7 +1421,7 @@ export class TilesField extends Component {
     if (this.props.readonly) {
       return;
     }
-    this.setState({isActive: false, isTyping: true});
+    this.setState({isActive: false, startTyping: true});
   };
 
   commitTyping = (newValue: string) => {
@@ -1655,6 +1666,12 @@ export class TilesField extends Component {
     );
   }
 
+  handleModalDismissal = () => {
+    if (this.state.startTyping) {
+      this.setState({startTyping: false, isTyping: true})
+    }
+  }
+
   render() {
     let style = this.props.style
       ? this.props.style
@@ -1698,15 +1715,14 @@ export class TilesField extends Component {
           testID={this.props.testID ? this.props.testID + 'Field' : undefined}>
           <Text style={style}>{formattedValue}</Text>
         </TouchableOpacity>
-        {this.state.isActive === true && (
           <Modal
             visible={this.state.isActive === true}
             transparent={true}
             animationType={'slide'}
-            onRequestClose={this.cancelEdit}>
+            onRequestClose={this.cancelEdit}
+            onDismiss={this.handleModalDismissal}>
             {this.renderPopup()}
           </Modal>
-        )}
       </View>
     );
   }
@@ -1880,6 +1896,7 @@ export class TimeField extends Component {
     fractions: string[][],
     editedValue: (?string)[],
     isTyping: boolean,
+    startTyping: boolean,
   };
   static defaultProps = {
     readonly: false,
@@ -1895,6 +1912,7 @@ export class TimeField extends Component {
       fractions: this.generateFractions(),
       isDirty: false,
       isTyping: props.isTyping,
+      startTyping: false,
     };
   }
 
@@ -1920,7 +1938,7 @@ export class TimeField extends Component {
     if (this.props.readonly) {
       return;
     }
-    this.setState({isActive: false, isTyping: true});
+    this.setState({isActive: false, startTyping: true});
   };
 
   startEditing = () => {
@@ -2137,6 +2155,12 @@ export class TimeField extends Component {
     );
   }
 
+  handleModalDismissal = () => {
+    if (this.state.startTyping) {
+      this.setState({startTyping: false, isTyping: true})
+    }
+  }
+
   render() {
     const style = this.props.style ? this.props.style : styles.formField;
     const formattedValue: string = this.format(this.props.value);
@@ -2174,15 +2198,14 @@ export class TimeField extends Component {
           disabled={this.props.readonly}>
           <Text style={style}>{formattedValue}</Text>
         </TouchableOpacity>
-        {this.state.isActive === true && (
           <Modal
             visible={this.state.isActive === true}
             transparent={true}
             animationType={'slide'}
-            onRequestClose={this.cancelEdit}>
+            onRequestClose={this.cancelEdit}
+            onDismiss={this.handleModalDismissal}>
             {this.renderPopup()}
           </Modal>
-        )}
       </View>
     );
   }
