@@ -676,6 +676,14 @@ export class NumberField extends Component {
     return value;
   };
 
+  handleBlur = (input) => {
+    const newValue = input.nativeEvent.text;
+    this.commitTyping(newValue);
+    if (this.props.onBlur) {
+      this.props.onBlur();
+    }
+  }
+
   commitTyping = (newValue: string): void => {
     const newValueWithoutSuffix = this.updateValueGivenSuffix(newValue);
     if (this.state.isActive) {
@@ -1320,10 +1328,9 @@ export class NumberField extends Component {
           autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           selectTextOnFocus={true} //TODO why is this not working?
-          onChangeValue={(newValue) => this.commitTyping(newValue)}
           onOpenModal={this.openModal}
           title={this.props.label}
-          onBlur={this.props.onBlur}
+          onBlur={this.handleBlur}
         />
       );
     } else if (this.props.listField) {
@@ -1422,6 +1429,14 @@ export class TilesField extends Component {
     }
     this.setState({isActive: false, startTyping: true});
   };
+
+  handleBlur = (input) => {
+    const newValue = input.nativeEvent.text;
+    this.commitTyping(newValue);
+    if (this.props.onBlur) {
+      this.props.onBlur();
+    }
+  }
 
   commitTyping = (newValue: string) => {
     this.setState({editedValue: newValue}, this.commitEdit);
@@ -1685,14 +1700,15 @@ export class TilesField extends Component {
       return (
         <TextField
           value={this.props.value}
-          autoFocus={false}
+          autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
           multiline={this.props.multiline}
-          onChangeValue={(newValue) => this.commitTyping(newValue)}
           testID={
             this.props.testID ? this.props.testID + 'ActiveField' : undefined
           }
+          selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
+          onBlur={this.handleBlur}
         />
       );
     }
@@ -1922,6 +1938,14 @@ export class TimeField extends Component {
     this.setState({
       isTyping: this.props.isTyping,
     });
+  }
+
+  handleBlur = (input) => {
+    const newValue = input.nativeEvent.text;
+    this.commitTyping(newValue);
+    if (this.props.onBlur) {
+      this.props.onBlur();
+    }
   }
 
   commitTyping = (newValue: string) => {
@@ -2181,11 +2205,11 @@ export class TimeField extends Component {
           prefix={this.props.prefix}
           value={formattedValue}
           suffix={this.props.suffix}
-          autoFocus={false}
+          autoFocus={this.props.autoFocus || this.props.isTyping !== true}
           style={style}
-          onChangeValue={(newValue) => this.commitTyping(newValue)}
+          selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
-          onBlur={this.props.onBlur}
+          onBlur={this.handleBlur}
         />
       );
     }
