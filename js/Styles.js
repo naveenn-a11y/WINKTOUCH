@@ -681,7 +681,6 @@ export const styles = StyleSheet.create({
     margin: 3 * fontScale,
     width: '100%',
     maxWidth: 500 * fontScale,
-    minHeight: 400 * fontScale,
   },
   translateField: {
     borderColor: 'purple',
@@ -706,7 +705,6 @@ export const styles = StyleSheet.create({
     margin: 3 * fontScale,
     width: '100%',
     maxWidth: 500 * fontScale,
-    minHeight: 400 * fontScale,
   },
   formValidationError: {
     fontSize: 20 * fontScale,
