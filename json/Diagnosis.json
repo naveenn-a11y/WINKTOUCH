@@ -199,7 +199,7 @@
         },
         {
           "mappedField": "procedure.notes",
-          "maxLength": 500,
+          "maxLength": 255,
           "name": "notes",
           "label": "Notes",
           "freestyle": true
