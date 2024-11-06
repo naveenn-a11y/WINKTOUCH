@@ -244,7 +244,8 @@
         },
         {
           "mappedField": "visit.recall.notes",
-          "name": "Notes"
+          "name": "Notes",
+          "maxLength": 5000
         }
       ],
       "rows": [["DefaultRecallFrequencyMonths","Unit2"],["Amount", "Unit"], ["Recall1", "Recall1Comment"], ["Recall2", "Recall2Comment"]]
