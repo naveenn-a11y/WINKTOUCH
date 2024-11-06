@@ -12,6 +12,7 @@
       "hasAdd": true,
       "hasPD": true,
       "hasNotes": true,
+      "maxLength": 5000,
       "showTextInfoTip": false,
       "hasMPD": true,
       "name": "Lensometry",
