@@ -149,9 +149,13 @@ export class DocumentScanner extends Component {
     const aspectRatio: number = dimensionAfter.width / dimensionAfter.height;
     const height = Math.floor(width / aspectRatio);
 
+    // Adding a margin of 36
+    const margin = 36;
+    const xOffset = (pageWidth - width) / 2; // This is to center the image
+
     documentPage.drawImage(image, {
-      x: 0,
-      y: pageHeight - height - addY,
+      x: xOffset,
+      y: pageHeight - height - addY - margin,
       width: width,
       height: height,
     });
