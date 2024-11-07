@@ -71,9 +71,6 @@ export const TextInputWrapper: React.FC<Props> = ({
       multiline={multiline}
       testID={testID}
       onKeyPress={(event) => {
-        if (isWeb && event.nativeEvent.key === 'Enter' && !multiline) {
-          onBlur?.(event);
-        }
         onKeyPress?.(event.nativeEvent.keyCode);
       }}
       onEndEditing={(event) => !isWeb && onBlur && onBlur(event)}
