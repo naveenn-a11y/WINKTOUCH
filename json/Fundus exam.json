@@ -518,7 +518,8 @@
         {
           "name": "Image",
           "image": "./image/fundusOD.png",
-          "label": ""
+          "label": "",
+          "resolution": "530x445"
         }
       ]
     },
@@ -528,31 +529,32 @@
         {
           "name": "Image",
           "image": "./image/fundusOS.png",
-          "label": ""
+          "label": "",
+          "resolution": "530x445"
         }
       ]
     },
     {
       "name": "Peripheral Retina OD",
       "optional": true,
-      "size": "M",
       "fields": [
         {
           "name": "Image",
           "image": "./image/retinaOD.png",
-          "label": ""
+          "label": "",
+          "resolution": "529x409"
         }
       ]
     },
     {
       "name": "Peripheral Retina OS",
       "optional": true,
-      "size": "M",
       "fields": [
         {
           "name": "Image",
           "image": "./image/retinaOS.png",
-          "label": ""
+          "label": "",
+          "resolution": "529x409"
         }
       ]
     },
