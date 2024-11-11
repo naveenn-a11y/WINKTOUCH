@@ -474,12 +474,14 @@ export class AppointmentTypes extends Component {
 class AppointmentIcon extends Component {
   props: {
     name: string,
+    testID?: string,
   };
   render() {
     const boxSize: number = 22 * fontScale;
     if (this.props.name === 'invoiced') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/paidx2.png')}
           style={{
             width: boxSize,
@@ -492,6 +494,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'lastNoShow') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/lastNoShowx2.png')}
           style={{
             width: boxSize,
@@ -504,6 +507,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'existingPatient') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/existingPatientx2.png')}
           style={{
             width: boxSize,
@@ -516,6 +520,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'newPatient') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/newPatientx2.png')}
           style={{
             width: boxSize,
@@ -528,6 +533,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'leftWithRx') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/leftWithRxx2.png')}
           style={{
             width: boxSize,
@@ -540,6 +546,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'unconfirmed') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
@@ -552,6 +559,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'pending') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
@@ -1266,12 +1274,14 @@ export class AppointmentDetails extends Component {
             <FormRow>
               <AppointmentIcon
                 key={this.state.status}
+                testID={'AppointmentStatusIcon'}
                 name={allDescriptions[this.state.status]}
               />
               <FormCode
                 hideClear
                 showLabel={false}
                 readonly={!hasBookAccess}
+                testID={'AppointmentStatus'}
                 code="appointmentStatusCode"
                 value={this.state.status}
                 onChangeValue={(code: ?string | ?number) => {
