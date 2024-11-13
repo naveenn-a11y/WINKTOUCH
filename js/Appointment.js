@@ -572,6 +572,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'confirmed') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/confirmedx2.png')}
           style={{
             width: boxSize,
@@ -584,6 +585,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'cancelled') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/unconfirmedx2.png')}
           style={{
             width: boxSize,
@@ -596,6 +598,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'noShow') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/noShowx2.png')}
           style={{
             width: boxSize,
@@ -608,6 +611,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'waiting') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/waitingx2.png')}
           style={{
             width: boxSize,
@@ -620,6 +624,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'completed') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/completedx2.png')}
           style={{
             width: boxSize,
@@ -632,6 +637,7 @@ class AppointmentIcon extends Component {
     } else if (this.props.name === 'family') {
       return (
         <Image
+          testID={this.props.testID}
           source={require('./image/calendar/familyx2.png')}
           style={{
             width: boxSize,
@@ -674,7 +680,7 @@ export class AppointmentIcons extends Component {
         }}>
         {this.props.appointment.indicators.map(
           (indicator: string, index: number) => {
-            return <AppointmentIcon name={indicator} key={index} />;
+            return <AppointmentIcon  name={indicator} key={index} />;
           },
         )}
       </View>
