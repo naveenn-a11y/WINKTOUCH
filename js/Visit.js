@@ -2256,14 +2256,19 @@ class VisitWorkFlow extends Component {
 
   confirmPrintMedicationRxDialog = (prescriptionData: any) => {
     let labelsArray: string[] = new Array();
+    let isPrintWithoutSignEnabled = false;
     prescriptionData.map((prescriptionLabel: any) => {
       let labelRx = prescriptionLabel.label;
       let flagRx = prescriptionLabel.isChecked;
       if (flagRx) {
-        labelsArray.push(labelRx);
+        if (labelRx === strings.printWithoutSign) {
+          isPrintWithoutSignEnabled = true;
+        } else {
+          labelsArray.push(labelRx);
+        }
       }
     });
-    printMedicalRx(this.props.visitId, labelsArray);
+    printMedicalRx(this.props.visitId, labelsArray, isPrintWithoutSignEnabled);
     this.hidePrintMedicationRxPopup();
   };
 
@@ -2288,6 +2293,12 @@ class VisitWorkFlow extends Component {
           printMedicationRxOptions.push({label: label, isChecked: false});
           labelAlreadyExist.add(label);
         }
+      });
+
+      // Adding 'Print Without Sign' option
+      printMedicationRxOptions.push({
+        label: strings.printWithoutSign,
+        isChecked: false,
       });
     }
 
