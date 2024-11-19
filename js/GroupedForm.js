@@ -330,7 +330,7 @@ export class GroupedForm extends Component {
     return this.context.keyboardMode === 'desktop' || (this.state.isTyping && this.props.editable);
   }
 
-  renderField(fieldDefinition: FieldDefinition, column?: string) {
+  renderField(fieldDefinition: FieldDefinition, neverMultiline?, column?: string) {
     if (fieldDefinition === undefined) {
       return (
         <View style={styles.fieldFlexContainer}>
@@ -377,7 +377,6 @@ export class GroupedForm extends Component {
       (column !== undefined ? ' ' + this.formatColumnLabel(column) + ' ' : ' ') +
       formatLabel(fieldDefinition);
     const isTyping = this.getIsTyping();
-
     return (
       <FormInput
         value={value}
@@ -395,6 +394,7 @@ export class GroupedForm extends Component {
         disableScroll={this.props.disableScroll}
         fieldId={this.props?.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
         testID={(!isEmpty(this.props?.fieldId) ? (this.props?.fieldId + '.') : '') + fieldDefinition.name + (column === undefined ? '' : column)}
+        neverMultiline={neverMultiline}
       />
     );
   }
@@ -406,8 +406,9 @@ export class GroupedForm extends Component {
 
     const label: string = formatLabel(fieldDefinition);
     if (fieldDefinition.layout) {
-      return this.renderField(fieldDefinition);
+      return this.renderField(fieldDefinition, undefined, undefined);
     }
+
     return (
       <View style={[styles.formRow, {justifyContent: 'center'}]} key={fieldDefinition.name}>
         <View>
@@ -419,7 +420,7 @@ export class GroupedForm extends Component {
             />
           </View>
         </View>
-        {this.renderField(fieldDefinition)}
+        {this.renderField(fieldDefinition, undefined, undefined)}
       </View>
     );
   }
@@ -447,12 +448,13 @@ export class GroupedForm extends Component {
             <Label
               testID={`label-${fieldDefinition?.name}`}
               value={label}
-              fieldId={this.props.fieldId + '.' + fieldDefinition.name}
+              fieldId={this.props.fieldId + '.' + fieldDefinition?.name}
             />
           </View>
         </View>,
       );
-      fields.push(this.renderField(fieldDefinition));
+      const neverMultiline = true;
+      fields.push(this.renderField(fieldDefinition, neverMultiline, undefined));
     });
     return <View style={styles.formRow}>{fields}</View>;
   }
@@ -556,6 +558,7 @@ export class GroupedForm extends Component {
 
     // Render data rows
     columnedFields.forEach((field, rowIndex) => {
+      const neverMultiline = true;
       rows.push(
         <View style={styles.formRow} key={`row-${rowIndex}`}>
           {columns.map((column, columnIndex) => {
@@ -566,7 +569,7 @@ export class GroupedForm extends Component {
               const fieldDef = columnDef.fields.find((fieldDef) => fieldDef.name === rowField?.name);
               const validField = fieldDef !== undefined;
               return validField ? (
-                this.renderField(fieldDef, column)
+                this.renderField(fieldDef, neverMultiline, column)
               ) : (
                 <View style={styles.formElement} key={`emptyRowData-${rowField?.name}-${rowIndex}`}>
                   <View style={styles.formTableColumnHeaderFitContent}>
@@ -679,6 +682,7 @@ export class GroupedForm extends Component {
   }
 
   renderColumnAlt(columnDefinition: GroupDefinition, refColumnDefinition: GroupDefinition) {
+    const neverMultiline = true;
     return (
       <View style={styles.formColumnFlex}>
         {columnDefinition && (
@@ -693,7 +697,11 @@ export class GroupedForm extends Component {
         )}
         {refColumnDefinition?.fields?.map((reffd: FieldDefinition, ind) => {
           const fd = columnDefinition?.fields.find((f) => f.name === reffd.name);
-          return <View style={styles.formColumnItem}>{fd ? this.renderField(fd, columnDefinition.name) : null}</View>;
+          return (
+            <View style={styles.formColumnItem}>
+              {fd ? this.renderField(fd, neverMultiline, columnDefinition.name) : null}
+            </View>
+          );
         })}
       </View>
     );
