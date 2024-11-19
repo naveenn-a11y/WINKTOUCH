@@ -170,6 +170,7 @@ export class FormTextInput extends Component {
   }
 
   commit(input: string) {
+    if (this.props.readonly) return;
     const text: string = this.format(input);
     this.setState({text});
     this.validate(text);
@@ -270,7 +271,7 @@ export class FormTextInput extends Component {
                   autoCapitalize={
                     this.props.autoCapitalize != undefined
                       ? this.props.autoCapitalize
-                      : this.props.multiline === true
+                      : this.props.multiline
                       ? 'sentences'
                       : 'none'
                   }
@@ -290,11 +291,12 @@ export class FormTextInput extends Component {
                   onChangeText={this.updateText}
                   onBlur={(event) => this.commit(event.nativeEvent.text)}
                   editable={this.props.readonly !== true}
-                  multiline={this.props.multiline === true}
+                  multiline={this.props.multiline}
                   maxLength={this.props.maxLength}
                   numberOfLines={this.props.maxRows}
                   onTextLayout={this.handleTextLayout}
                   testID={this.props.testID + 'Field'}
+                  readOnly={this.props.readonly}
                 />
                 </TouchableWithoutFeedback>
               {!this.props.readonly &&
@@ -1333,6 +1335,7 @@ export class FormInput extends Component {
     fieldId: string,
     testID?: string,
     customOptions?: CodeDefinition[],
+    neverMultiline?: boolean,
   };
   state: {
     validation?: string,
@@ -1612,6 +1615,22 @@ export class FormInput extends Component {
     return null;
   }
 
+  isMultilineInput(): boolean {
+    if (this.props?.neverMultiline !== undefined) {
+      return !this.props.neverMultiline;
+    }
+
+    if (this.props.multiline !== undefined || this.props?.maxLength !== undefined){
+      return (this.props?.multiline || this.props?.maxLength > 150) && !this.props.neverMultiline;
+    }
+
+    if (this.props?.definition?.maxLength !== undefined) {
+      return this.props.definition.maxLength > 150;
+    }
+
+    return false;
+  }
+
   renderFormInput() {
     const label: string = this.props.label
       ? this.props.label
@@ -1622,12 +1641,12 @@ export class FormInput extends Component {
     let style: ?any = this.props.style
       ? this.props.style
       : this.props.readonly || this.props.definition.readonly
-      ? this.props.multiline === true || this.props.definition.maxLength > 150
+      ? this.isMultilineInput()
         ? styles.formFieldReadOnlyLines
         : styles.formFieldReadOnly
       : this.props.errorMessage
       ? styles.formFieldError
-      : this.props.multiline === true || this.props.definition.maxLength > 150
+      : this.isMultilineInput()
       ? styles.formFieldLines
       : styles.formField;
     if (this.props.definition.layout !== undefined) {
@@ -1958,9 +1977,7 @@ export class FormInput extends Component {
         prefix={this.props.definition.prefix}
         suffix={this.props.definition.suffix}
         autoCapitalize={this.props.autoCapitalize}
-        multiline={
-          this.props.multiline === true || this.props.definition.maxLength > 150
-        }
+        multiline={this.isMultilineInput()}
         freestyle={this.props.definition.freestyle}
         style={style}
         maxLength={this.props.definition.maxLength}
