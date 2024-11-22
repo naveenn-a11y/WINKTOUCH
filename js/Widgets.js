@@ -662,8 +662,22 @@ export class NumberField extends Component {
     this.setState({isActive: false, startTyping: true});
   };
 
+  formatValue = (newValue, suffix) => {
+    if (
+      newValue?.trim().length > 0 &&
+      suffix &&
+      !Array.isArray(suffix) &&
+      !suffix.includes('Code')
+    ) {
+      const pattern = new RegExp(suffix, "g");
+      const formattedNewValue = parseFloat(newValue.replace(pattern, ''));
+      return isNaN(formattedNewValue) ? newValue : formattedNewValue;
+    }
+    return newValue;
+  }
+
   handleBlur = (input) => {
-    const newValue = input.nativeEvent.text;
+    const newValue = this.formatValue(input?.nativeEvent?.text, this.props.suffix);
     this.commitTyping(newValue);
     if (this.props.onBlur) {
       this.props.onBlur();
