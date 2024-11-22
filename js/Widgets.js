@@ -670,7 +670,7 @@ export class NumberField extends Component {
       !suffix.includes('Code')
     ) {
       const pattern = new RegExp(suffix, "g");
-      const formattedNewValue = parseFloat(newValue.replace(pattern, ''));
+      const formattedNewValue = Number(newValue.replace(pattern, ''));
       return isNaN(formattedNewValue) ? newValue : formattedNewValue;
     }
     return newValue;
