@@ -3,55 +3,55 @@
  */
 'use strict';
 
-import React, {Component} from 'react';
+import { Component } from 'react';
 import {
-  View,
-  Text,
   Button,
-  TouchableHighlight,
   ScrollView,
+  Text,
+  TouchableHighlight,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import type {
-  Exam,
-  ExamDefinition,
-  FieldDefinition,
-  GroupDefinition,
-  FieldDefinitions,
-  ExamPredefinedValue,
-  Prescription,
-} from './Types';
-import {strings} from './Strings';
-import {styles, selectionColor, isWeb} from './Styles';
-import {
-  SelectionList,
-  stripSelectionPrefix,
-  selectionPrefix,
-  NoAccess,
-} from './Widgets';
-import {FormTextInput, FormRow} from './Form';
-import {
-  formatDate,
-  dateFormat,
-  yearDateFormat,
-  isToyear,
-  deepClone,
-  isEmpty,
-  formatTime,
-} from './Util';
-import {formatAllCodes, parseCode, formatCode} from './Codes';
-import {getDefinitionCacheKey, fetchItemDefinition} from './Rest';
-import {getCachedItem, cacheItem} from './DataCache';
+import { formatAllCodes, formatCode, parseCode } from './Codes';
+import { cacheItem, getCachedItem } from './DataCache';
+import { getExamDefinition } from './ExamDefinition';
 import {
   Favorites,
   Garbage,
 } from './Favorites';
+import { FormRow, FormTextInput } from './Form';
+import { GroupedForm } from './GroupedForm';
 import {
   formatPrism,
 } from './Refraction';
-import {getExamDefinition} from './ExamDefinition';
-import {Label} from './Widgets';
-import {GroupedForm} from './GroupedForm';
+import { fetchItemDefinition, getDefinitionCacheKey } from './Rest';
+import { strings } from './Strings';
+import { isWeb, selectionColor, styles } from './Styles';
+import type {
+  Exam,
+  ExamDefinition,
+  ExamPredefinedValue,
+  FieldDefinition,
+  FieldDefinitions,
+  GroupDefinition,
+  Prescription,
+} from './Types';
+import {
+  dateFormat,
+  deepClone,
+  formatDate,
+  formatTime,
+  isEmpty,
+  isToyear,
+  yearDateFormat,
+} from './Util';
+import {
+  Label,
+  NoAccess,
+  SelectionList,
+  selectionPrefix,
+  stripSelectionPrefix,
+} from './Widgets';
 
 export function getFieldDefinitions(itemId: string): ?FieldDefinitions {
   if (itemId === undefined || itemId === null) {
@@ -300,9 +300,9 @@ function formatWithPrefixAndSuffix(prefix, value, suffix) {
 
   let result = value;
   // Check if the value already contains the prefix
-  const startsWithPrefix = prefix && value.includes(prefix);
+  const startsWithPrefix = prefix && value.startsWith(prefix);
   // Check if the value already contains the suffix
-  const endsWithSuffix = suffix && value.includes(suffix);
+  const endsWithSuffix = suffix && value.endsWith(suffix);
   // Prepend the prefix if it's defined and not already present
   if (prefix && !startsWithPrefix) {
     result = prefix + result;
