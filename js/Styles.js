@@ -680,7 +680,6 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
     width: '100%',
-    maxWidth: 500 * fontScale,
   },
   translateField: {
     borderColor: 'purple',
@@ -704,7 +703,6 @@ export const styles = StyleSheet.create({
     borderColor: fieldBorderColor,
     margin: 3 * fontScale,
     width: '100%',
-    maxWidth: 500 * fontScale,
   },
   formValidationError: {
     fontSize: 20 * fontScale,
@@ -1786,6 +1784,7 @@ function boardStyle(
       : size === 'S'
       ? 340
       : 340;
+  const width = isWeb ? undefined : minWidth * fontScale;
   return {
     backgroundColor: 'white',
     alignSelf: 'flex-start',
@@ -1806,6 +1805,7 @@ function boardStyle(
     },
     flexGrow: 1,
     flexShrink: 1,
+    width,
   };
 }
 
