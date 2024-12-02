@@ -26,7 +26,7 @@ import {
 } from './Refraction';
 import { fetchItemDefinition, getDefinitionCacheKey } from './Rest';
 import { strings } from './Strings';
-import { isWeb, selectionColor, styles } from './Styles';
+import { fontScale, isWeb, selectionColor, styles } from './Styles';
 import type {
   Exam,
   ExamDefinition,
@@ -1353,6 +1353,9 @@ export class ItemsEditor extends Component {
       fields: fields,
       size: 'M',
     };
+    const boardStyle = styles[`board${groupDefinition.size}`];
+    const maxWidth = isWeb ? undefined : 520 * fontScale;
+
     return (
       <View>
         <GroupedForm
@@ -1360,6 +1363,7 @@ export class ItemsEditor extends Component {
           definition={groupDefinition}
           onChangeField={this.updateItem}
           fieldId={this.props.fieldId}
+          style={[boardStyle, { maxWidth }]}
         />
       </View>
     );

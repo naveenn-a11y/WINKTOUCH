@@ -1784,7 +1784,6 @@ function boardStyle(
       : size === 'S'
       ? 340
       : 340;
-  const width = isWeb ? undefined : minWidth * fontScale;
   return {
     backgroundColor: 'white',
     alignSelf: 'flex-start',
@@ -1805,7 +1804,6 @@ function boardStyle(
     },
     flexGrow: 1,
     flexShrink: 1,
-    width,
   };
 }
 
