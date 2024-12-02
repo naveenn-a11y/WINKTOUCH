@@ -2551,7 +2551,7 @@ class VisitWorkFlow extends Component {
     return (
       <View style={styles.examIcons}>
         <TouchableOpacity onPress={this.switchLock}>
-          <Lock style={styles.screenIcon} locked={this.state.locked === true} />
+          <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} />
         </TouchableOpacity>
       </View>
     );

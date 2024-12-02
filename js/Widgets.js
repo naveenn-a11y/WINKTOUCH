@@ -3232,19 +3232,21 @@ export class Lock extends PureComponent {
   props: {
     locked: boolean,
     style: any,
+    testID: string,
   };
   render() {
     if (this.props.locked === true) {
       return (
-        <Icon name="lock" style={this.props.style} color={selectionFontColor} />
+          <Icon testID={this.props.testID} name="lock" style={this.props.style} color={selectionFontColor} />
       );
     }
     return (
-      <Icon
-        name="lock-open-outline"
-        style={this.props.style}
-        color={selectionFontColor}
-      />
+        <Icon
+          name="lock-open-outline"
+          style={this.props.style}
+          color={selectionFontColor}
+          testID={this.props.testID}
+        />
     );
   }
 }
