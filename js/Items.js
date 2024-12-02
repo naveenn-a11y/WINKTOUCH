@@ -3,78 +3,55 @@
  */
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import { Component } from 'react';
 import {
-  View,
-  Text,
   Button,
-  TouchableHighlight,
   ScrollView,
+  Text,
+  TouchableHighlight,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { formatAllCodes, formatCode, parseCode } from './Codes';
+import { cacheItem, getCachedItem } from './DataCache';
+import { getExamDefinition } from './ExamDefinition';
+import {
+  Favorites,
+  Garbage
+} from './Favorites';
+import { FormRow, FormTextInput } from './Form';
+import { GroupedForm } from './GroupedForm';
+import {
+  formatPrism
+} from './Refraction';
+import { fetchItemDefinition, getDefinitionCacheKey } from './Rest';
+import { strings } from './Strings';
+import { fontScale, isWeb, selectionColor, styles } from './Styles';
 import type {
   Exam,
   ExamDefinition,
-  FieldDefinition,
-  GroupDefinition,
-  FieldDefinitions,
   ExamPredefinedValue,
-  GlassesRx,
-  Prescription,
+  FieldDefinition,
+  FieldDefinitions,
+  GroupDefinition,
+  Prescription
 } from './Types';
-import {strings} from './Strings';
-import {styles, selectionColor, fontScale, scaleStyle, isWeb} from './Styles';
 import {
-  TilesField,
-  TextField,
-  NumberField,
-  SelectionList,
-  stripSelectionPrefix,
-  selectionPrefix,
-  FloatingButton,
-  NoAccess,
-} from './Widgets';
-import {FormTextInput, FormRow, FormInput} from './Form';
-import {
-  formatDate,
   dateFormat,
-  dateTimeFormat,
-  yearDateFormat,
-  yearDateTimeFormat,
-  isToyear,
   deepClone,
-  deepAssign,
-  isEmpty,
+  formatDate,
   formatTime,
+  isEmpty,
+  isToyear,
+  yearDateFormat
 } from './Util';
-import {formatAllCodes, parseCode, formatCode} from './Codes';
-import {getDefinitionCacheKey, fetchItemDefinition} from './Rest';
-import {getCachedItem, cacheItem} from './DataCache';
 import {
-  Favorites,
-  Star,
-  Garbage,
-  Plus,
-  PaperClip,
-  DrawingIcon,
-  CopyRow,
-  CopyColumn,
-  Keyboard,
-} from './Favorites';
-import {
-  GlassesSummary,
-  newRefraction,
-  formatPrism,
-} from './Refraction';
-import { GlassesDetail } from './GlassesDetail';
-import {getExamDefinition} from './ExamDefinition';
-import {
-  getFieldDefinition as getExamFieldDefinition,
-  getFieldValue as getExamFieldValue,
-} from './Exam';
-import {CheckButton, Label} from './Widgets';
-import {GroupedForm} from './GroupedForm';
+  Label,
+  NoAccess,
+  SelectionList,
+  selectionPrefix,
+  stripSelectionPrefix
+} from './Widgets';
 
 export function getFieldDefinitions(itemId: string): ?FieldDefinitions {
   if (itemId === undefined || itemId === null) {
@@ -1331,6 +1308,9 @@ export class ItemsEditor extends Component {
       fields: fields,
       size: 'M',
     };
+    const boardStyle = styles[`board${groupDefinition.size}`];
+    const maxWidth = isWeb ? undefined : 520 * fontScale;
+
     return (
       <View>
         <GroupedForm
@@ -1338,6 +1318,7 @@ export class ItemsEditor extends Component {
           definition={groupDefinition}
           onChangeField={this.updateItem}
           fieldId={this.props.fieldId}
+          style={[boardStyle, { maxWidth }]}
         />
       </View>
     );
