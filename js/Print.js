@@ -409,7 +409,9 @@ async function addDrHeader(
   let x: number = leftBorder + boxWidthTopRight;
   let fontSize: number = 10;
 
-  await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
+  if (store?.displayLogoWithRx) {
+    await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
+  }
 
   y -= fontSize * 2 + 50;
   const doctorName: string =
