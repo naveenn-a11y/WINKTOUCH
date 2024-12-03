@@ -409,7 +409,7 @@ async function addDrHeader(
   let x: number = leftBorder + boxWidthTopRight;
   let fontSize: number = 10;
 
-  if (store?.displayLogoWithRx) {
+  if (store?.displayLogoWithRx ?? true) {
     await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
   }
 

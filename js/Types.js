@@ -61,6 +61,7 @@ export type Store = {
   fax?: string,
   defaultMedicationRxNote?: string,
   website?: string,
+  displayLogoWithRx?: boolean,
 };
 
 export type Account = {
