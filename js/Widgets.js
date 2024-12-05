@@ -132,10 +132,13 @@ export class Label extends PureComponent {
       : this.props.width
       ? [styles.formLabel, {width: this.props.width}]
       : styles.formLabel;
+
+    const suffix = this.props?.value?.trim().length > 0 ? this.props.suffix : '';
+    const value = this.props?.value?.trim().length > 0 ? this.props.value?.trim() : '';
     return (
       <Text style={style} testID={`label-${this.props?.value}`}>
-        {this.props.value}
-        {this.props.suffix}
+        {value}
+        {suffix}
       </Text>
     );
   }

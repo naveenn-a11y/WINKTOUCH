@@ -25,7 +25,7 @@ import {
   Plus,
   Star,
 } from './Favorites';
-import {FormInput} from './Form';
+import {isCheckboxInput, FormInput} from './Form';
 import {formatFieldLabel, formatLabel} from './Items';
 import {importData} from './Machine';
 import {strings} from './Strings';
@@ -409,10 +409,12 @@ export class GroupedForm extends Component {
       return this.renderField(fieldDefinition, undefined, undefined);
     }
 
+    const rowStyle = isCheckboxInput(fieldDefinition) ? styles.formHeadingRowForCheckbox : styles.formHeadingRow2;
+
     return (
       <View style={[styles.formRow, {justifyContent: 'center'}]} key={fieldDefinition.name}>
         <View>
-          <View style={styles.formHeadingRow2}>
+          <View style={rowStyle}>
             <Label
               testID={`label-${fieldDefinition?.name}`}
               value={label}
@@ -442,9 +444,10 @@ export class GroupedForm extends Component {
     );
     fieldDefinitions.forEach((fieldDefinition: FieldDefinition) => {
       let label: string = formatLabel(fieldDefinition);
+      const rowStyle = isCheckboxInput(fieldDefinition) ? styles.formHeadingRowForCheckbox : styles.formHeadingRow2;
       fields.push(
         <View>
-          <View style={styles.formHeadingRow2}>
+          <View style={rowStyle}>
             <Label
               testID={`label-${fieldDefinition?.name}`}
               value={label}
@@ -488,15 +491,39 @@ export class GroupedForm extends Component {
     });
   }
 
-  renderRowHeadings(columnDefinition: GroupDefinition) {
-    if (this.getIsVisible(columnDefinition) === false) {
+  anyColumnHeadingsVisible(fieldDefinition, definition): boolean {
+    // check if all the columns have empty column labels
+    // map through each column to get the columnLabel
+    // const columnDef = fieldDefinition.fields.find((fieldDef) => fieldDef.name === column);
+    // const columnLabel = formatLabel(columnDef);
+    // append the columnLabel to columnLabels array
+    // if all columnLabels have empty strings, return false
+    if (definition?.columns?.length > 0) {
+      const columns: string[] = definition.columns.find(
+        (cols: string[]) => cols.length > 0 && cols[0] === fieldDefinition.name,
+      );
+      const columnLabels = [];
+      columns?.forEach((column) => {
+        const columnDef = definition.fields.find((fieldDef) => fieldDef.name === column);
+        if (columnDef) {
+          columnLabels.push(formatLabel(columnDef));
+        }
+      });
+      return columnLabels.some((columnLabel) => columnLabel.trim().length > 0);
+    }
+
+    return true;
+  }
+
+  renderRowHeadings(fieldDefinition: FieldDefinition) {
+    if (this.getIsVisible(fieldDefinition) === false) {
       return null;
     }
 
-    const columnedFields: FieldDefinition[] = columnDefinition.fields;
+    const columnedFields: FieldDefinition[] = fieldDefinition.fields;
     let rows: any[] = [];
 
-    if (columnedFields.length > 1) {
+    if (this.anyColumnHeadingsVisible(fieldDefinition, this.props.definition)) {
       // Render the empty header for the first row
       rows.push(
         <View style={styles.formHeadingRow} key={`header-row-empty`}>
@@ -508,10 +535,11 @@ export class GroupedForm extends Component {
     // Render row labels
     columnedFields.forEach((field, rowIndex) => {
       const rowLabel = formatLabel(field);
-      const labelId = `${this.props.fieldId}.${columnDefinition.name}.${field.name}`;
+      const labelId = `${this.props.fieldId}.${fieldDefinition.name}.${field.name}`;
+      const suffix = rowLabel?.trim().length > 0 ? ':' : '';
       rows.push(
         <View style={styles.formHeadingRow} key={`row-heading-${rowIndex}`}>
-          <Label value={rowLabel} style={styles.formTableColumnHeaderFitContent} suffix=":" fieldId={labelId} />
+          <Label value={rowLabel} style={styles.formTableColumnHeaderFitContent} suffix={suffix} fieldId={labelId} />
         </View>,
       );
     });
@@ -519,42 +547,44 @@ export class GroupedForm extends Component {
     return rows;
   }
 
-  renderColumnData(columnDefinition: GroupDefinition) {
-    if (this.getIsVisible(columnDefinition) === false) {
+  renderColumnData(fieldDefinition: FieldDefinition) {
+    if (this.getIsVisible(fieldDefinition) === false) {
       return null;
     }
 
-    const columnedFields: FieldDefinition[] = columnDefinition.fields;
+    const columnedFields: FieldDefinition[] = fieldDefinition.fields;
     const columns: string[] = this.props.definition.columns.find(
-      (columns: string[]) => columns.length > 0 && columns[0] === columnDefinition.name,
+      (cols: string[]) => cols.length > 0 && cols[0] === fieldDefinition.name,
     );
 
     let rows: any[] = [];
 
     // Render header row
-    rows.push(
-      <View style={styles.formRow} key={`header-row`}>
-        {columns.map((column, index) => {
-          const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
-          if (columnDef) {
-            const columnLabel = formatLabel(columnDef);
-            return (
-              <Label
-                value={columnLabel}
-                style={styles.formTableColumnHeader}
-                suffix=""
-                fieldId={`${this.props.fieldId}.${columnDef.name}`}
-                key={`header-${index}`}
-              />
-            );
-          } else {
-            return this.props.editable ? (
-              <View style={styles.formTableColumnHeaderSmall} key={`header-${index}`} />
-            ) : null;
-          }
-        })}
-      </View>,
-    );
+    if (this.anyColumnHeadingsVisible(fieldDefinition, this.props.definition)) {
+      rows.push(
+        <View style={styles.formRow} key={`header-row`}>
+          {columns.map((column, index) => {
+            const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
+            if (columnDef) {
+              const columnLabel = formatLabel(columnDef);
+              return (
+                <Label
+                  value={columnLabel}
+                  style={styles.formTableColumnHeader}
+                  suffix=""
+                  fieldId={`${this.props.fieldId}.${columnDef.name}`}
+                  key={`header-${index}`}
+                />
+              );
+            } else {
+              return this.props.editable ? (
+                <View style={styles.formTableColumnHeaderSmall} key={`header-${index}`} />
+              ) : null;
+            }
+          })}
+        </View>,
+      );
+    }
 
     // Render data rows
     columnedFields.forEach((field, rowIndex) => {

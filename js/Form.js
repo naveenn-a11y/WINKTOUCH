@@ -1268,6 +1268,26 @@ export class FormTextArrayInput extends Component {
   }
 }
 
+export const isCheckboxInput = (definition: FieldDefinition): boolean => {
+  const options = definition?.options;
+  if (options === undefined || options === null) {
+    return false;
+  }
+
+  if (
+    options.length === 2 &&
+    (options[0] === undefined ||
+      options[0] === null ||
+      options[0] === false ||
+      options[0].toString().trim() === '' ||
+      definition.defaultValue === options[0])
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
 export class FormSelectionArray extends Component {
   props: {
     value: ?(string[]),
@@ -1794,14 +1814,7 @@ export class FormInput extends Component {
             testID={this.props.testID}
           />
         );
-      } else if (
-        options.length === 2 &&
-        (options[0] === undefined ||
-          options[0] === null ||
-          options[0] === false ||
-          options[0].toString().trim() === '' ||
-          this.props.definition.defaultValue === options[0])
-      ) {
+      } else if (isCheckboxInput(this.props.definition)) {
         return (
           <FormCheckBox
             options={options}

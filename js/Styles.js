@@ -1705,8 +1705,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 3 * fontScale,
-    marginTop: 4.25 * fontScale,
-    paddingLeft: 0,
+    marginTop: 5 * fontScale,
+  },
+  formHeadingRowForCheckbox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+    marginTop: 2 * fontScale,
   },
   formDataContainer: {
     flex: 1,
