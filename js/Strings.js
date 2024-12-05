@@ -441,6 +441,8 @@ export const strings = new LocalizedStrings({
     today: 'Today',
     textEditor: 'Text Editor',
     preTests: "Pre-tests",
+    refreshNow: 'Refresh now',
+    lastRefreshed: 'Last updated at ',
   },
   fr: {
     enterRegisteredEmail:
@@ -885,6 +887,8 @@ export const strings = new LocalizedStrings({
     today: 'Aujourd\'hui',
     textEditor: 'Éditeur de texte',
     preTests: "Pré-tests",
+    refreshNow: 'Actualiser maintenant',
+    lastRefreshed: 'Dernière mise à jour à ',
   },
   es: {
     enterRegisteredEmail:
@@ -1327,6 +1331,8 @@ export const strings = new LocalizedStrings({
     today: 'Hoy',
     textEditor: 'Editor de texto',
     preTests: "Pruebas previas",
+    refreshNow: 'Actualizar ahora',
+    lastRefreshed: 'Última actualización en ',
   },
 });
 

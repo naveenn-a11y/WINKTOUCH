@@ -1727,6 +1727,23 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', 
     flex: 1
+  },
+  refreshNowContainer: {
+    flexDirection: 'row', 
+    justifyContent: 'flex-end', 
+    alignItems: 'center',
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale
+  },
+  refreshNowIcon: {
+    marginLeft: 20 * fontScale,
+    borderColor: fieldBorderColor,
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center', 
+    alignItems: 'center',
+    height: 20,
+    width: 20
   }
 });
 
