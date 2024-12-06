@@ -1887,6 +1887,7 @@ class VisitWorkFlow extends Component {
   renderConsultationDetails() {
     const store: Store = getCachedItem(this.state.visit.storeId);
     const doctor: User = getCachedItem(this.state.visit.userId);
+    const enteredBy: User = getCachedItem(this.state.visit.enteredByUserId);
     const sectionWidth: string = getSectionWidth('Consultation');
 
     return (
@@ -1907,6 +1908,11 @@ class VisitWorkFlow extends Component {
           <Text style={styles.text}>
             {strings.doctor}: {getDoctorFullName(doctor)}
           </Text>
+        )}
+        {enteredBy && (
+          <Text style={styles.text}>
+          {strings.preTests}: {getDoctorFullName(enteredBy)}
+        </Text>
         )}
         {!isEmpty(store?.name) && (
           <Text style={styles.text}>
@@ -2250,14 +2256,19 @@ class VisitWorkFlow extends Component {
 
   confirmPrintMedicationRxDialog = (prescriptionData: any) => {
     let labelsArray: string[] = new Array();
+    let isPrintWithoutSignEnabled = false;
     prescriptionData.map((prescriptionLabel: any) => {
       let labelRx = prescriptionLabel.label;
       let flagRx = prescriptionLabel.isChecked;
       if (flagRx) {
-        labelsArray.push(labelRx);
+        if (labelRx === strings.printWithoutSign) {
+          isPrintWithoutSignEnabled = true;
+        } else {
+          labelsArray.push(labelRx);
+        }
       }
     });
-    printMedicalRx(this.props.visitId, labelsArray);
+    printMedicalRx(this.props.visitId, labelsArray, isPrintWithoutSignEnabled);
     this.hidePrintMedicationRxPopup();
   };
 
@@ -2282,6 +2293,12 @@ class VisitWorkFlow extends Component {
           printMedicationRxOptions.push({label: label, isChecked: false});
           labelAlreadyExist.add(label);
         }
+      });
+
+      // Adding 'Print Without Sign' option
+      printMedicationRxOptions.push({
+        label: strings.printWithoutSign,
+        isChecked: false,
       });
     }
 
@@ -2534,7 +2551,7 @@ class VisitWorkFlow extends Component {
     return (
       <View style={styles.examIcons}>
         <TouchableOpacity onPress={this.switchLock}>
-          <Lock style={styles.screenIcon} locked={this.state.locked === true} />
+          <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} />
         </TouchableOpacity>
       </View>
     );

@@ -1705,8 +1705,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 3 * fontScale,
-    marginTop: 4.25 * fontScale,
-    paddingLeft: 0,
+    marginTop: 5 * fontScale,
+  },
+  formHeadingRowForCheckbox: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 3 * fontScale,
+    marginTop: 2 * fontScale,
   },
   formDataContainer: {
     flex: 1,
@@ -1727,6 +1733,23 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center', 
     flex: 1
+  },
+  refreshNowContainer: {
+    flexDirection: 'row', 
+    justifyContent: 'flex-end', 
+    alignItems: 'center',
+    paddingLeft: 10 * fontScale,
+    paddingRight: 10 * fontScale
+  },
+  refreshNowIcon: {
+    marginLeft: 20 * fontScale,
+    borderColor: fieldBorderColor,
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center', 
+    alignItems: 'center',
+    height: 20,
+    width: 20
   }
 });
 

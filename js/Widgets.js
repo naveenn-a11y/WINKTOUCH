@@ -132,10 +132,13 @@ export class Label extends PureComponent {
       : this.props.width
       ? [styles.formLabel, {width: this.props.width}]
       : styles.formLabel;
+
+    const suffix = this.props?.value?.trim().length > 0 ? this.props.suffix : '';
+    const value = this.props?.value?.trim().length > 0 ? this.props.value?.trim() : '';
     return (
       <Text style={style} testID={`label-${this.props?.value}`}>
-        {this.props.value}
-        {this.props.suffix}
+        {value}
+        {suffix}
       </Text>
     );
   }
@@ -3232,19 +3235,21 @@ export class Lock extends PureComponent {
   props: {
     locked: boolean,
     style: any,
+    testID: string,
   };
   render() {
     if (this.props.locked === true) {
       return (
-        <Icon name="lock" style={this.props.style} color={selectionFontColor} />
+          <Icon testID={this.props.testID} name="lock" style={this.props.style} color={selectionFontColor} />
       );
     }
     return (
-      <Icon
-        name="lock-open-outline"
-        style={this.props.style}
-        color={selectionFontColor}
-      />
+        <Icon
+          name="lock-open-outline"
+          style={this.props.style}
+          color={selectionFontColor}
+          testID={this.props.testID}
+        />
     );
   }
 }
@@ -3688,7 +3693,7 @@ export class Alert extends Component<AlertProps, AlertState> {
       return false;
     }
     let data: any = this.state.data;
-    data = data.filter((element: any) => element.isChecked);
+    data = data.filter((element: any) => element.isChecked && element?.label !== strings.printWithoutSign);
     return !(data && data.length > 0);
   }
   cancelDialog = () => {

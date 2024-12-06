@@ -17,12 +17,12 @@ import { cacheItem, getCachedItem } from './DataCache';
 import { getExamDefinition } from './ExamDefinition';
 import {
   Favorites,
-  Garbage
+  Garbage,
 } from './Favorites';
 import { FormRow, FormTextInput } from './Form';
 import { GroupedForm } from './GroupedForm';
 import {
-  formatPrism
+  formatPrism,
 } from './Refraction';
 import { fetchItemDefinition, getDefinitionCacheKey } from './Rest';
 import { strings } from './Strings';
@@ -34,7 +34,7 @@ import type {
   FieldDefinition,
   FieldDefinitions,
   GroupDefinition,
-  Prescription
+  Prescription,
 } from './Types';
 import {
   dateFormat,
@@ -43,14 +43,14 @@ import {
   formatTime,
   isEmpty,
   isToyear,
-  yearDateFormat
+  yearDateFormat,
 } from './Util';
 import {
   Label,
   NoAccess,
   SelectionList,
   selectionPrefix,
-  stripSelectionPrefix
+  stripSelectionPrefix,
 } from './Widgets';
 
 export function getFieldDefinitions(itemId: string): ?FieldDefinitions {
@@ -160,113 +160,159 @@ export function formatValue(
   }
 }
 
-export function formatFieldValue(
-  value: ?string | ?number | ?(string[]) | ?(number[]),
-  fieldDefinition: FieldDefinition,
-): string {
-  if (fieldDefinition === undefined) {
-    return '';
+export function formatFieldValue(value, fieldDefinition) {
+  if (!fieldDefinition) return '';
+
+  value = value ?? fieldDefinition.defaultValue;
+  if (value == null || value === '') return '';
+
+  if (isCheckboxField(fieldDefinition)) {
+    return formatCheckboxValue(value, fieldDefinition);
   }
-  if (value === undefined) {
-    value = fieldDefinition.defaultValue;
+
+  if (isDateField(fieldDefinition)) {
+    return formatDateValue(value, fieldDefinition);
   }
-  if (value === undefined || value === null || value === '') {
-    return '';
+
+  if (isTimeField(fieldDefinition)) {
+    return formatTimeValue(value, fieldDefinition);
   }
-  const label: ?string = formatLabel(fieldDefinition);
-  if (
-    fieldDefinition.options &&
-    fieldDefinition.options.length === 2 &&
-    fieldDefinition.defaultValue === fieldDefinition.options[0]
-  ) {
-    //Checkbox with booleans
-    if (value === true) {
-      value = label;
-    } else if (value === false) {
-      value = '';
-    } else if (value === fieldDefinition.defaultValue) {
-      value = '';
-    }
-  }
-  if (fieldDefinition.type && fieldDefinition.type.includes('Date')) {
-    if (
-      (fieldDefinition.prefix &&
-        fieldDefinition.prefix instanceof Array === false) ||
-      (fieldDefinition.suffix &&
-        fieldDefinition.suffix instanceof Array === false)
-    ) {
-      return (
-        formatPrefix(fieldDefinition, value) +
-        formatDate(value, isToyear(value) ? dateFormat : yearDateFormat) +
-        formatSuffix(fieldDefinition)
-      );
-    }
-    return formatDate(value, isToyear(value) ? dateFormat : yearDateFormat);
-  }
-  if (
-    fieldDefinition.type &&
-    (fieldDefinition.type === 'time' || fieldDefinition.type.includes('Time'))
-  ) {
-    if (
-      (fieldDefinition.prefix &&
-        fieldDefinition.prefix instanceof Array === false) ||
-      (fieldDefinition.suffix &&
-        fieldDefinition.suffix instanceof Array === false)
-    ) {
-      return (
-        formatPrefix(fieldDefinition, value) +
-        formatTime(value) +
-        formatSuffix(fieldDefinition)
-      );
-    }
-    return formatTime(value);
-  }
-  if (fieldDefinition.type && fieldDefinition.type === 'prism') {
+
+  if (isPrismField(fieldDefinition)) {
     return formatPrism(value);
   }
-  //is this is a code field?
-  if (
-    fieldDefinition.options &&
-    !fieldDefinition.combineOptions &&
-    fieldDefinition.options instanceof Array === false
-  ) {
-    const codeType: string = fieldDefinition.options;
-    if (fieldDefinition.multiValue) {
-      if (value === undefined || value === null || value.length === 0) {
-        return '';
-      }
-        const formattedValues: string[] = value.map((code: string, index: number) => {
-        const spacing = index != 0 ? " " : "";
-        const prefix: string = selectionPrefix(code);
-        const suffix: string = formatSuffix(fieldDefinition);
-        return (
-          spacing + prefix + formatCode(codeType, stripSelectionPrefix(code)) + suffix
-        );
-      });
-      return new String(formattedValues).valueOf();
-    }
-    let prefix: string = selectionPrefix(value); //TODO: append fieldDefinition.prefix
-    const suffix: string = formatSuffix(fieldDefinition);
 
-    value = fieldDefinition.decimals && fieldDefinition.decimals > 0 
-    ? Number(value).toFixed(fieldDefinition.decimals)
-    : value; 
-
-    return prefix + formatCode(codeType, stripSelectionPrefix(value)) + suffix;
+  if (isCodeField(fieldDefinition)) {
+    return formatCodeValue(value, fieldDefinition);
   }
-  if (
-    (fieldDefinition.prefix &&
-      fieldDefinition.prefix instanceof Array === false) ||
-    (fieldDefinition.suffix &&
-      fieldDefinition.suffix instanceof Array === false)
-  ) {
-    return (
-      formatPrefix(fieldDefinition, value) +
-      formatValue(value, fieldDefinition) +
-      formatSuffix(fieldDefinition)
+
+  return formatGenericValue(value, fieldDefinition);
+}
+
+function isCheckboxField(fieldDefinition) {
+  return (
+    fieldDefinition.options?.length === 2 &&
+    fieldDefinition.defaultValue === fieldDefinition.options[0]
+  );
+}
+
+function formatCheckboxValue(value, fieldDefinition) {
+  const label = formatLabel(fieldDefinition);
+  if (value === true) return label;
+  if (value === false || value === fieldDefinition.defaultValue) return '';
+
+  return formatGenericValue(value, fieldDefinition);
+}
+
+function isDateField(fieldDefinition) {
+  return fieldDefinition.type?.includes('Date') ?? false;
+}
+
+function formatDateValue(value, fieldDefinition) {
+  const formattedDate = formatDate(value, isToyear(value) ? dateFormat : yearDateFormat);
+  if (hasPrefixOrSuffix(fieldDefinition)) {
+    return formatWithPrefixAndSuffix(
+      formatPrefix(fieldDefinition, value),
+      formattedDate,
+      formatSuffix(fieldDefinition),
     );
   }
-  return formatValue(value, fieldDefinition);
+
+  return formattedDate;
+}
+
+function isTimeField(fieldDefinition) {
+  return fieldDefinition.type === 'time' || (typeof fieldDefinition.type === 'string' && fieldDefinition.type.includes('Time'));
+}
+
+function formatTimeValue(value, fieldDefinition) {
+  const formattedTime = formatTime(value);
+  if (hasPrefixOrSuffix(fieldDefinition)) {
+    return formatWithPrefixAndSuffix(
+      formatPrefix(fieldDefinition, value),
+      formattedTime,
+      formatSuffix(fieldDefinition),
+    );
+  }
+
+  return formattedTime;
+}
+
+function isPrismField(fieldDefinition) {
+  return fieldDefinition.type === 'prism';
+}
+
+function isCodeField(fieldDefinition) {
+  return (
+    fieldDefinition.options &&
+    !fieldDefinition.combineOptions &&
+    !(fieldDefinition.options instanceof Array)
+  );
+}
+
+function formatCodeValue(value, fieldDefinition) {
+  const codeType = fieldDefinition.options;
+
+  if (fieldDefinition.multiValue) {
+    if (!Array.isArray(value) || value.length === 0) return '';
+    return value.map((code, index) => {
+      const spacing = index !== 0 ? ' ' : '';
+      const prefix = selectionPrefix(code);
+      const suffix = formatSuffix(fieldDefinition);
+      return `${spacing}${formatWithPrefixAndSuffix(prefix, formatCode(codeType, stripSelectionPrefix(code)), suffix)}`;
+    }).join('');
+  }
+
+  const prefix = selectionPrefix(value);
+  const suffix = formatSuffix(fieldDefinition);
+  const formattedValue = fieldDefinition.decimals && fieldDefinition.decimals > 0
+    ? Number(value).toFixed(fieldDefinition.decimals)
+    : value;
+
+  return formatWithPrefixAndSuffix(prefix, formatCode(codeType, stripSelectionPrefix(formattedValue)), suffix);
+}
+
+function formatGenericValue(value, fieldDefinition) {
+  const formattedValue = formatValue(value, fieldDefinition);
+  if (hasPrefixOrSuffix(fieldDefinition)) {
+    return formatWithPrefixAndSuffix(
+      formatPrefix(fieldDefinition, value),
+      formattedValue,
+      formatSuffix(fieldDefinition),
+    );
+  }
+  return formattedValue;
+}
+
+function hasPrefixOrSuffix(fieldDefinition) {
+  return (
+    (fieldDefinition.prefix && !(fieldDefinition.prefix instanceof Array)) ||
+    (fieldDefinition.suffix && !(fieldDefinition.suffix instanceof Array))
+  );
+}
+
+function formatWithPrefixAndSuffix(prefix, value, suffix) {
+  // If value is empty, return an empty string
+  if (!value) return '';
+
+  // If both prefix and suffix are null or undefined, return the value as is
+  if (prefix == null && suffix == null) return value;
+
+  let result = value;
+  // Check if the value already contains the prefix
+  const startsWithPrefix = prefix && value.startsWith(prefix);
+  // Check if the value already contains the suffix
+  const endsWithSuffix = suffix && value.endsWith(suffix);
+  // Prepend the prefix if it's defined and not already present
+  if (prefix && !startsWithPrefix) {
+    result = prefix + result;
+  }
+  // Append the suffix if it's defined and not already present
+  if (suffix && !endsWithSuffix) {
+    result = result + suffix;
+  }
+
+  return result;
 }
 
 export function isNumericField(fieldDefinition: FieldDefinition): boolean {
@@ -496,7 +542,6 @@ export class ItemSummary extends Component<ItemSummaryProps> {
     return (
       <View>
         {' '}
-        //TODO
         <Text style={styles.text}>
           {this.props.item[this.props.fieldDefinitions[0].label]}
         </Text>

@@ -56,6 +56,27 @@ export class ExamNavigationMenu extends PureComponent {
     exam: Exam,
     navigation: any,
   };
+
+  // Function To navigate to Previous Exam
+  navigateToPreviousExam = (previousExam) => {
+      // Navigate to previous exam
+      this.props.navigation.navigate('exam', {
+        exam: previousExam,
+        stateKey: this.props.navigation.state.key,
+        appointmentStateKey: this.props.navigation?.state?.params?.appointmentStateKey,
+      });
+  };
+
+  // Function To navigate to Next Exam
+  navigateToNextExam = (nextExam) => {
+      // Navigate to next exam
+      this.props.navigation.navigate('exam', {
+        exam: nextExam,
+        stateKey: this.props.navigation.state.key,
+        appointmentStateKey: this.props.navigation?.state?.params?.appointmentStateKey,
+      });
+  };
+
   render() {
     const exam = this.props.exam;
     const nextExam: ?Exam =
@@ -73,12 +94,7 @@ export class ExamNavigationMenu extends PureComponent {
         }}>
         <TouchableOpacity
           disabled={previousExam === undefined}
-          onPress={() =>
-            this.props.navigation.navigate('exam', {
-              exam: previousExam,
-              stateKey: this.props.navigation.state.key,
-            })
-          }
+          onPress={() =>this.navigateToPreviousExam(previousExam)}
           testID="previousExam">
           <View>
             <Icon name="arrow-left" style={styles.menuIcon2} />
@@ -86,12 +102,7 @@ export class ExamNavigationMenu extends PureComponent {
         </TouchableOpacity>
         <TouchableOpacity
           disabled={nextExam === undefined}
-          onPress={() =>
-            this.props.navigation.navigate('exam', {
-              exam: nextExam,
-              stateKey: this.props.navigation.state.key,
-            })
-          }
+          onPress={() => this.navigateToNextExam(nextExam)}
           testID="nextExam">
           <View>
             <Icon name="arrow-right" style={styles.menuIcon2} />

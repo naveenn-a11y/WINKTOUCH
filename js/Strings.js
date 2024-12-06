@@ -132,6 +132,7 @@ export const strings = new LocalizedStrings({
     printClRx: 'Print ClRx',
     printReferral: 'Print Referral',
     printMedicalRx: 'Print Medical Rx',
+    printWithoutSign: 'Print without signature',
     printPatientFile: 'Print Patient File',
     patientFile: 'Patient File',
     add: 'Add',
@@ -439,6 +440,9 @@ export const strings = new LocalizedStrings({
     loadMore: 'Load more...',
     today: 'Today',
     textEditor: 'Text Editor',
+    preTests: "Pre-tests",
+    refreshNow: 'Refresh now',
+    lastRefreshed: 'Last updated at ',
   },
   fr: {
     enterRegisteredEmail:
@@ -566,6 +570,7 @@ export const strings = new LocalizedStrings({
     printClRx: 'Imprimer RxVC',
     printReferral: 'Imprimer Référence',
     printMedicalRx: 'Imprimer Rx médicale',
+    printWithoutSign: 'Imprimer sans signature',
     printPatientFile: 'Imprimer Dossier Patient',
     patientFile: 'Dossier Patient',
     add: 'Add',
@@ -881,6 +886,9 @@ export const strings = new LocalizedStrings({
     loadMore: 'Charger plus...',
     today: 'Aujourd\'hui',
     textEditor: 'Éditeur de texte',
+    preTests: "Pré-tests",
+    refreshNow: 'Actualiser maintenant',
+    lastRefreshed: 'Dernière mise à jour à ',
   },
   es: {
     enterRegisteredEmail:
@@ -1006,6 +1014,7 @@ export const strings = new LocalizedStrings({
     printClRx: 'Imprimir ClRx',
     printReferral: 'Imprimir referencia',
     printMedicalRx: 'Imprimir Rx médico',
+    printWithoutSign: 'Imprimir sin firma',
     printPatientFile: 'Imprimir archivo de paciente',
     patientFile: 'Archivo del paciente',
     add: 'Adición',
@@ -1321,6 +1330,9 @@ export const strings = new LocalizedStrings({
     loadMore: 'Carga más',
     today: 'Hoy',
     textEditor: 'Editor de texto',
+    preTests: "Pruebas previas",
+    refreshNow: 'Actualizar ahora',
+    lastRefreshed: 'Última actualización en ',
   },
 });
 

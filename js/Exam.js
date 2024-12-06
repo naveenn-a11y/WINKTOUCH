@@ -3,61 +3,60 @@
  */
 'use strict';
 
-import React, {Component} from 'react';
-import {View, Text, TouchableOpacity, Animated, Easing, ActivityIndicator} from 'react-native';
-import {CommonActions} from '@react-navigation/native';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { CommonActions } from '@react-navigation/native';
+import { Component } from 'react';
+import { ActivityIndicator, Animated, Easing, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { CheckList } from './CheckList';
+import { cacheItemById, getCachedItem, getCachedItems } from './DataCache';
+import { allExamDefinitions, getExamDefinition } from './ExamDefinition';
+import { ExportIcon, getFavorites, Refresh, removeFavorite, Star, storeFavorite } from './Favorites';
+import { GlassesDetail } from './GlassesDetail';
+import { GroupedCard } from './GroupedCard';
+import { GroupedForm } from './GroupedForm';
+import { addGroupItem, GroupedFormScreen } from './GroupedFormScreen';
+import {
+  formatLabel,
+  getFieldDefinition as getItemFieldDefinition,
+  ItemsCard,
+  ItemsList,
+  SelectionListsScreen,
+} from './Items';
+import { PaperFormScreen } from './PaperForm';
+import { getAutoRefractor, getKeratometry, getLensometries } from './Refraction';
+import { fetchItemById, getRestUrl, getToken, storeItem } from './Rest';
+import { strings } from './Strings';
+import { fontScale, isWeb, styles } from './Styles';
 import type {
   Exam,
-  Patient,
-  GlassesRx,
-  Visit,
-  ExamPredefinedValue,
   ExamDefinition,
+  ExamPredefinedValue,
   FieldDefinition,
+  GlassesRx,
   GroupDefinition,
   Measurement,
+  Patient,
+  Visit,
 } from './Types';
-import {styles, fontScale, selectionFontColor, isWeb} from './Styles';
-import {strings} from './Strings';
-import {
-  SelectionListsScreen,
-  ItemsCard,
-  formatLabel,
-  ItemsList,
-  getFieldDefinition as getItemFieldDefinition,
-} from './Items';
-import {GroupedForm} from './GroupedForm';
-import {CheckList} from './CheckList';
-import {GroupedCard} from './GroupedCard';
-import {addGroupItem, GroupedFormScreen} from './GroupedFormScreen';
-import {PaperFormScreen} from './PaperForm';
-import {fetchItemById, getRestUrl, getToken, storeItem} from './Rest';
-import {cacheItemById, getCachedItem, getCachedItems} from './DataCache';
 import {
   deepClone,
+  formatDate,
   formatMoment,
   getValue,
-  stripIndex,
-  setValue,
   isEmpty,
-  formatDate,
-  now,
   jsonDateTimeFormat,
+  now,
+  setValue,
+  stripIndex,
 } from './Util';
-import {allExamIds, fetchVisit, visitHasEnded} from './Visit';
-import {getLensometries, getKeratometry, getAutoRefractor, getLensometry} from './Refraction';
-import { GlassesDetail } from './GlassesDetail';
-import {getFavorites, removeFavorite, Star, Refresh, storeFavorite, ExportIcon} from './Favorites';
-import {allExamDefinitions, getExamDefinition} from './ExamDefinition';
-import {Alert, CollapsibleMessage, Lock, NativeBar, NoAccess, Pencil} from './Widgets';
+import { visitHasEnded } from './Visit';
+import { Alert, CollapsibleMessage, Lock, NativeBar, NoAccess, Pencil } from './Widgets';
 
-import {ErrorCard} from './Form';
-import {renderParentGroupHtml, renderItemsHtml} from './PatientFormHtml';
-import {getConfiguration} from './Configuration';
-import {Machine, exportData} from './Machine';
-import {PatientCard} from './Patient';
-import { Button } from './Widgets';
+import { getConfiguration } from './Configuration';
+import { ErrorCard } from './Form';
+import { exportData, Machine } from './Machine';
+import { PatientCard } from './Patient';
+import { renderItemsHtml, renderParentGroupHtml } from './PatientFormHtml';
 
 export async function fetchExam(
   examId: string,
@@ -94,7 +93,7 @@ export async function storeExam(
       refresh: true,
       key: refreshStateKey,
     });
-    navigation.dispatch({...setParamsAction, source: refreshStateKey});
+    navigation?.dispatch({...setParamsAction, source: refreshStateKey});
   }
   return exam;
 }
@@ -867,29 +866,28 @@ export class ExamHistoryScreen extends Component {
     return null;
   }
 
+  renderFooter = () => {
+    return this.state.isExamHistoryLoading && (
+      <View style={styles.examHistoryScreenLoadingContainer}>
+        <ActivityIndicator size="large" />
+        <Text style={{textAlign: 'center'}}>Loading..</Text>
+      </View>
+    )
+  }
+
   render() {
-    //TODO flatlist
     return (
-      <Animated.ScrollView minimumZoomScale={0.5} maximumZoomScale={1} zoomScale={this.state.zoomScale}>
-        {this.state.examHistory.map((exam: Exam) => this.renderExam(exam))}
-        {this.state?.isMoreDataAvailable && (
-          <View style={[styles.examHistoryScreenContainer, styles.rowContainer]}>
-            {this.state.isExamHistoryLoading ? (
-              <View style={styles.examHistoryScreenLoadingContainer}>
-                <ActivityIndicator size="large" />
-                <Text style={{textAlign: 'center'}}>Loading..</Text>
-              </View>
-            ) : (
-              <Button
-                title={'Load More'}
-                buttonStyle={styles.examHistoryLoadMoreBtn}
-                onPress={this.loadMoreExamHistoryData}
-              />
-            )}
-          </View>
-        )}
-      </Animated.ScrollView>
-    );
+      <FlatList
+          initialNumToRender={10}
+          data={this.state.examHistory}
+          renderItem={(exam, index) => this.renderExam(exam.item)}
+          showsVerticalScrollIndicator={false}
+          refreshing={this.state.isExamHistoryLoading}
+          ListFooterComponent={this.renderFooter}
+          onEndReached={this.loadMoreExamHistoryData}
+          onEndReachedThreshold={0.3}
+        />
+    )
   }
 }
 

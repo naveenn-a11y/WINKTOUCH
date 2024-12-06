@@ -409,7 +409,9 @@ async function addDrHeader(
   let x: number = leftBorder + boxWidthTopRight;
   let fontSize: number = 10;
 
-  await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
+  if (store?.displayLogoWithRx ?? true) {
+    await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
+  }
 
   y -= fontSize * 2 + 50;
   const doctorName: string =
@@ -681,8 +683,8 @@ async function addSignatureWeb(
   }
   const mimeType: string = getMimeType(signature);
   if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64') {
-    let dimension: number = undefined;
-    let image = undefined;
+    let dimension: number;
+    let image;
     if (mimeType === 'image/jpeg;base64'){
       dimension = getJpeg64Dimension(signature.data);
       image = await pdfDoc.embedJpg(signature.data);
@@ -737,8 +739,8 @@ async function addSignatureNative(
   }
   const mimeType: string = getMimeType(signature);
   if (mimeType === 'image/jpeg;base64' || mimeType === 'image/png;base64') {
-    let dimension: number = undefined;
-    let imgType: String = undefined;
+    let dimension: number;
+    let imgType: String;
     if (mimeType === 'image/jpeg;base64') {
       dimension = getJpeg64Dimension(signature.data);
       imgType = 'jpg';
@@ -763,6 +765,7 @@ async function addSignature(
   pageWidth: number,
   border: number,
   pdfDoc?: PDFDocument,
+  printWithoutSign?: boolean = false,
 ) {
   const visit: Visit = getCachedItem(visitId);
   const signedDate: ?string =
@@ -774,7 +777,7 @@ async function addSignature(
   let y: number = border + fontSize * 4;
   page.drawText(strings.drSignature + ':', {x, y, size: fontSize});
   x += 60;
-  if (signedDate) {
+  if (signedDate && !printWithoutSign) {
     let doctor: User = getCachedItem(visit.userId);
     if (!doctor) {
       doctor = await fetchItemById(visit.userId); //TODO: This does not work actually
@@ -792,7 +795,8 @@ async function addSignature(
   }
 
   x = pageWidth - 170;
-  page.drawText(strings.signedDate + ':' + prefix(signedDate, ' '), {
+  const signedDateText = printWithoutSign ? '' : prefix(signedDate, ' ');
+  page.drawText(strings.signedDate + ':' + signedDateText, {
     x,
     y,
     size: fontSize,
@@ -833,7 +837,7 @@ function addRxFootNote(
   }) : printWrappedLine(footNote, page, fontSize, dim, lineHeight, 110);
 }
 
-export async function printMedicalRx(visitId: string, labelsArray: string[]) {
+export async function printMedicalRx(visitId: string, labelsArray: string[], printWithoutSign: boolean = false) {
   const pageWidth: number = 612; //US Letter portrait 8.5 inch * 72 dpi
   const pageAspectRatio: number = 8.5 / 11; //US Letter portrait
   const pageHeight: number = pageWidth / pageAspectRatio;
@@ -853,7 +857,7 @@ export async function printMedicalRx(visitId: string, labelsArray: string[]) {
   addCurrentDate(rxPage, pageHeight, border);
   addPatientHeader(visitId, rxPage, pageWidth, pageHeight, border);
   addMedicalRxLines(visitId, rxPage, pageHeight, border, labelsArray);
-  await addSignature(visitId, rxPage, pageWidth, border, pdfDoc);
+  await addSignature(visitId, rxPage, pageWidth, border, pdfDoc, printWithoutSign);
   addRxFootNote(visitId, rxPage, pageWidth, pageHeight, border);
   if (isWeb) {
     const pdfData = await pdfDoc.saveAsBase64();
