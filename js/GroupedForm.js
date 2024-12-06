@@ -410,7 +410,6 @@ export class GroupedForm extends Component {
     }
 
     const rowStyle = isCheckboxInput(fieldDefinition) ? styles.formHeadingRowForCheckbox : styles.formHeadingRow2;
-
     return (
       <View style={[styles.formRow, {justifyContent: 'center'}]} key={fieldDefinition.name}>
         <View>

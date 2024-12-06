@@ -200,7 +200,7 @@ export class EhrApp extends Component {
       registration.bundle.length > 0;
     this.setState(
       {isRegistered, registration, loading: false},
-      () => isRegistered && this.checkForCodepushUpdate(),
+      () => isRegistered && (isWeb ? this.checkForWebUpdate() : this.checkForCodepushUpdate()),
     );
   }
 
@@ -280,7 +280,7 @@ export class EhrApp extends Component {
     if (!isWeb) this.checkForCodepushUpdate();
   };
 
-  async checkWinkTouchVersionChanges(registration: ?Registration) {
+  async checkWinkTouchVersionChanges(registration: ?Registration): boolean {
     try {
       let codePushBundleKey = await fetchTouchVersion(registration.path);
   
@@ -292,10 +292,12 @@ export class EhrApp extends Component {
         } else {
           AsyncStorage.removeItem('bundle');
         }
+        return true;
       }
     } catch (error) {
       alert('Fetching touch version failed: ' + error);
     }
+    return false;
   }
 
   async isCodePushUpdateAvailable(registration: ?Registration) {
@@ -320,6 +322,10 @@ export class EhrApp extends Component {
   confirmUpdate = () => {
     this.checkForCodepushUpdate();
     this.setState({showPrompt: false})
+  }
+
+  checkForWebUpdate() {
+    this.checkWinkTouchVersionChanges(this.state.registration).then(res => res && setTimeout(() => window.location.reload(), 1000));
   }
 
   checkForCodepushUpdate() {
