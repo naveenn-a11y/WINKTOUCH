@@ -1373,6 +1373,7 @@ export class AgendaScreen extends Component {
               }}>
               <TouchableOpacity onPress={this._onPrevDate}>
                 <Icon
+                  testID={'prev-date-icon'}
                   name="chevron-left"
                   style={[styles.screenIcon, styles.paddingLeftRight10]}
                 />
@@ -1380,6 +1381,7 @@ export class AgendaScreen extends Component {
 
               <TouchableOpacity onPress={this._onNextDate}>
                 <Icon
+                testID={'next-date-icon'}
                   name="chevron-right"
                   style={[styles.screenIcon, styles.paddingLeftRight10]}
                 />
