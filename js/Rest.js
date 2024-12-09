@@ -425,7 +425,7 @@ export async function storeItem(item: any): any {
       body: JSON.stringify(item),
     });
     if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+      handleHttpError(httpResponse, await httpResponse.json());
     }
     const restResponse: RestResponse = await httpResponse.json();
     __DEV__ &&
