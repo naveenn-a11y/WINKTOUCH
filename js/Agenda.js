@@ -710,6 +710,12 @@ export class AgendaScreen extends Component {
         appointments: appointments,
         refresh: true,
       });
+      // Refreshing the appointments
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
     }
   };
 
