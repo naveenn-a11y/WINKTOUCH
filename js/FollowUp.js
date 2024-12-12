@@ -1227,7 +1227,6 @@ export class TableListRow extends React.PureComponent {
 
           <TextField
             returnKeyType="done"
-            editable={!this.props.readonly}
             autoCorrect={false}
             autoCapitalize="none"
             value={this.state.commentValue}
@@ -1235,6 +1234,8 @@ export class TableListRow extends React.PureComponent {
             onChangeValue={(text: string) => this.changeText(text)}
             testID={this.props?.testID+ '.Filter'}
             onBlur={() => this.commitEdit(this.state.commentValue)}
+            editable={!this.props.readonly}
+            readonly={this.props.readonly}
           />
         </View>
       </TouchableOpacity>

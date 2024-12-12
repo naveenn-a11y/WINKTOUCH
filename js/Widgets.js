@@ -477,10 +477,11 @@ export class TextArrayField extends Component {
               value={value}
               key={index}
               style={this.props.style}
-              editable={!this.props.readonly}
               onChangeValue={(text: string) => this.changeText(text, index)}
               testID={this.props.testID + '-' + (index + 1)}
               title={this.props.label}
+              editable={!this.props.readonly}
+              readonly={this.props.readonly}
             />
           ))}
         {!this.props.readonly && <Button title=" + " onPress={this.addItem} />}
@@ -1333,6 +1334,8 @@ export class NumberField extends Component {
           onOpenModal={this.openModal}
           title={this.props.label}
           onBlur={this.handleBlur}
+          editable={!this.props.readonly}
+          readonly={this.props.readonly}
         />
       );
     } else if (this.props.listField) {
@@ -1713,6 +1716,7 @@ export class TilesField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
           onBlur={this.handleBlur}
+          readonly={this.props.readonly}
         />
       );
     }
@@ -2218,6 +2222,8 @@ export class TimeField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
           onBlur={this.handleBlur}
+          editable={!this.props.readonly}
+          readonly={this.props.readonly}
         />
       );
     }
