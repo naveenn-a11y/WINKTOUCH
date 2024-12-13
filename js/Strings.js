@@ -441,6 +441,7 @@ export const strings = new LocalizedStrings({
     today: 'Today',
     textEditor: 'Text Editor',
     preTests: "Pre-tests",
+    homePhoneOrCellRequired: 'Either home phone or cell is required'
   },
   fr: {
     enterRegisteredEmail:
@@ -885,6 +886,7 @@ export const strings = new LocalizedStrings({
     today: 'Aujourd\'hui',
     textEditor: 'Éditeur de texte',
     preTests: "Pré-tests",
+    homePhoneOrCellRequired: 'Un téléphone résidentiel ou cellulaire est requis'
   },
   es: {
     enterRegisteredEmail:
@@ -1327,6 +1329,7 @@ export const strings = new LocalizedStrings({
     today: 'Hoy',
     textEditor: 'Editor de texto',
     preTests: "Pruebas previas",
+    homePhoneOrCellRequired: 'Se requiere teléfono residencial o celular'
   },
 });
 

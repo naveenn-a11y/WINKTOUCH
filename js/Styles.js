@@ -713,6 +713,13 @@ export const styles = StyleSheet.create({
     textAlign: 'right',
     backgroundColor: '#ffffffcc',
   },
+  helperTextError:{
+    position: 'relative',
+    top: -10 * fontScale,
+    color: 'red',
+    paddingLeft: 20 * fontScale,
+    fontSize: 16 * fontScale
+  },
   inputField: inputFieldStyle(false, false),
   inputFieldActive: inputFieldStyle(true, false),
   inputFieldActiveChanged: inputFieldStyle(true, true),
