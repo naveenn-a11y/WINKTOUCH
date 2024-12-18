@@ -253,7 +253,6 @@ export async function fetchCodeDefinitions(
         'Accept-language': language,
       },
     });
-    console.log('=====>', httpResponse);
     if (!httpResponse.ok) {
       handleHttpError(httpResponse);
     }
