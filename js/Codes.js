@@ -253,6 +253,7 @@ export async function fetchCodeDefinitions(
         'Accept-language': language,
       },
     });
+    console.log('=====>', httpResponse);
     if (!httpResponse.ok) {
       handleHttpError(httpResponse);
     }
@@ -281,10 +282,14 @@ export async function fetchCodeDefinitions(
     }
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(strings.initialiseError, 'code descriptions', error),
-    );
-    throw error;
+    if (error instanceof TypeError) {
+      console.error('TypeError caught:', error.message);
+    } else {
+      alert(
+        strings.formatString(strings.initialiseError, 'code descriptions', error),
+      );
+      throw error;
+    }
   }
 }
 
