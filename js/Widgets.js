@@ -132,10 +132,13 @@ export class Label extends PureComponent {
       : this.props.width
       ? [styles.formLabel, {width: this.props.width}]
       : styles.formLabel;
+
+    const suffix = this.props?.value?.trim().length > 0 ? this.props.suffix : '';
+    const value = this.props?.value?.trim().length > 0 ? this.props.value?.trim() : '';
     return (
       <Text style={style} testID={`label-${this.props?.value}`}>
-        {this.props.value}
-        {this.props.suffix}
+        {value}
+        {suffix}
       </Text>
     );
   }
@@ -474,10 +477,11 @@ export class TextArrayField extends Component {
               value={value}
               key={index}
               style={this.props.style}
-              editable={!this.props.readonly}
               onChangeValue={(text: string) => this.changeText(text, index)}
               testID={this.props.testID + '-' + (index + 1)}
               title={this.props.label}
+              editable={!this.props.readonly}
+              readonly={this.props.readonly}
             />
           ))}
         {!this.props.readonly && <Button title=" + " onPress={this.addItem} />}
@@ -1330,6 +1334,8 @@ export class NumberField extends Component {
           onOpenModal={this.openModal}
           title={this.props.label}
           onBlur={this.handleBlur}
+          editable={!this.props.readonly}
+          readonly={this.props.readonly}
         />
       );
     } else if (this.props.listField) {
@@ -1710,6 +1716,7 @@ export class TilesField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
           onBlur={this.handleBlur}
+          readonly={this.props.readonly}
         />
       );
     }
@@ -2215,6 +2222,8 @@ export class TimeField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
           onBlur={this.handleBlur}
+          editable={!this.props.readonly}
+          readonly={this.props.readonly}
         />
       );
     }

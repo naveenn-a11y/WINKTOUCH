@@ -402,6 +402,7 @@ export class RegisterScreen extends Component {
         </View>
         <TouchableOpacity
           style={styles.flag}
+          testID={'switchLanguage'}
           onPress={() => {
             switchLanguage();
             this.loadSecurityQuestions();

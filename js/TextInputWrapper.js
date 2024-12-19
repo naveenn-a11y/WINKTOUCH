@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import React, { useState } from 'react';
 import { TextInput as RNTextInput, StyleSheet, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { Button, TextInput as PaperTextInput, Portal } from 'react-native-paper';

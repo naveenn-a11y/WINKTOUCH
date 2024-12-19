@@ -195,8 +195,8 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
   if (httpResponse.status === 406) {
     throw strings.bookingAppointmentError;
   }
-  if (httpBody && httpBody.errors) {
-    throw httpBody.errors;
+  if (httpBody?.errors || httpBody?.message) {
+    throw httpBody.errors || httpBody.message;
   }
   throw 'HTTP error ' + httpResponse.status;
 }
@@ -425,7 +425,7 @@ export async function storeItem(item: any): any {
       body: JSON.stringify(item),
     });
     if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+      handleHttpError(httpResponse, await httpResponse.json());
     }
     const restResponse: RestResponse = await httpResponse.json();
     __DEV__ &&

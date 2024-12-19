@@ -1811,9 +1811,10 @@ export function patientHeader(referral: boolean) {
     '}' +
     '.img-wrap svg {' +
     '  position:absolute;' +
+    '  transform: scale(1.05); display:block;' +
     '  top:0;' +
     '}' +
-    '.img-wrap img {display:block; margin: auto;}' +
+    '.img-wrap img {transform: scale(1.05); display:block; margin: auto;}' +
     'span.img-wrap p {' +
     '  border-bottom: 1.5px solid;' +
     '  padding: 5px;' +
@@ -1851,6 +1852,7 @@ export function patientHeader(referral: boolean) {
     'font-size: 16px;' +
     'font-weight: bold;' +
     '}' +
+    'span.imageTitle { max-width: 150px; }' +
     ' .wrap-imgs {' +
     '   display: grid;' +
     '   width: 100%;' +

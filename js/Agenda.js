@@ -710,6 +710,12 @@ export class AgendaScreen extends Component {
         appointments: appointments,
         refresh: true,
       });
+      // Refreshing the appointments
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
     }
   };
 
@@ -1081,6 +1087,8 @@ export class AgendaScreen extends Component {
       });
     };
 
+    
+
     return (
       <Portal theme={{colors: {backdrop: 'transparent'}}}>
         <Dialog
@@ -1290,6 +1298,15 @@ export class AgendaScreen extends Component {
     return result !== undefined ? result.label : '';
   }
 
+  manualRefresh = () => {
+    this.refreshAppointments(
+      false,
+      false,
+      this.state.mode === 'day' ? 1 : this.daysInWeek,
+    );
+  }
+
+
   render() {
     const {
       isLoading,
@@ -1362,6 +1379,7 @@ export class AgendaScreen extends Component {
               }}>
               <TouchableOpacity onPress={this._onPrevDate}>
                 <Icon
+                  testID={'prev-date-icon'}
                   name="chevron-left"
                   style={[styles.screenIcon, styles.paddingLeftRight10]}
                 />
@@ -1369,6 +1387,7 @@ export class AgendaScreen extends Component {
 
               <TouchableOpacity onPress={this._onNextDate}>
                 <Icon
+                testID={'next-date-icon'}
                   name="chevron-right"
                   style={[styles.screenIcon, styles.paddingLeftRight10]}
                 />
@@ -1383,34 +1402,43 @@ export class AgendaScreen extends Component {
               </Text>
             </View>
           </View>
-
-          <View style={{flexDirection: 'row'}}>
-            <TouchableOpacity
-              style={styles.chooseButton}
-              onPress={this.openDoctorsOptions}>
-              <Text>{strings.chooseDoctor}</Text>
-            </TouchableOpacity>
-            <View testID={'timeline-dropdown-option'}>
-              <Menu
-                visible={dropDown}
-                onDismiss={this.closeDropDown}
-                style={{
-                  paddingTop: 50 * fontScale,
-                  paddingLeft: 10 * fontScale,
-                }}
-                anchor={this.renderDropDownButton(options, mode)}>
-                {options.map((option) => {
-                  return (
-                    <Menu.Item
-                      key={option.value}
-                      onPress={() => this._onSetMode(option.value)}
-                      title={option.label}
-                    />
-                  );
-                })}
-              </Menu>
+          
+          <View style={{flexDirection: 'column'}}>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity
+                style={styles.chooseButton}
+                onPress={this.openDoctorsOptions}>
+                <Text>{strings.chooseDoctor}</Text>
+              </TouchableOpacity>
+              
+              <View testID={'timeline-dropdown-option'}>
+                <Menu
+                  visible={dropDown}
+                  onDismiss={this.closeDropDown}
+                  style={{
+                    paddingTop: 50 * fontScale,
+                    paddingLeft: 10 * fontScale,
+                  }}
+                  anchor={this.renderDropDownButton(options, mode)}>
+                  {options.map((option) => {
+                    return (
+                      <Menu.Item
+                        key={option.value}
+                        onPress={() => this._onSetMode(option.value)}
+                        title={option.label}
+                      />
+                    );
+                  })}
+                </Menu>
+              </View>
             </View>
           </View>
+        </View>
+        <View style={[styles.refreshNowContainer]}>
+          <Text style={{ fontWeight: 'italic', color: 'grey' }}>{strings.lastRefreshed}{moment(this.lastRefresh).format('hh:mm A')}</Text>
+          <TouchableOpacity style={[styles.refreshNowIcon]} onPress={() => this.manualRefresh()} >
+            <Icon name="rotate-3d-variant" size={15} color={'grey'} />
+          </TouchableOpacity>
         </View>
         <NativeCalendar
           calendarWidth={this.state.calendarWidth}

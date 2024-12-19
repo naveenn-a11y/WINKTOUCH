@@ -441,7 +441,9 @@ export const strings = new LocalizedStrings({
     today: 'Today',
     textEditor: 'Text Editor',
     preTests: "Pre-tests",
-    homePhoneOrCellRequired: 'Either home phone or cell is required'
+    homePhoneOrCellRequired: 'Either home phone or cell is required',
+    refreshNow: 'Refresh now',
+    lastRefreshed: 'Last updated at ',
   },
   fr: {
     enterRegisteredEmail:
@@ -886,7 +888,9 @@ export const strings = new LocalizedStrings({
     today: 'Aujourd\'hui',
     textEditor: 'Éditeur de texte',
     preTests: "Pré-tests",
-    homePhoneOrCellRequired: 'Un téléphone résidentiel ou cellulaire est requis'
+    homePhoneOrCellRequired: 'Un téléphone résidentiel ou cellulaire est requis',
+    refreshNow: 'Actualiser maintenant',
+    lastRefreshed: 'Dernière mise à jour à ',
   },
   es: {
     enterRegisteredEmail:
@@ -1329,7 +1333,9 @@ export const strings = new LocalizedStrings({
     today: 'Hoy',
     textEditor: 'Editor de texto',
     preTests: "Pruebas previas",
-    homePhoneOrCellRequired: 'Se requiere teléfono residencial o celular'
+    homePhoneOrCellRequired: 'Se requiere teléfono residencial o celular',
+    refreshNow: 'Actualizar ahora',
+    lastRefreshed: 'Última actualización en ',
   },
 });
 
