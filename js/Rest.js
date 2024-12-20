@@ -255,7 +255,11 @@ export async function fetchItemDefinition(
         error,
       ),
     );
-    throw error;
+    if (error instanceof TypeError) {
+      __DEV__ && console.error('TypeError caught:', error.message);
+    } else {
+      throw error;
+    }
   }
 }
 
