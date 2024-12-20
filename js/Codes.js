@@ -280,9 +280,9 @@ export async function fetchCodeDefinitions(
       console.log('Code definitions updated', codeDefinitions);
     }
   } catch (error) {
-    console.log(error);
+    __DEV__ && console.log(error);
     if (error instanceof TypeError) {
-      console.error('TypeError caught:', error.message);
+      __DEV__ && console.error('TypeError caught:', error.message);
     } else {
       alert(
         strings.formatString(strings.initialiseError, 'code descriptions', error),
