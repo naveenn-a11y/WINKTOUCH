@@ -183,8 +183,7 @@
       "name": "Purchase Rx",
       "copyFromFinalRx": true,
       "label": "Additional Recommendation",
-      "maxLength": 45,
-      "maxRows": 1
+      "maxLength": 5000
     }
   ],
   "locale": {
