@@ -89,7 +89,11 @@ async function fetchAccounts(path: string) {
     let accounts: Account[] = await httpResponse.json();
     return accounts;
   } catch (error) {
-    console.log(error);
+    __DEV__ && console.log(error);
+    if (error instanceof TypeError) {
+      __DEV__ && console.error('TypeError caught:', strings.fetchAccountsError);
+      return;
+    }
     alert(strings.fetchAccountsError);
     throw error;
   }
@@ -208,6 +212,9 @@ export class MfaScreen extends Component {
       store = responseJson.store;
       this.props.onLogin(account, user, store, token);
     } catch (error) {
+      if (error instanceof TypeError) {
+        __DEV__ && console.error(strings.loginFailed + ': ' + error);
+      }
       alert(strings.loginFailed + ': ' + error);
     }
   }
@@ -490,7 +497,7 @@ export class LoginScreen extends Component {
     }
     if (accounts !== this.state.accounts) {
       if (accounts.length === 0) {
-        alert(strings.noAccountsWarning);
+        __DEV__ && console.error(strings.noAccountsWarning);
       }
       const isTrial = registration.email === 'DemoCustomer@downloadwink.com';
       if (!isTrial && accounts.length > 1) {
@@ -528,7 +535,7 @@ export class LoginScreen extends Component {
         }
 
         let currAccount = accounts.find((a: Account) => a.name === account);
-        if (currAccount.stores === null || currAccount.stores === undefined) {
+        if (currAccount?.stores === null || currAccount?.stores === undefined) {
           this.fetchStores(currAccount);
         }
       }
