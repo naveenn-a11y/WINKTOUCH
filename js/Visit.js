@@ -2494,6 +2494,23 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  isLockedAmendmentsEditable(section): boolean {
+    return (this.state.locked && section === 'Amendments' &&
+      this.state.visit.medicalDataPrivilege === 'FULLACCESS')
+  }
+
+  shouldFabBeVisible(section: string): boolean {
+    if (this.isLockedAmendmentsEditable(section)) {
+      return true;
+    }
+
+    if (this.props.readonly || section === 'Document') {
+      return false;
+    }
+
+    return true;
+  }
+
   renderAddableExamButton(section?: string) {
     const hasPreTestWriteAccess: boolean = hasVisitPretestWriteAccess(
       this.state.visit,
@@ -2504,8 +2521,9 @@ class VisitWorkFlow extends Component {
     const hasCLFittingWriteAccess: boolean = hasVisitFittingWriteAccess(
       this.state.visit,
     );
-    if (this.props.readonly || section === 'Document') {
-      return;
+
+    if (!this.shouldFabBeVisible(section)) {
+      return null;
     }
 
     const pretestMode: boolean = isEmpty(this.state.visit.userId);
@@ -2542,10 +2560,7 @@ class VisitWorkFlow extends Component {
   }
 
   renderLockIcon() {
-    if (
-      this.state.locked !== true ||
-      this.state.visit.userId !== getDoctor().id
-    ) {
+    if (this.state.locked !== true) {
       return null;
     }
     return (
@@ -2554,8 +2569,9 @@ class VisitWorkFlow extends Component {
           <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} />
         </TouchableOpacity>
       </View>
-    );
+    )
   }
+
   render() {
     if (this.props.visitId === undefined) {
       return null;

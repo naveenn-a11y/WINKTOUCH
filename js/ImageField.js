@@ -1506,9 +1506,9 @@ export class ImageField extends Component {
           <TouchableOpacity onPress={() => this.print()}>
             <Printer testID={this.props?.testID + '.Print'} style={styles.drawIcon} disabled={this.state.isActive} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => this.clearImage()}>
+          {!this.props.readonly && (<TouchableOpacity onPress={() => this.clearImage()}>
               <Garbage testID={this.props?.testID + '.Clear'} style={styles.groupIcon} />
-          </TouchableOpacity>
+          </TouchableOpacity>)}
           <TouchableOpacity onPress={() => this.email()}>
             <Mail style={styles.drawIcon} disabled={this.state.isActive} />
           </TouchableOpacity>
