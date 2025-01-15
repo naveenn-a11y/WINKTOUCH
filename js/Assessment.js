@@ -12,11 +12,11 @@ import {
 import { formatCode } from './Codes';
 import { storeExam } from './Exam';
 import { FormTextInput } from './Form';
+import { GlassesDetail } from './GlassesDetail';
 import { GroupedCard } from './GroupedCard';
 import { GroupedForm } from './GroupedForm';
 import { ItemsCard, formatLabel } from './Items';
 import { hasBvd, hasPrism, isPDEmpty } from './Refraction';
-import { GlassesDetail } from './GlassesDetail';
 import { getDataType } from './Rest';
 import { strings } from './Strings';
 import { fontScale, styles } from './Styles';
@@ -113,7 +113,7 @@ export class PrescriptionCard extends Component {
   renderPurchaseRxSimpleRow(recomm: any, index: number) {
     return (
       <View style={styles.formRow}>
-        <Text style={styles.textLeft}>
+        <Text style={styles.textLeftNoWidth}>
           {formatCode('purchaseReasonCode', recomm.lensType).trim() !== ''
             ? formatCode('purchaseReasonCode', recomm.lensType)
             : !isEmpty(recomm.notes) && strings.drRecommendation + (index + 1)}
@@ -134,9 +134,11 @@ export class PrescriptionCard extends Component {
       );
     const glassesRx: GlassesRx = this.props.exam.RxToOrder['Final Rx'];
     const pd: any = this.props.exam.RxToOrder.PD;
+    const cardStyle = hasPrism(glassesRx) && hasBvd(glassesRx) ? styles.width1200 : styles.width800;
 
     return (
       <View style={styles.assessmentCard}>
+        <View style={cardStyle}>
         <View
           style={
             hasPrism(glassesRx) && hasBvd(glassesRx)
@@ -158,10 +160,10 @@ export class PrescriptionCard extends Component {
         {glassesRx && !isEmpty(glassesRx.notes) && (
           <View>
             <View style={styles.formRow}>
-              <Text style={styles.textLeft}>{strings.notesOnRx}: </Text>
+              <Text style={styles.textLeftNoWidth}>{strings.notesOnRx}: </Text>
             </View>
             <View style={styles.formRow}>
-              <Text style={styles.textLeft}>{glassesRx.notes}</Text>
+              <Text style={styles.textLeftNoWidth}>{glassesRx.notes}</Text>
             </View>
           </View>
         )}
@@ -180,6 +182,7 @@ export class PrescriptionCard extends Component {
           <View style={styles.flexColumnLayout}>
             {this.renderPurchaseRxRows()}
           </View>
+        </View>
         </View>
       </View>
     );
@@ -365,6 +368,7 @@ export class VisitSummaryPlanCard extends Component {
 
     return (
       <View style={styles.assessmentCard}>
+        <View style={styles.widthL}>
         <TouchableOpacity
           style={styles.centeredRowLayout}
           onPress={this.navigateToExam}>
@@ -415,7 +419,7 @@ export class VisitSummaryPlanCard extends Component {
                   return (
                     <View
                       style={[styles.textWrap, {marginBottom: 10 * fontScale}]}>
-                      <Text style={styles.textLeft} key={index}>
+                      <Text style={[styles.textLeftNoWidth, {width: '100%'}]} key={index}>
                         {plan.Treatment && `${plan.Treatment}`}
                       </Text>
                     </View>
@@ -424,6 +428,7 @@ export class VisitSummaryPlanCard extends Component {
             </View>
           </View>
         </TouchableOpacity>
+        </View>
       </View>
     );
   }
