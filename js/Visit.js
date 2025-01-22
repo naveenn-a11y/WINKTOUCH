@@ -2559,14 +2559,24 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  isLockedButDisabled() {
+    const { locked, visit } = this.state;
+
+    if (!locked) return false;
+
+    return !(
+      visit.medicalDataPrivilege === 'FULLACCESS' || visit.pretestPrivilege === 'FULLACCESS'
+    );
+  }
+
   renderLockIcon() {
     if (this.state.locked !== true) {
       return null;
     }
     return (
       <View style={styles.examIcons}>
-        <TouchableOpacity onPress={this.switchLock}>
-          <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} />
+        <TouchableOpacity onPress={this.switchLock} disabled={this.isLockedButDisabled()}>
+          <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} disabled={this.isLockedButDisabled()}/>
         </TouchableOpacity>
       </View>
     )
