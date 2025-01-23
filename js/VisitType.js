@@ -205,11 +205,11 @@ class VisitTypeHeader extends Component {
               this.props.onUpdate('inactive', !newValue)
             }
           />
-          <TouchableOpacity
+          {!this.props.isNewVisitType && (<TouchableOpacity
             style={styles.chooseButton}
             onPress={this.openDoctorsOptions}>
             <Text>{strings.chooseDoctor}</Text>
-          </TouchableOpacity>
+          </TouchableOpacity>)}
         </FormRow>
         {this.state.doctorsModal && this.renderDoctorsOptions()}
       </View>
@@ -324,7 +324,13 @@ export class VisitTypeTemplateScreen extends Component {
         visitTypes.push(visitType);
         cacheItem('visitTypes', visitTypes);
       }
-      this.props.navigation.navigate('visitTypeCustomisation');
+
+      // don't close
+      this.setState({
+        isDirty: false,
+        isLoading: false,
+        isNewVisitType: visitType.id === 'visitType',
+      })
     }
   }
 
