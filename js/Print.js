@@ -414,11 +414,10 @@ async function addDrHeader(
   }
 
   y -= fontSize * 2 + 50;
-  const doctorName: string =
-    getDoctorFullName(doctor) +
-    prefix(doctor.providerType, ' - ') +
-    prefix(doctor.license, ' - ');
-  await addText(doctorName, x, y, fontSize, page, pdfDoc);
+  const doctorName: string = getDoctorFullName(doctor);
+  const doctorCredentials = doctor.providerType + prefix(doctor.license, ' - ');
+  await addText(doctorName, x, y + 15, fontSize, page, pdfDoc);
+  await addText(doctorCredentials, x, y, fontSize, page, pdfDoc);
 
   //page.drawText('Dr FirstName Latname - License Number', {x,y,fontSize});
 
