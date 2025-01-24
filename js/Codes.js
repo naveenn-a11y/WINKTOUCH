@@ -294,12 +294,21 @@ export async function fetchCodeDefinitions(
 
 export async function fetchUserDefinedCodes(): void {
   const searchCriteria = {};
-  let restResponse = await searchItems('Code/UserDefined/list', searchCriteria);
-  Object.keys(restResponse).forEach((codeName: string) => {
-    if (codeName != 'errors') {
-      codeDefinitions[codeName] = restResponse[codeName];
+  try{
+    let restResponse = await searchItems('Code/UserDefined/list', searchCriteria);
+    Object.keys(restResponse).forEach((codeName: string) => {
+      if (codeName != 'errors') {
+        codeDefinitions[codeName] = restResponse[codeName];
+      }
+    });
+  } catch (err){
+    if (err instanceof TypeError) {
+      __DEV__ && console.error('TypeError caught:', err.message);
+      return;
     }
-  });
+
+    throw err;
+  }
 
   //let userDefinedCodes : string[] = restResponse.codes;
 }

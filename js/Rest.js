@@ -592,7 +592,14 @@ export async function searchItems(list: string, searchCritera: Object): any {
     }
     return restResponse;
   } catch (error) {
-    console.log(error);
+    if (error instanceof TypeError) {
+      __DEV__ && console.error('TypeError caught:', strings.formatString(
+        strings.fetchItemError,
+        list.substring(0, list.indexOf('/')).toLowerCase(),
+        error,
+      ));
+      return;
+    }
     alert(
       strings.formatString(
         strings.fetchItemError,

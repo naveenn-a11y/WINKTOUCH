@@ -121,6 +121,10 @@ export class LockScreen extends Component {
         this.props.route.params.onUserLogin(); //restart tracker
       }
     } catch (error) {
+      if (error instanceof TypeError) {
+        __DEV__ && console.error('Login Failed:', error);
+        return false;
+      }
       alert(strings.loginFailed + ': ' + error);
     }
   }

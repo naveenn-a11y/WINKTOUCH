@@ -188,11 +188,15 @@ async function fetchVisitExam(visit: Visit, examName: string): Exam | undefined{
       let restResponse = await httpResponse.json();
       return restResponse;
     } else {
-      console.log(error);
-      alert(strings.formatString(strings.fetchItemError, `exam ${examName}`, error));
       return undefined;
     }
   } catch (error) {
+    if (error instanceof TypeError) {
+      __DEV__ && console.error(strings.formatString(strings.fetchItemError, `exam ${examName}`, error));
+      return undefined;;
+    }
+    alert(strings.formatString(strings.fetchItemError, `exam ${examName}`, error));
+
     return undefined;
   }
 };
