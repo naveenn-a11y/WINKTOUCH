@@ -1291,7 +1291,7 @@ function renderRxTable(
     });
   }
   if (!isEmpty(glassesRx.pd)) {
-    htmlChildSubItems = `<div><span class='label'>${strings.binocularPd}:</span> ${glassesRx.pd}</div>`;
+    htmlChildSubItems = `<div><span class='label'>${strings.binocularPd}:</span> ${formatFieldValue(glassesRx.pd, getFieldDefinition('exam.Auto refractor.Auto refractor.pd'))}</div>`;
     html += htmlChildSubItems;
     childHtmlDefinition.push({
       name: 'pd',
