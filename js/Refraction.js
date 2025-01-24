@@ -4,85 +4,47 @@
 
 'use strict';
 
-import React, {Component, PureComponent} from 'react';
+import { Component } from 'react';
 import {
-  View,
   Text,
-  Switch,
-  ScrollView,
-  LayoutAnimation,
-  TouchableOpacity,
-  TextInput,
+  View
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  formatAllCodes,
+  formatCode,
+  parseCode
+} from './Codes';
+import { getCachedItem } from './DataCache';
+import { getExam } from './Exam';
+import {
+  formatFieldValue,
+  formatLabel,
+  getFieldDefinition
+} from './Items';
+import { strings } from './Strings';
+import { fontScale, styles } from './Styles';
 import type {
   GlassesRx,
-  Patient,
-  Exam,
-  GroupDefinition,
   GlassRx,
   Prism,
-  Visit,
-  Measurement,
   User,
-  FieldDefinition,
+  Visit
 } from './Types';
-import {fontScale, styles} from './Styles';
-import {strings} from './Strings';
-import {
-  NumberField,
-  TilesField,
-  Button,
-  Label,
-  NativeBar,
-  Alert,
-  NoAccess,
-} from './Widgets';
 import {
   formatDegree,
   formatDiopter,
-  deepClone,
-  isEmpty,
-  formatDate,
-  dateFormat,
-  farDateFormat,
-  isToyear,
-  now,
-  jsonDateTimeFormat,
-  prefix,
-  postfix,
-  getValue,
   getDoctorFullName,
+  getValue,
+  isEmpty,
+  postfix,
+  prefix
 } from './Util';
-import {FormInput} from './Form';
+import { getVisitHistory } from './Visit';
 import {
-  getFieldDefinition,
-  filterFieldDefinition,
-  formatLabel,
-  formatFieldValue,
-} from './Items';
-import {
-  getCodeDefinition,
-  formatCode,
-  formatAllCodes,
-  parseCode,
-} from './Codes';
-import {getVisitHistory, fetchVisitHistory} from './Visit';
-import {
-  CopyRow,
-  Garbage,
-  Plus,
-  Copy,
-  ImportIcon,
-  ExportIcon,
-  Paste,
-  Star,
-} from './Favorites';
-import {importData, exportData} from './Machine';
-import {getCachedItem} from './DataCache';
-import {getConfiguration} from './Configuration';
-import {getPatient, getExam} from './Exam';
-import {ModeContext} from '../src/components/Context/ModeContextProvider';
+  NoAccess,
+  NumberField,
+  TilesField
+} from './Widgets';
 
 function getRecentRefraction(patientId: string): ?(GlassesRx[]) {
   let visitHistory: ?(Visit[]) = getVisitHistory(patientId);
@@ -1132,7 +1094,7 @@ export class GlassesSummary extends Component {
         )}
         {!isEmpty(this.props.glassesRx.pd) && (
           <Text style={styles.text}>
-            {strings.binocularPd}: {this.props.glassesRx.pd}
+            {strings.binocularPd}: {formatFieldValue(this.props.glassesRx.pd, getFieldDefinition('exam.Auto refractor.Auto refractor.pd'))}
           </Text>
         )}
         {!isEmpty(this.props.glassesRx.notes) && (
