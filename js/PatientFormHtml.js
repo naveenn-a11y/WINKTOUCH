@@ -1017,8 +1017,8 @@ async function renderMedia(
     } else if (isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
       style = await getWebImageStyle(base64Image.data, pageWidth, pageHeight, fieldAspectRatio)
-      imageValue = `<div style="width: ${style.width}pt; height: ${style.height}pt; overflow: hidden;">
-          <img src="${base64Image.data}"style="width: auto; height: 100%; object-fit: contain;"/>
+      imageValue = `<div style="width: ${style.width}pt; height: ${style.height}pt; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+          <img src="${base64Image.data}"style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
       </div>`;
     } else if (isPdf) {
       let PdfIdentifier: string = `${fieldDefinition.name}(pdf-${
