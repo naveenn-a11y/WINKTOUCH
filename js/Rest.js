@@ -696,16 +696,14 @@ export async function performActionOnItem(
     cacheItemById(updatedItem);
     return updatedItem;
   } catch (error) {
-    console.log(error);
-    alert(
-      'Something went wrong trying to ' +
-        action +
-        ' a ' +
-        getDataType(item.id) +
-        '. Please try again.\n\n(Internal error = ' +
-        error +
-        ')',
-    );
+    __DEV__ && console.log(error);
+    const errorMssg = (action && item.id && error) 
+          ? `Something went wrong trying to ${action} a ${getDataType(item.id)}. Please try again. \n\n(Internal error = ${error})`
+          : ( error 
+              ? `An Error occurred: ${error}`
+              : 'Something went wrong. Please try again.'
+          );
+    alert(errorMssg);
     throw error;
   }
 }
