@@ -55,7 +55,6 @@ import {
   getFieldDefinition,
 } from './Items';
 import { getPatientFullName } from './Patient';
-import { getImageDimensions } from './Print';
 import { formatPrism, hasBvd, hasPrism } from './Refraction';
 import { fetchUpload, getAspectRatio, getMimeType } from './Upload';
 let smallMedia: Array<any> = [];
@@ -933,10 +932,9 @@ function extractImageName(image: string) {
 }
 
 async function getWebImageStyle(image: String, pageWidth: number, pageHeight: number, fieldAspectRatio : number) : {width: number, height: number, resizeMode: string} {
-  const imageDim = await getImageDimensions(image);
   const style = {
-    width: imageDim.width,
-    height: imageDim.height,
+    width: 150,
+    height: 100,
     resizeMode: 'contain',
   };
   
@@ -1019,7 +1017,9 @@ async function renderMedia(
     } else if (isWeb && image.startsWith('./image')) {
       const base64Image = await getBase64Image(image);
       style = await getWebImageStyle(base64Image.data, pageWidth, pageHeight, fieldAspectRatio)
-      imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
+      imageValue = `<div style="width: ${style.width}pt; height: ${style.height}pt; overflow: hidden;">
+          <img src="${base64Image.data}"style="width: auto; height: 100%; object-fit: contain;"/>
+      </div>`;
     } else if (isPdf) {
       let PdfIdentifier: string = `${fieldDefinition.name}(pdf-${
         PDFAttachment.length + 1
@@ -1811,10 +1811,10 @@ export function patientHeader(referral: boolean) {
     '}' +
     '.img-wrap svg {' +
     '  position:absolute;' +
-    '  transform: scale(1.05); display:block;' +
+    '  transform: scale(1.0); display:block;' +
     '  top:0;' +
     '}' +
-    '.img-wrap img {transform: scale(1.05); display:block; margin: auto;}' +
+    '.img-wrap img {transform: scale(1.0); display:block; margin: auto;}' +
     'span.img-wrap p {' +
     '  border-bottom: 1.5px solid;' +
     '  padding: 5px;' +
