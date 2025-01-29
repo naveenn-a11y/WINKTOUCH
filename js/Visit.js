@@ -2176,7 +2176,7 @@ class VisitWorkFlow extends Component {
   async updatePrintingPreference(newPreference : []) {
     const setting = getUserSetting();
     let updatedSetting = !isEmpty(getValue(setting, 'setting.printingPreferences.FinalRx.defaultValues')) ? setting : getDefaultUserSetting();
-    updatedSetting["setting"]["printingPreferences"]["FinalRx"]["defaultValues"] = newPreference;
+    updatedSetting.setting.printingPreferences.FinalRx.defaultValues = newPreference;
 
     try {
       let httpResponse = await fetch(getRestUrl()+'User/settings', {
@@ -2494,6 +2494,23 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  isLockedAmendmentsEditable(section): boolean {
+    return (this.state.locked && section === 'Amendments' &&
+      this.state.visit.medicalDataPrivilege === 'FULLACCESS')
+  }
+
+  shouldFabBeVisible(section: string): boolean {
+    if (this.isLockedAmendmentsEditable(section)) {
+      return true;
+    }
+
+    if (this.props.readonly || section === 'Document') {
+      return false;
+    }
+
+    return true;
+  }
+
   renderAddableExamButton(section?: string) {
     const hasPreTestWriteAccess: boolean = hasVisitPretestWriteAccess(
       this.state.visit,
@@ -2504,8 +2521,9 @@ class VisitWorkFlow extends Component {
     const hasCLFittingWriteAccess: boolean = hasVisitFittingWriteAccess(
       this.state.visit,
     );
-    if (this.props.readonly || section === 'Document') {
-      return;
+
+    if (!this.shouldFabBeVisible(section)) {
+      return null;
     }
 
     const pretestMode: boolean = isEmpty(this.state.visit.userId);
@@ -2541,21 +2559,29 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  isLockedButDisabled() {
+    const { locked, visit } = this.state;
+
+    if (!locked) return false;
+
+    return !(
+      visit.medicalDataPrivilege === 'FULLACCESS' || visit.pretestPrivilege === 'FULLACCESS'
+    );
+  }
+
   renderLockIcon() {
-    if (
-      this.state.locked !== true ||
-      this.state.visit.userId !== getDoctor().id
-    ) {
+    if (this.state.locked !== true) {
       return null;
     }
     return (
       <View style={styles.examIcons}>
-        <TouchableOpacity onPress={this.switchLock}>
-          <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} />
+        <TouchableOpacity onPress={this.switchLock} disabled={this.isLockedButDisabled()}>
+          <Lock testID={'lock-icon'} style={styles.screenIcon} locked={this.state.locked === true} disabled={this.isLockedButDisabled()}/>
         </TouchableOpacity>
       </View>
-    );
+    )
   }
+
   render() {
     if (this.props.visitId === undefined) {
       return null;

@@ -37,6 +37,7 @@ import {
   fontScale,
   isWeb,
   selectionColor,
+  disabledSelectionFontColor,
   selectionFontColor,
   styles
 } from './Styles';
@@ -3236,11 +3237,18 @@ export class Lock extends PureComponent {
     locked: boolean,
     style: any,
     testID: string,
+    disabled?: boolean,
   };
   render() {
+    const iconColor = this.props.disabled ? disabledSelectionFontColor : selectionFontColor;
     if (this.props.locked === true) {
       return (
-          <Icon testID={this.props.testID} name="lock" style={this.props.style} color={selectionFontColor} />
+        <Icon
+        name="lock"
+        style={this.props.style}
+        color={iconColor}
+        testID={this.props.testID}
+      />
       );
     }
     return (

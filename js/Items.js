@@ -969,6 +969,7 @@ export class ItemsList extends Component {
   renderList(): Component {
     const itemOrientation: string =
       this.props.orientation === 'vertical' ? 'horizontal' : 'vertical';
+    const isEditable: boolean = this.props.editable === true;
     return this.props.items.map((item: ?Prescription | any, index: number) => {
       const isSelected: boolean =
         this.props.selectedItem === item && this.props.items.length > 1;
@@ -977,13 +978,13 @@ export class ItemsList extends Component {
         item,
         this.props.fieldDefinitions,
         isSelected,
-        (this.props.editable === this.props.onUpdateItem) !== undefined,
+        isEditable,
         this.props.onUpdateItem,
         itemOrientation,
         this.props.titleFields,
         this.props.showLabels,
       );
-      if (!this.props.onSelectItem || this.props.editable !== true) {
+      if (!this.props.onSelectItem || isEditable !== true) {
         return this.renderRow(itemView, index);
       }
       return (

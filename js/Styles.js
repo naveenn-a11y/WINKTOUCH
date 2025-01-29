@@ -51,6 +51,7 @@ export const selectionFontColor: string = '#1db3b3';
 export const selectionBorderColor = '#1db3b3';
 export const selectionBackgroundColor = '#c9ffff';
 export const disabledFieldFontColor: string = '#444444ff';
+export const disabledSelectionFontColor: string = '#ddddddff';
 export const fieldBorderColor = '#ddddddff';
 export const recordingFontColor: string = '#ff0000';
 
@@ -765,11 +766,14 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 5 * fontScale,
+    width: '100%',
   },
   buttonsRowStartLayout: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
+    gap: 10 * fontScale,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   comboBox: {
     borderColor: 'gray',

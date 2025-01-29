@@ -1463,16 +1463,29 @@ export class ExamScreen extends Component {
     );
   }
 
+  isLockedButDisabled() {
+    const { locked, exam } = this.state;
+    const visit = this.getVisit();
+
+    if (!locked) return false;
+
+    return !(
+      visit.medicalDataPrivilege === 'FULLACCESS' ||
+      (exam.definition.isPreExam && visit.pretestPrivilege === 'FULLACCESS')
+    );
+  }
+
   renderLockIcon() {
     if (!this.state.locked || this.state.exam.readonly) {
       return null;
     }
     return (
-      <TouchableOpacity onPress={this.switchLock}>
+      <TouchableOpacity onPress={this.switchLock} disabled={this.isLockedButDisabled()}>
         <Lock
           style={styles.screenIcon}
           locked={this.state.locked === true}
           testID={this.state.locked === true ? 'unlockExam' : 'lockExam'}
+          disabled={this.isLockedButDisabled()}
         />
       </TouchableOpacity>
     );
