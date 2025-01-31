@@ -766,14 +766,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: 5 * fontScale,
-    width: '100%',
   },
   buttonsRowStartLayout: {
     flexDirection: 'row',
-    gap: 10 * fontScale,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
   },
   comboBox: {
     borderColor: 'gray',
