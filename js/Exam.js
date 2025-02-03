@@ -196,7 +196,6 @@ async function fetchVisitExam(visit: Visit, examName: string): Exam | undefined{
       return undefined;;
     }
     alert(strings.formatString(strings.fetchItemError, `exam ${examName}`, error));
-
     return undefined;
   }
 };
