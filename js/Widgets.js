@@ -1452,7 +1452,7 @@ export class TilesField extends Component {
 
     let filteredValue = this.props.value;
     if((this.props.prefix instanceof Array && this.props?.prefix?.length > 0 && typeof filteredValue === 'string')){
-      filteredValue = filteredValue?.replace(this.props.prefix?.[0], '');
+      filteredValue = filteredValue?.replace(this.props.prefix[0], '');
     }
 
     this.setState({
