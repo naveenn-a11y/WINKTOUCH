@@ -187,11 +187,7 @@ export async function fetchTouchVersion(path: string): string {
     return touchVersion;
   } catch (error) {
     console.log(error);
-    if (error instanceof TypeError) {
-      __DEV__ && console.error('TypeError caught:', strings.fetchAccountsError);
-    } else {
-      alert(strings.fetchAccountsError);
-    }
+    alert(strings.fetchAccountsError);
     throw error;
   }
 }

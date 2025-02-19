@@ -295,10 +295,6 @@ export class EhrApp extends Component {
         return true;
       }
     } catch (error) {
-      if (error instanceof TypeError) {
-        __DEV__ && console.error('TypeError caught:', error.message);
-        return false;
-      }
       alert('Fetching touch version failed: ' + error);
     }
     return false;

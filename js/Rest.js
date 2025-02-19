@@ -248,16 +248,16 @@ export async function fetchItemDefinition(
     return definition;
   } catch (error) {
     console.log(error);
+    alert(
+      strings.formatString(
+        strings.fetchItemError,
+        getDataType(id).toLowerCase(),
+        error,
+      ),
+    );
     if (error instanceof TypeError) {
       __DEV__ && console.error('TypeError caught:', error.message);
     } else {
-      alert(
-        strings.formatString(
-          strings.fetchItemError,
-          getDataType(id).toLowerCase(),
-          error,
-        ),
-      );
       throw error;
     }
   }
