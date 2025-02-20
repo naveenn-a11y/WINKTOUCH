@@ -247,7 +247,7 @@ export async function fetchItemDefinition(
     cacheItem(cacheKey, definition);
     return definition;
   } catch (error) {
-    console.log(error);
+    __DEV__ && console.log(error);
     alert(
       strings.formatString(
         strings.fetchItemError,
@@ -255,11 +255,7 @@ export async function fetchItemDefinition(
         error,
       ),
     );
-    if (error instanceof TypeError) {
-      __DEV__ && console.error('TypeError caught:', error.message);
-    } else {
       throw error;
-    }
   }
 }
 
@@ -592,14 +588,7 @@ export async function searchItems(list: string, searchCritera: Object): any {
     }
     return restResponse;
   } catch (error) {
-    if (error instanceof TypeError) {
-      __DEV__ && console.error('TypeError caught:', strings.formatString(
-        strings.fetchItemError,
-        list.substring(0, list.indexOf('/')).toLowerCase(),
-        error,
-      ));
-      return;
-    }
+    console.log(error);
     alert(
       strings.formatString(
         strings.fetchItemError,

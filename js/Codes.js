@@ -281,34 +281,21 @@ export async function fetchCodeDefinitions(
     }
   } catch (error) {
     __DEV__ && console.log(error);
-    if (error instanceof TypeError) {
-      __DEV__ && console.error('TypeError caught:', error.message);
-    } else {
       alert(
         strings.formatString(strings.initialiseError, 'code descriptions', error),
       );
       throw error;
-    }
   }
 }
 
 export async function fetchUserDefinedCodes(): void {
   const searchCriteria = {};
-  try{
-    let restResponse = await searchItems('Code/UserDefined/list', searchCriteria);
-    Object.keys(restResponse).forEach((codeName: string) => {
-      if (codeName != 'errors') {
-        codeDefinitions[codeName] = restResponse[codeName];
-      }
-    });
-  } catch (err){
-    if (err instanceof TypeError) {
-      __DEV__ && console.error('TypeError caught:', err.message);
-      return;
+  let restResponse = await searchItems('Code/UserDefined/list', searchCriteria);
+  Object.keys(restResponse).forEach((codeName: string) => {
+    if (codeName != 'errors') {
+      codeDefinitions[codeName] = restResponse[codeName];
     }
-
-    throw err;
-  }
+  });
 
   //let userDefinedCodes : string[] = restResponse.codes;
 }

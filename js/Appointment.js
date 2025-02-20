@@ -335,11 +335,8 @@ export async function manageAvailability(
     let appointments: Appointment[] = await httpResponse.json();
     return appointments;
   } catch (error) {
-    __DEV__ && console.log(error);
-    if (error instanceof TypeError) {
-      __DEV__ && console.error('TypeError caught:', strings.fetchItemError);
-    }
-    alert('Error: ', strings.fetchItemError);
+    console.log(error);
+    alert(strings.fetchItemError);
     throw error;
   }
 }
