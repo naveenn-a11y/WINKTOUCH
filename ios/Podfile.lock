@@ -1,11 +1,11 @@
 PODS:
   - Base64 (1.1.2)
   - boost (1.83.0)
-  - CodePush (8.2.1):
+  - CodePush (9.0.1):
     - Base64 (~> 1.1)
     - JWT (~> 3.0.0-beta.12)
     - React-Core
-    - SSZipArchive (~> 2.2.2)
+    - SSZipArchive (~> 2.5.5)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.73.2)
   - FBReactNativeSpec (0.73.2):
@@ -1218,7 +1218,7 @@ PODS:
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - SocketRocket (0.6.1)
-  - SSZipArchive (2.2.3)
+  - SSZipArchive (2.5.5)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1483,7 +1483,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   Base64: cecfb41a004124895a7bcee567a89bae5a89d49b
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  CodePush: 84c9a5792cb3c8e311197d595610c803f0b01739
+  CodePush: f6242892847d82433430f1661cfc3da20fa4a25c
   DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: fbc4957d9aa695250b55d879c1d86f79d7e69ab4
   FBReactNativeSpec: 86de768f89901ef6ed3207cd686362189d64ac88
@@ -1572,9 +1572,9 @@ SPEC CHECKSUMS:
   RNSVG: ba3e7232f45e34b7b47e74472386cf4e1a676d0a
   RNVectorIcons: 210f910e834e3485af40693ad4615c1ec22fc02b
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
+  SSZipArchive: c69881e8ac5521f0e622291387add5f60f30f3c4
   Yoga: 13c8ef87792450193e117976337b8527b49e8c03
 
-PODFILE CHECKSUM: 50a67a6420ae604b543fb31035ad52dfdf4a4432
+PODFILE CHECKSUM: 45493fa5bbd509312c2cf1fc0b72fa550e4955cf
 
 COCOAPODS: 1.15.2
