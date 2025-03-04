@@ -12,7 +12,7 @@ export const ehrApiVersion: string = 'EHR-413';
 export const dbVersion: string = '2060';
 export const touchVersion: string = !isWeb ? DeviceInfo.getVersion() : '4';
 export const bundleVersion: string = !isWeb ? DeviceInfo.getBuildNumber() : '1';
-const MINIMAL_TOUCH_VERSION = 5.1;
+const MINIMAL_TOUCH_VERSION = 5.0;
 const EHR_VERSION_NUMBER = '4.13.4';
 
 export function setDeploymentVersion(version: string): void {
