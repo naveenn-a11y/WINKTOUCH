@@ -190,7 +190,7 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
   console.log(
     'HTTP response error ' + httpResponse.status + ': ' + httpResponse.url,
   );
-  console.log(httpResponse);
+  __DEV__ && console.log(httpResponse);
   // To be refactored to map proper error message with status Code
   if (httpResponse.status === 406) {
     throw strings.bookingAppointmentError;

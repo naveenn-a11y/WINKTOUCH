@@ -26,6 +26,7 @@ import { fontScale, isWeb, selectionColor, styles } from './Styles';
 import { PRIVILEGE, type Patient, type PatientInfo } from './Types';
 import { fetchVisitHistory, VisitHistory } from './Visit';
 import { Button, SelectionListRow } from './Widgets';
+import { Tooltip } from 'react-native-paper';
 
 const maxPatientListSize: number = 100;
 
@@ -90,6 +91,28 @@ class PatientList extends Component {
     );
   }
 
+  renderDOB(dateOfBirth: string) {
+    const date = new Date(dateOfBirth);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit format
+    const formattedDOB = `${year}/${month}`;
+
+    return <Tooltip title={strings.dob + ': ' + formattedDOB}>
+      <Text style={styles.searchListSubheader}>{formattedDOB}</Text>
+    </Tooltip>
+  }
+
+  // renderPatientListContent(item: Patient) {
+  //   const date = new Date(item?.dateOfBirth);
+  //   const year = date.getFullYear();
+  //   const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit format
+  //   const formattedDOB = `${year}/${month}`;
+
+  //   return (
+  //     getPatientFullName(item) + ' | ' + formattedDOB
+  //   )
+  // }
+
   render() {
     if (!this.props.visible) {
       return null;
@@ -106,14 +129,16 @@ class PatientList extends Component {
         extraData={{selection: selectedPatientId}}
         keyExtractor={(user, index) => user?.id}
         renderItem={({item, index}: {item: Patient, index: number}) => (
-          <SelectionListRow
-            label={getPatientFullName(item)}
-            simpleSelect={true}
-            selected={item?.id === selectedPatientId}
-            onSelect={(isSelected: boolean | string) => onSelect(item)}
-            testID={'patientName' + (index + 1) + 'Button'}
-          />
-        )}
+            <SelectionListRow
+              label={getPatientFullName(item)}
+              subheader={this.renderDOB(item?.dateOfBirth)}
+              simpleSelect={true}
+              selected={item?.id === selectedPatientId}
+              onSelect={(isSelected: boolean | string) => onSelect(item)}
+              testID={'patientName' + (index + 1) + 'Button'}
+            />
+          )
+        }
         ListFooterComponent={this.renderFooter}
         onEndReached={loadMoreData && patients.length >= maxPatientListSize ? onEndReached : null}
         onEndReachedThreshold ={0.1}
