@@ -93,25 +93,15 @@ class PatientList extends Component {
 
   renderDOB(dateOfBirth: string) {
     const date = new Date(dateOfBirth);
+    if (isNaN(date.getTime())) {
+      return <Text style={styles.searchListSubheader}>DOB: N/A</Text>;
+    }
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit format
-    const formattedDOB = `${year}/${month}`;
+    const formattedDOB = `${year}-${month}`;
 
-    return <Tooltip title={strings.dob + ': ' + formattedDOB}>
-      <Text style={styles.searchListSubheader}>{formattedDOB}</Text>
-    </Tooltip>
+    return <Text style={styles.searchListSubheader}>DOB: {formattedDOB}</Text>;
   }
-
-  // renderPatientListContent(item: Patient) {
-  //   const date = new Date(item?.dateOfBirth);
-  //   const year = date.getFullYear();
-  //   const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit format
-  //   const formattedDOB = `${year}/${month}`;
-
-  //   return (
-  //     getPatientFullName(item) + ' | ' + formattedDOB
-  //   )
-  // }
 
   render() {
     if (!this.props.visible) {
