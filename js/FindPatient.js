@@ -26,7 +26,6 @@ import { fontScale, isWeb, selectionColor, styles } from './Styles';
 import { PRIVILEGE, type Patient, type PatientInfo } from './Types';
 import { fetchVisitHistory, VisitHistory } from './Visit';
 import { Button, SelectionListRow } from './Widgets';
-import { Tooltip } from 'react-native-paper';
 
 const maxPatientListSize: number = 100;
 
