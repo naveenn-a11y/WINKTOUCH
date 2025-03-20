@@ -26,6 +26,7 @@ import { fontScale, isWeb, selectionColor, styles } from './Styles';
 import { PRIVILEGE, type Patient, type PatientInfo } from './Types';
 import { fetchVisitHistory, VisitHistory } from './Visit';
 import { Button, SelectionListRow } from './Widgets';
+import { formatDate } from './Util';
 
 const maxPatientListSize: number = 100;
 
@@ -91,15 +92,8 @@ class PatientList extends Component {
   }
 
   renderDOB(dateOfBirth: string) {
-    const date = new Date(dateOfBirth);
-    if (isNaN(date.getTime())) {
-      return <Text style={styles.searchListSubheader}>DOB: N/A</Text>;
-    }
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Ensure 2-digit format
-    const formattedDOB = `${year}-${month}`;
-
-    return <Text style={styles.searchListSubheader}>DOB: {formattedDOB}</Text>;
+    const formattedDOB = formatDate(dateOfBirth, 'yyyy-MM');
+    return <Text style={styles.searchListSubheader}>DOB: {formattedDOB || 'N/A'}</Text>;
   }
 
   render() {
