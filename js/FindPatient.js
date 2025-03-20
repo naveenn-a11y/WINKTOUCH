@@ -93,7 +93,7 @@ class PatientList extends Component {
 
   renderDOB(dateOfBirth: string) {
     const formattedDOB = formatDate(dateOfBirth, 'yyyy-MM');
-    return <Text style={styles.searchListSubheader}>DOB: {formattedDOB || 'N/A'}</Text>;
+    return <Text style={styles.searchListSubheader}>{`${strings.dob}: {formattedDOB || 'N/A'}`}</Text>;
   }
 
   render() {
