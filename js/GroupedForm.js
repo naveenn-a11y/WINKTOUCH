@@ -773,9 +773,9 @@ export class GroupedForm extends Component {
   }
 
   renderAsRows(groupDefinition: GroupDefinition, fieldDefinition: FieldDefinition): boolean {
-    if (groupDefinition.name === 'Pupils' && fieldDefinition.name === 'OD') {
-      return true;
-    }
+    // if (groupDefinition.name === 'Pupils' && fieldDefinition.name === 'OD') {
+    //   return true;
+    // }
 
     if (fieldDefinition.name === 'OD' || fieldDefinition.name === 'OS') {
       return false;
