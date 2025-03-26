@@ -53,6 +53,7 @@ import {
   dayYearDateFormat,
   dayYearDateTime24Format,
   deAccent,
+  deepClone,
   formatAge,
   formatDate,
   formatDecimals,
@@ -636,11 +637,7 @@ export class NumberField extends Component {
       return;
     }
     const fractions = this.generateFractions(this.props);
-    //KeyEvent.onKeyUpListener((keyEvent) => {
-    //  console.log(`onKeyUp keyCode: ${keyEvent.keyCode}`);
-    //  console.log(`Action: ${keyEvent.action}`);
-    //  console.log(`Key: ${keyEvent.pressedKey}`);
-    //});
+
     this.setState({
       editedValue: fractions
         ? this.splitValue(this.props.value, fractions)
@@ -1452,11 +1449,17 @@ export class TilesField extends Component {
     if (this.props.readonly) {
       return;
     }
+
+    let filteredValue = this.props.value;
+    if((this.props.prefix instanceof Array && this.props?.prefix?.length > 0 && typeof filteredValue === 'string')){
+      filteredValue = filteredValue?.replace(this.props.prefix[0], '');
+    }
+
     this.setState({
       isActive: true,
       editedValue: this.props.combineOptions
-        ? split(this.props.value, this.props.options)
-        : this.props.value,
+        ? split(filteredValue, this.props.options)
+        : filteredValue,
     });
   };
 
@@ -1493,6 +1496,7 @@ export class TilesField extends Component {
         editedValue.push(undefined);
       }
       editedValue[columnIndex] = newValue;
+
       if (this.updateConfirm()) {
         this.setState({editedValue});
       } else {
@@ -1513,9 +1517,9 @@ export class TilesField extends Component {
       this.state.editedValue instanceof Array
         ? this.format(this.state.editedValue)
         : this.state.editedValue;
-    if (this.props.onChangeValue) {
-      this.props.onChangeValue(combinedValue);
-    }
+      if (this.props.onChangeValue) {
+        this.props.onChangeValue(combinedValue);
+      }
     this.setState({isActive: false, isTyping: this.props.isTyping});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);

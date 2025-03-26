@@ -4,54 +4,53 @@
 
 'use strict';
 
-import React, {Component} from 'react';
+import { PDFDocument, PDFPage } from 'pdf-lib';
+import { Component } from 'react';
 import {
-  Image,
-  View,
-  TouchableWithoutFeedback,
   ActivityIndicator,
+  Image,
   ScrollView,
-  TouchableOpacity,
   Text,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import NativeScanner from '../src/components/DocumentScanner';
-import {resizeFile} from '../src/components/FileResizer';
 import RNFS from 'react-native-fs';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import type {Upload, CodeDefinition, PatientDocument, Dimension} from './Types';
+import NativeScanner from '../src/components/DocumentScanner';
+import { resizeFile } from '../src/components/FileResizer';
+import { PdfViewer } from '../src/components/PdfViewer';
+import { getAllCodes } from './Codes';
+import { getCachedItem } from './DataCache';
+import { loadDocuments } from './ImageField';
+import { strings } from './Strings';
 import {
-  ClearTile,
-  UpdateTile,
-  CameraTile,
-  RefreshTile,
-  CloseTile,
-  SizeTile,
-  Label,
-} from './Widgets';
-import {
-  styles,
   fontScale,
-  imageStyle,
+  imageWidth,
   isWeb,
   printWidth,
-  imageWidth,
+  styles
 } from './Styles';
+import type { CodeDefinition, Dimension, PatientDocument, Upload } from './Types';
 import {
-  storeUpload,
+  fetchUpload,
   getJpeg64Dimension,
   getMimeType,
   getPng64Dimension,
-  fetchUpload,
+  storeUpload,
 } from './Upload';
-import {getCachedItem} from './DataCache';
-import {strings} from './Strings';
-import PDFLib, {PDFDocument, PDFPage} from 'pdf-lib';
-import {PdfViewer} from '../src/components/PdfViewer';
-import {getAllCodes} from './Codes';
-import {formatDate, yearDateFormat, isEmpty} from './Util';
-import {loadDocuments} from './ImageField';
+import { formatDate, isEmpty, yearDateFormat } from './Util';
+import {
+  CameraTile,
+  ClearTile,
+  CloseTile,
+  Label,
+  RefreshTile,
+  SizeTile,
+  UpdateTile,
+} from './Widgets';
 
 export class DocumentScanner extends Component {
   props: {

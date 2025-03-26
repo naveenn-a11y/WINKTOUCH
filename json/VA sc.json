@@ -14,15 +14,27 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OU",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -32,11 +44,19 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -46,15 +66,27 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OU",
-                  "options": ["APL", "Prothèse"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prothèse", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -76,24 +108,30 @@
               "fields": [
                 {
                   "name": "OD",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " Prosthesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " Prosthesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OU",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -102,17 +140,21 @@
               "fields": [
                 {
                   "name": "OD",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -121,24 +163,30 @@
               "fields": [
                 {
                   "name": "OD",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OU",
-                  "prefix": "20/",
-                  "minValue": 15,
-                  "stepSize": [5, 5, 5, 10, 10, 10, 10, 10, 20, 100, 200],
-                  "maxValue": 600
+                  "prefix": ["20/"],
+                  "options": [
+                    [15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 400, 600],
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 }
               ]
             }
@@ -156,24 +204,30 @@
               "fields": [
                 {
                   "name": "OD",
-                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-                  "minValue": 3,
-                  "prefix": "6/",
-                  "maxValue": 60
+                  "options": [
+                    [3, 4, 5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                    [" NLP", " Prosthesis", " NIPH", " NIL"]
+                  ],
+                  "prefix": ["6/"]
                 },
                 {
                   "name": "OS",
-                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-                  "minValue": 3,
-                  "prefix": "6/",
-                  "maxValue": 60
+                  "options": [
+                    [3, 4, 5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                    [" NLP", " Prosthesis", " NIPH", " NIL"]
+                  ],
+                  "prefix": ["6/"]
                 },
                 {
                   "name": "OU",
-                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-                  "minValue": 3,
-                  "prefix": "6/",
-                  "maxValue": 60
+                  "options": [
+                    [3, 4, 5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                    [" NLP", " NIPH", " NIL"]
+                  ],
+                  "prefix": ["6/"]
                 }
               ]
             },
@@ -182,17 +236,21 @@
               "fields": [
                 {
                   "name": "OD",
-                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-                  "minValue": 3,
-                  "prefix": "6/",
-                  "maxValue": 60
+                  "prefix": ["6/"],
+                  "options": [
+                    [3, 4, 5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                    [" NLP", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "stepSize": [1, 1, 1, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-                  "minValue": 3,
-                  "prefix": "6/",
-                  "maxValue": 60
+                  "options": [
+                    [3, 4, 5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                    [" NLP", " NIPH", " NIL"]
+                  ],
+                  "prefix": ["6/"]
                 }
               ]
             },
@@ -284,15 +342,27 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OU",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -302,11 +372,19 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -316,15 +394,27 @@
               "fields": [
                 {
                   "name": "OD",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OS",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 },
                 {
                   "name": "OU",
-                  "options": ["APL", "Prótesis"]
+                  "options": [
+                    [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                    ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
+                    [" APL", " Prótesis", " NIPH", " NIL"]
+                  ]
                 }
               ]
             },
@@ -366,38 +456,35 @@
             {
               "name": "OD",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP", "Prosthesis"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " Prosthesis", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             },
             {
               "name": "OS",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP", "Prosthesis"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " Prosthesis", " NIPH", " NIL"]
+              ],
+              "freestyle": true 
             },
             {
               "name": "OU",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             }
           ]
         },
@@ -407,26 +494,24 @@
             {
               "name": "OD",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             },
             {
               "name": "OS",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             }
           ]
         },
@@ -436,38 +521,35 @@
             {
               "name": "OD",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             },
             {
               "name": "OS",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             },
             {
               "name": "OU",
               "highlightedLabel": true,
-              "prefix": "6/",
-              "minValue": 4.5,
-              "stepSize": [1.5, 1.5, 1.5, 3, 3, 3, 6, 12, 24],
-              "groupSize": 0,
-              "suffix": ["-3", "-2", "-1", "-", "+1", "+2", "+3"],
-              "freestyle": true,
-              "maxValue": 60,
-              "options": ["NLP"]
+              "prefix": ["20/"],
+              "options": [
+                [4.5, 6, 7.5, 9, 12, 15, 18, 24, 36, 60], 
+                ["-3", "-2", "-1", "-", "+1", "+2", "+3"], 
+                [" NLP", " NIPH", " NIL"]
+              ],
+              "freestyle": true
             }
           ]
         },
