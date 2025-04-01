@@ -679,8 +679,8 @@ export class GroupedForm extends Component {
           </View>
         </View>
 
-        {renderFields && refColumnDefinition?.fields?.map((fd: FieldDefinition, ind) => (
-          <View style={styles.formColumnItem} />
+        {renderFields && refColumnDefinition?.fields?.map((fd, ind) => (
+          <View style={styles.formColumnItem} key={fd?.label}/>
         ))}
       </View>
     );
