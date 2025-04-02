@@ -1,6 +1,6 @@
 {
   "name": "WinkTouch",
-  "version": "4.0.0",
+  "version": "5.0.0-SNAPSHOT",
   "private": true,
   "scripts": {
     "postinstall": "npx patch-package",
