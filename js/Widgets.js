@@ -3247,7 +3247,7 @@ export class Lock extends PureComponent {
     locked: boolean,
     style: any,
     testID: string,
-    disabled?: Boolean,
+    disabled?: boolean,
   };
   render() {
     const iconColor = this.props.disabled ? disabledSelectionFontColor : selectionFontColor;

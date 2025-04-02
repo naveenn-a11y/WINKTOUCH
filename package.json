@@ -26,6 +26,7 @@
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
     "@tinymce/tinymce-react": "^4.3.2",
+    "axios": "^1.7.9",
     "base-64": "^1.0.0",
     "d3-shape": "^3.2.0",
     "dayjs": "^1.11.10",
