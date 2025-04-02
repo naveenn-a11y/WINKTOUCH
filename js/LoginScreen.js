@@ -354,10 +354,11 @@ export class MfaScreen extends Component {
           </KeyboardAvoidingView>
         </View>
         <TouchableOpacity style={styles.flag} onPress={this.switchLanguage}>
-          <Text style={styles.flagFont}>{getUserLanguageIcon()}</Text>
+          <Text testID={'switchLanguage'} style={styles.flagFont}>{getUserLanguageIcon()}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.version}
+          testID={'app-version'}
           onLongPress={() =>
             !isWeb
               ? codePush.restartApp()
@@ -964,7 +965,7 @@ export class LoginScreen extends Component {
             </View>
           </KeyboardAvoidingView>
         </View>
-        <TouchableOpacity style={styles.flag} onPress={this.switchLanguage}>
+        <TouchableOpacity testID={'switchLanguage'} style={styles.flag} onPress={this.switchLanguage}>
           <Text style={styles.flagFont}>{getUserLanguageIcon()}</Text>
         </TouchableOpacity>
         <TouchableOpacity

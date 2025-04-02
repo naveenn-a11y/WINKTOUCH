@@ -280,11 +280,11 @@ export async function fetchCodeDefinitions(
       console.log('Code definitions updated', codeDefinitions);
     }
   } catch (error) {
-    console.log(error);
-    alert(
-      strings.formatString(strings.initialiseError, 'code descriptions', error),
-    );
-    throw error;
+    __DEV__ && console.log(error);
+      alert(
+        strings.formatString(strings.initialiseError, 'code descriptions', error),
+      );
+      throw error;
   }
 }
 

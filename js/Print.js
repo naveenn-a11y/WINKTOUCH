@@ -391,7 +391,6 @@ async function addDrHeader(
   pdfDoc?: PDFDocument,
 ) {
   const visit: Visit = getCachedItem(visitId);
-  //const doctor = getDoctor();
   if (!visit || !visit.userId) {
     return;
   }
@@ -401,52 +400,62 @@ async function addDrHeader(
   if (!doctor) {
     return;
   }
+  
   const leftBorder: number = pageWidth - 180 - border;
   const boxWidthTopRight: number = 190;
   const top: number = pageHeight - border;
-
+  const showStoreLogo: boolean = store?.displayLogoWithRx ?? true;
+  
   let y: number = top;
   let x: number = leftBorder + boxWidthTopRight;
   let fontSize: number = 10;
 
-  if (store?.displayLogoWithRx ?? true) {
+  // Add store logo if enabled
+  if (showStoreLogo) {
     await addStoreLogo(page, pdfDoc, leftBorder + boxWidthTopRight, y);
+    y -= 80; // Increase vertical spacing after logo
+  } else {
+    y -= 20; // Less spacing if no logo
   }
 
-  y -= fontSize * 2 + 50;
-  const doctorName: string =
-    getDoctorFullName(doctor) +
-    prefix(doctor.providerType, ' - ') +
-    prefix(doctor.license, ' - ');
+  // Doctor information with adjusted spacing
+  const doctorName: string = getDoctorFullName(doctor);
+  const doctorCredentials = doctor.providerType + prefix(doctor.license, ' - ');
   await addText(doctorName, x, y, fontSize, page, pdfDoc);
+  y -= fontSize * 1.5; // Adjusted spacing between name and credentials
+  await addText(doctorCredentials, x, y, fontSize, page, pdfDoc);
 
-  //page.drawText('Dr FirstName Latname - License Number', {x,y,fontSize});
-
-  y -= fontSize * 2;
+  // Store address information with consistent spacing
   if (!store) {
     return;
   }
-  const storeName: string =
-    postfix(store.unit, '-') + store.streetNumber + ' ' + store.streetName;
+
+  // Add extra spacing before store address
+  y -= fontSize * 2.5;
+
+  // Store address with consistent spacing
+  const storeName: string = postfix(store.unit, '-') + store.streetNumber + ' ' + store.streetName;
   await addText(storeName, x, y, fontSize, page, pdfDoc);
 
-  y -= fontSize * 1.15;
+  y -= fontSize * 1.5;
   const city: string = store.city + prefix(store.pr, ', ');
   await addText(city, x, y, fontSize, page, pdfDoc);
 
   if (!isEmpty(store.postalCode)) {
-    y -= fontSize * 1.15;
+    y -= fontSize * 1.5;
     const postalCode: string = store.postalCode;
     await addText(postalCode, x, y, fontSize, page, pdfDoc);
   }
 
+  // Contact information with extra spacing
   if (!isEmpty(store.telephone)) {
-    y -= 2 * fontSize;
+    y -= fontSize * 2; // Extra spacing before contact info
     const telephone: string = prefix(store.telephone, 'T: ');
     await addText(telephone, x, y, fontSize, page, pdfDoc);
   }
+
   if (!isEmpty(store.fax)) {
-    y -= 2 * fontSize;
+    y -= fontSize * 1.5;
     const fax: string = prefix(store.fax, 'F: ');
     await addText(fax, x, y, fontSize, page, pdfDoc);
   }

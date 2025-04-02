@@ -4,18 +4,17 @@
 
 'use strict';
 
-import {Component, PureComponent} from 'react';
-import {Text, View} from 'react-native';
-import {getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue} from './Exam';
-import {DrawingIcon, PaperClip, Star} from './Favorites';
-import {formatFieldLabel, formatFieldValue, formatLabel, getFieldDefinition} from './Items';
-import {GlassesSummary} from './Refraction';
-import {strings} from './Strings';
-import {fontScale, styles} from './Styles';
-import type {FieldDefinition, GlassesRx, GroupDefinition} from './Types';
-import {cleanUpArray, isEmpty, postfix} from './Util';
-import {Alert, CheckButton, FloatingButton, Label, NativeBar} from './Widgets';
-import {getColumnFieldIndex, getIsVisible, getMultiValueGroup} from './GroupedForm';
+import { Component } from 'react';
+import { Text, View } from 'react-native';
+import { getFieldDefinition as getExamFieldDefinition, getFieldValue as getExamFieldValue } from './Exam';
+import { DrawingIcon, PaperClip } from './Favorites';
+import { getColumnFieldIndex, getIsVisible, getMultiValueGroup } from './GroupedForm';
+import { formatFieldLabel, formatFieldValue, formatLabel, getFieldDefinition } from './Items';
+import { GlassesSummary } from './Refraction';
+import { fontScale, styles } from './Styles';
+import type { FieldDefinition, GlassesRx, GroupDefinition } from './Types';
+import { cleanUpArray, isEmpty, postfix } from './Util';
+import { Label } from './Widgets';
 
 export class GroupedCard extends Component {
   props: {
@@ -206,7 +205,7 @@ export class GroupedCard extends Component {
       //__DEV__ && console.log('key='+groupDefinition.name+'-'+fieldName+'-'+groupIndex+'-'+column);
       return (
         <Text
-          style={styles.textLeft}
+          style={styles.textLeftNoWidth}
           key={
             groupDefinition.name +
             '-' +
@@ -720,7 +719,7 @@ export class GroupedCard extends Component {
 
     return rowValues.map((rowValue: string[], index: number) => {
       return (
-        <Text style={styles.textLeft}>
+        <Text style={styles.textLeftNoWidth}>
           {rowValue.map((eachvalue: string) => {
             if (eachvalue.startsWith('<b>')) {
               return (

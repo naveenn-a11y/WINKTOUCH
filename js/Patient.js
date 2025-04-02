@@ -449,6 +449,7 @@ export class PatientContact extends Component {
               type="phone-pad"
             />
           </FormRow>
+          {this.props.patientInfo?.phoneOrCellError &&<FormRow><Text style={styles.helperTextError}>{strings.homePhoneOrCellRequired}</Text></FormRow>}
           <FormRow>
             <FormField
               value={this.props.patientInfo}
@@ -1135,6 +1136,9 @@ export class CabinetScreen extends Component {
   };
 
   updatePatientInfo = (patientInfo: PatientInfo): void => {
+    if((patientInfo?.phone && patientInfo?.phone?.trim().length > 0) || (patientInfo?.cell && patientInfo?.cell?.trim().length > 0)) {
+      patientInfo.phoneOrCellError = undefined;
+    }
     this.setState({patientInfo});
   };
 

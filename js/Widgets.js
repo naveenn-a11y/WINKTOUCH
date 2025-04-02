@@ -53,6 +53,7 @@ import {
   dayYearDateFormat,
   dayYearDateTime24Format,
   deAccent,
+  deepClone,
   formatAge,
   formatDate,
   formatDecimals,
@@ -478,10 +479,11 @@ export class TextArrayField extends Component {
               value={value}
               key={index}
               style={this.props.style}
-              editable={!this.props.readonly}
               onChangeValue={(text: string) => this.changeText(text, index)}
               testID={this.props.testID + '-' + (index + 1)}
               title={this.props.label}
+              editable={!this.props.readonly}
+              readonly={this.props.readonly}
             />
           ))}
         {!this.props.readonly && <Button title=" + " onPress={this.addItem} />}
@@ -635,11 +637,7 @@ export class NumberField extends Component {
       return;
     }
     const fractions = this.generateFractions(this.props);
-    //KeyEvent.onKeyUpListener((keyEvent) => {
-    //  console.log(`onKeyUp keyCode: ${keyEvent.keyCode}`);
-    //  console.log(`Action: ${keyEvent.action}`);
-    //  console.log(`Key: ${keyEvent.pressedKey}`);
-    //});
+
     this.setState({
       editedValue: fractions
         ? this.splitValue(this.props.value, fractions)
@@ -1334,6 +1332,8 @@ export class NumberField extends Component {
           onOpenModal={this.openModal}
           title={this.props.label}
           onBlur={this.handleBlur}
+          editable={!this.props.readonly}
+          readonly={this.props.readonly}
         />
       );
     } else if (this.props.listField) {
@@ -1449,11 +1449,17 @@ export class TilesField extends Component {
     if (this.props.readonly) {
       return;
     }
+
+    let filteredValue = this.props.value;
+    if((this.props.prefix instanceof Array && this.props?.prefix?.length > 0 && typeof filteredValue === 'string')){
+      filteredValue = filteredValue?.replace(this.props.prefix[0], '');
+    }
+
     this.setState({
       isActive: true,
       editedValue: this.props.combineOptions
-        ? split(this.props.value, this.props.options)
-        : this.props.value,
+        ? split(filteredValue, this.props.options)
+        : filteredValue,
     });
   };
 
@@ -1490,6 +1496,7 @@ export class TilesField extends Component {
         editedValue.push(undefined);
       }
       editedValue[columnIndex] = newValue;
+
       if (this.updateConfirm()) {
         this.setState({editedValue});
       } else {
@@ -1510,9 +1517,9 @@ export class TilesField extends Component {
       this.state.editedValue instanceof Array
         ? this.format(this.state.editedValue)
         : this.state.editedValue;
-    if (this.props.onChangeValue) {
-      this.props.onChangeValue(combinedValue);
-    }
+      if (this.props.onChangeValue) {
+        this.props.onChangeValue(combinedValue);
+      }
     this.setState({isActive: false, isTyping: this.props.isTyping});
     if (nextFocusField != undefined && this.props.transferFocus) {
       this.props.transferFocus.onTransferFocus(nextFocusField);
@@ -1714,6 +1721,7 @@ export class TilesField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
           onBlur={this.handleBlur}
+          readonly={this.props.readonly}
         />
       );
     }
@@ -2219,6 +2227,8 @@ export class TimeField extends Component {
           selectTextOnFocus={true} //TODO why is this not working?
           title={this.props.label}
           onBlur={this.handleBlur}
+          editable={!this.props.readonly}
+          readonly={this.props.readonly}
         />
       );
     }
@@ -3244,13 +3254,14 @@ export class Lock extends PureComponent {
     if (this.props.locked === true) {
       return (
         <Icon
-        name="lock"
-        style={this.props.style}
-        color={iconColor}
-        testID={this.props.testID}
-      />
+          name="lock"
+          style={this.props.style}
+          color={iconColor}
+          testID={this.props.testID}
+        />
       );
     }
+
     return (
         <Icon
           name="lock-open-outline"

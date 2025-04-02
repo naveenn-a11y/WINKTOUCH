@@ -710,6 +710,12 @@ export class AgendaScreen extends Component {
         appointments: appointments,
         refresh: true,
       });
+      // Refreshing the appointments
+      this.refreshAppointments(
+        true,
+        false,
+        this.state.mode === 'day' ? 1 : this.daysInWeek,
+      );
     }
   };
 
@@ -1373,6 +1379,7 @@ export class AgendaScreen extends Component {
               }}>
               <TouchableOpacity onPress={this._onPrevDate}>
                 <Icon
+                  testID={'prev-date-icon'}
                   name="chevron-left"
                   style={[styles.screenIcon, styles.paddingLeftRight10]}
                 />
@@ -1380,6 +1387,7 @@ export class AgendaScreen extends Component {
 
               <TouchableOpacity onPress={this._onNextDate}>
                 <Icon
+                testID={'next-date-icon'}
                   name="chevron-right"
                   style={[styles.screenIcon, styles.paddingLeftRight10]}
                 />

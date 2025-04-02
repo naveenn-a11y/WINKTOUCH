@@ -251,6 +251,10 @@ export const styles = StyleSheet.create({
     fontSize: 18 * fontScale,
     fontStyle: 'italic',
   },
+  textLeftNoWidth: {
+    fontSize: 18 * fontScale,
+    textAlign: 'left',
+  },
   textLeft: {
     fontSize: 18 * fontScale,
     maxWidth: 400 * fontScale,
@@ -543,6 +547,18 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 3 * fontScale,
   },
+  widthL: {
+    width: 680 * fontScale,
+  },
+  width800: {
+    width: 840 * fontScale,
+  },
+  width1000: {
+    width: 1040 * fontScale,
+  },
+  width1200: {
+    width: 1240 * fontScale,
+  },
   formRowL: {
     width: 680 * fontScale,
     flexDirection: 'row',
@@ -713,6 +729,13 @@ export const styles = StyleSheet.create({
     right: 7 * fontScale,
     textAlign: 'right',
     backgroundColor: '#ffffffcc',
+  },
+  helperTextError:{
+    position: 'relative',
+    top: -10 * fontScale,
+    color: 'red',
+    paddingLeft: 20 * fontScale,
+    fontSize: 16 * fontScale
   },
   inputField: inputFieldStyle(false, false),
   inputFieldActive: inputFieldStyle(true, false),

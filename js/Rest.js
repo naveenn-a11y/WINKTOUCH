@@ -195,8 +195,8 @@ export function handleHttpError(httpResponse: any, httpBody?: Object) {
   if (httpResponse.status === 406) {
     throw strings.bookingAppointmentError;
   }
-  if (httpBody && httpBody.errors) {
-    throw httpBody.errors;
+  if (httpBody?.errors || httpBody?.message) {
+    throw httpBody.errors || httpBody.message;
   }
   throw 'HTTP error ' + httpResponse.status;
 }
@@ -247,7 +247,7 @@ export async function fetchItemDefinition(
     cacheItem(cacheKey, definition);
     return definition;
   } catch (error) {
-    console.log(error);
+    __DEV__ && console.log(error);
     alert(
       strings.formatString(
         strings.fetchItemError,
@@ -255,7 +255,7 @@ export async function fetchItemDefinition(
         error,
       ),
     );
-    throw error;
+      throw error;
   }
 }
 
@@ -425,7 +425,7 @@ export async function storeItem(item: any): any {
       body: JSON.stringify(item),
     });
     if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+      handleHttpError(httpResponse, await httpResponse.json());
     }
     const restResponse: RestResponse = await httpResponse.json();
     __DEV__ &&
@@ -685,16 +685,14 @@ export async function performActionOnItem(
     cacheItemById(updatedItem);
     return updatedItem;
   } catch (error) {
-    console.log(error);
-    alert(
-      'Something went wrong trying to ' +
-        action +
-        ' a ' +
-        getDataType(item.id) +
-        '. Please try again.\n\n(Internal error = ' +
-        error +
-        ')',
-    );
+    __DEV__ && console.log(error);
+    const errorMssg = (action && item.id && error) 
+          ? `Something went wrong trying to ${action} a ${getDataType(item.id)}. Please try again. \n\n(Internal error = ${error})`
+          : ( error 
+              ? `An Error occurred: ${error}`
+              : 'Something went wrong. Please try again.'
+          );
+    alert(errorMssg);
     throw error;
   }
 }

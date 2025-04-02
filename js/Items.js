@@ -537,7 +537,7 @@ export class ItemSummary extends Component<ItemSummaryProps> {
           }
         }
       }
-      return <Text style={styles.textLeft}>{description}</Text>;
+      return <Text style={styles.textLeftNoWidth}>{description}</Text>;
     }
     return (
       <View>

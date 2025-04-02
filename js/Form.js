@@ -2450,7 +2450,7 @@ export class ErrorCard extends Component {
       return null;
     }
     return (
-      <View style={styles.errorCard}>
+      <View testID={'error-card'} style={styles.errorCard}>
         <Text style={styles.cardTitle}>
           {this.props.errors.length > 1
             ? strings.errorsTitle
