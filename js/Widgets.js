@@ -3291,6 +3291,7 @@ export class Pencil extends PureComponent {
 export class SelectionListRow extends PureComponent {
   props: {
     label: string,
+    subheader?: string,
     selected: boolean | string,
     onSelect: (select: boolean | string) => void,
     maxLength?: number,
@@ -3364,6 +3365,14 @@ export class SelectionListRow extends PureComponent {
             {prefix}
             {this.formatLabel()}
           </Text>
+          {
+            this.props.subheader &&
+            <View style={{ flex: 1}}>
+              <Text style={styles.listSubheader}>
+                {this.props.subheader}
+              </Text>
+            </View>
+          }
         </View>
       </TouchableOpacity>
     );

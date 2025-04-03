@@ -26,6 +26,7 @@ import { fontScale, isWeb, selectionColor, styles } from './Styles';
 import { PRIVILEGE, type Patient, type PatientInfo } from './Types';
 import { fetchVisitHistory, VisitHistory } from './Visit';
 import { Button, SelectionListRow } from './Widgets';
+import { formatDate } from './Util';
 
 const maxPatientListSize: number = 100;
 
@@ -90,6 +91,11 @@ class PatientList extends Component {
     );
   }
 
+  renderDOB(dateOfBirth: string) {
+    const formattedDOB = formatDate(dateOfBirth, 'yyyy-MM');
+    return <Text style={styles.searchListSubheader}>{`${strings.dob}: ${formattedDOB || 'N/A'}`}</Text>;
+  }
+
   render() {
     if (!this.props.visible) {
       return null;
@@ -106,14 +112,16 @@ class PatientList extends Component {
         extraData={{selection: selectedPatientId}}
         keyExtractor={(user, index) => user?.id}
         renderItem={({item, index}: {item: Patient, index: number}) => (
-          <SelectionListRow
-            label={getPatientFullName(item)}
-            simpleSelect={true}
-            selected={item?.id === selectedPatientId}
-            onSelect={(isSelected: boolean | string) => onSelect(item)}
-            testID={'patientName' + (index + 1) + 'Button'}
-          />
-        )}
+            <SelectionListRow
+              label={getPatientFullName(item)}
+              subheader={this.renderDOB(item?.dateOfBirth)}
+              simpleSelect={true}
+              selected={item?.id === selectedPatientId}
+              onSelect={(isSelected: boolean | string) => onSelect(item)}
+              testID={'patientName' + (index + 1) + 'Button'}
+            />
+          )
+        }
         ListFooterComponent={this.renderFooter}
         onEndReached={loadMoreData && patients.length >= maxPatientListSize ? onEndReached : null}
         onEndReachedThreshold ={0.1}
