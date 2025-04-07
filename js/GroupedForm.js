@@ -563,7 +563,10 @@ export class GroupedForm extends Component {
       rows.push(
         <View style={styles.formRow} key={`header-row`}>
           {columns.map((column, index) => {
-            const columnDef = this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
+            if (column === '>>') {
+                return this.props.editable ? this.renderColumnCopyAlt(fieldDefinition, index, columns, false) : null;
+            }
+            const columnDef =  this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
             if (columnDef) {
               const columnLabel = formatLabel(columnDef);
               return (
@@ -667,7 +670,7 @@ export class GroupedForm extends Component {
     );
   }
 
-  renderColumnCopyAlt(refColumnDefinition: GroupDefinition, colInd: number, columns: string[]) {
+  renderColumnCopyAlt(refColumnDefinition: GroupDefinition, colInd: number, columns: string[], renderFields: boolean = true) {
     return (
       <View style={styles.FormColumnTop}>
         <View style={styles.formColumnItem}>
@@ -675,8 +678,9 @@ export class GroupedForm extends Component {
             <CopyColumn onPress={() => this.copyColumn(columns[colInd - 1], columns[colInd + 1])} />
           </View>
         </View>
-        {refColumnDefinition?.fields?.map((fd: FieldDefinition, ind) => (
-          <View style={styles.formColumnItem} />
+
+        {renderFields && refColumnDefinition?.fields?.map((fd, ind) => (
+          <View style={styles.formColumnItem} key={fd?.label}/>
         ))}
       </View>
     );
