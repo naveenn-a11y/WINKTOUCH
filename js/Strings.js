@@ -1171,7 +1171,7 @@ export const strings = new LocalizedStrings({
     addExamMessage: 'Añadir un nuevo examen',
     pdfNotSupported:
       'Este archivo PDF no se puede adjuntar a la referencia en este momento. Actualmente, nuestro equipo está trabajando para que esto sea posible y te notificaremos cuando esté disponible.',
-    dob: 'DOB',
+    dob: 'Fecha de Nacimiento',
     previous: 'Anterior',
     next: 'Próximo',
     weekly: 'Semanal',
