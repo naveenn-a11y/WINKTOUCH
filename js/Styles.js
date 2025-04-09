@@ -1161,12 +1161,21 @@ export const styles = StyleSheet.create({
   billingView: {maxWidth: 300},
   listRow: {
     flex: 10,
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     padding: 10 * fontScale,
     backgroundColor: 'white',
     margin: 3 * fontScale,
+  },
+  listRowWithSubheader: {
+    flex: 10,
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
+    padding: 10 * fontScale,
+    margin: 3 * fontScale,
+    lineHeight: 1.5 * fontScale,
   },
   listSubheader: {
     fontSize: 18 * fontScale,
