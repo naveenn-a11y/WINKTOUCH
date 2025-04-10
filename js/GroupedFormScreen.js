@@ -330,11 +330,15 @@ export class GroupedFormScreen extends Component<
       existingGlassesRx.od.axis = this.props.copiedData.od.axis;
       existingGlassesRx.od.add = this.props.copiedData.od.add;
       existingGlassesRx.od.prism = this.props.copiedData.od.prism;
+      existingGlassesRx.od.va = this.props.copiedData.od.va;
+      existingGlassesRx.od.addVa = this.props.copiedData.od.addVa;
       existingGlassesRx.os.sph = this.props.copiedData.os.sph;
       existingGlassesRx.os.cyl = this.props.copiedData.os.cyl;
       existingGlassesRx.os.axis = this.props.copiedData.os.axis;
       existingGlassesRx.os.add = this.props.copiedData.os.add;
       existingGlassesRx.os.prism = this.props.copiedData.os.prism;
+      existingGlassesRx.os.va = this.props.copiedData.os.va;
+      existingGlassesRx.os.addVa = this.props.copiedData.os.addVa;
     }
 
     if (index !== undefined && index !== null) {
