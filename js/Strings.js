@@ -159,7 +159,7 @@ export const strings = new LocalizedStrings({
     errorsTitle: 'Errors',
     validationErrorMessage: 'Please verify all fields contain valid values.',
     refractionTitle: 'Rx',
-    removeExamError: 'Please clear all the exam data before removing an exam.',
+    removeItemError: 'Please clear all the data before removing this item.',
     unsupportedDocumentError: 'Document {0} can not be displayed.',
     documentTrailTitle: '{0}',
     medicationRxTitle: 'Medication Rx',
@@ -280,7 +280,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Document Category',
     attachment: 'Attachment',
     documentName: 'Document Name',
-    addExamMessage: 'Add a new exam',
+    addItemMessage: 'Add a new item',
     pdfNotSupported:
       'This PDF file cannot be attached to the referral at this time. Our team is currently working on making this possible and you will be notified when it will be available!',
     dob: 'DOB',
@@ -599,8 +599,8 @@ export const strings = new LocalizedStrings({
     validationErrorMessage:
       'Veuillez vérifier que tout les champs ont des valeurs valides.',
     refractionTitle: 'Rx',
-    removeExamError:
-      "Veuillez effacer toutes les données avant de supprimer l'examen",
+    removeItemError:
+      "Veuillez effacer toutes les données avant de retirer cet item",
     unsupportedDocumentError: "Document {0} n'est pas supporté.",
     documentTrailTitle: '{0}',
     medicationRxTitle: 'Rx médicament',
@@ -722,7 +722,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Catégorie du document',
     attachment: 'Attachment',
     documentName: 'Nom du document',
-    addExamMessage: 'Ajouter un nouvel examen',
+    addItemMessage: 'Ajouter un nouvel item',
     pdfNotSupported:
       'Ce document PDF ne peut être attaché à la référence pour le moment. Notre équipe de développment travaille présentement sur cette fonction afin de rendre cela possible et vous serez notifié dès que ce sera disponible!',
     dob: 'Date de Naissance',
@@ -1044,8 +1044,8 @@ export const strings = new LocalizedStrings({
     validationErrorMessage:
       'Verifica que todos los campos contengan valores válidos.',
     refractionTitle: 'Rx',
-    removeExamError:
-      'Borra todos los datos del examen antes de retirar un examen.',
+    removeItemError:
+      'Borra todos los datos antes de retirar un item.',
     unsupportedDocumentError: 'No se puede mostrar el documento {0}.',
     documentTrailTitle: '{0} ',
     medicationRxTitle: 'Medicación Rx',
@@ -1168,7 +1168,7 @@ export const strings = new LocalizedStrings({
     documentCategory: 'Categoría del documento',
     attachment: 'Documento adjunto',
     documentName: 'Nombre del documento',
-    addExamMessage: 'Añadir un nuevo examen',
+    addItemMessage: 'Añadir un nuevo item',
     pdfNotSupported:
       'Este archivo PDF no se puede adjuntar a la referencia en este momento. Actualmente, nuestro equipo está trabajando para que esto sea posible y te notificaremos cuando esté disponible.',
     dob: 'Fecha de Nacimiento',
