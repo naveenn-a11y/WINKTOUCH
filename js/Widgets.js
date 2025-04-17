@@ -3360,7 +3360,7 @@ export class SelectionListRow extends PureComponent {
         underlayColor={selectionColor}
         onPress={() => this.toggleSelect()}
         testID={this.props.testID}>
-        <View style={styles.listRow}>
+        <View style={this.props.subheader ? styles.listRowWithSubheader : styles.listRow}>
           <Text style={textStyle}>
             {prefix}
             {this.formatLabel()}
