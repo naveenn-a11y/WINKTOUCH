@@ -3208,7 +3208,7 @@ export class FloatingButton extends Component {
     return (
       <SelectionDialog
         visible={this.state.active}
-        label={strings.addExamMessage}
+        label={strings.addItemMessage}
         options={options}
         onSelect={(selectedData: any) => {
           this.toggleActive();

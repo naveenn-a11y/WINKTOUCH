@@ -103,19 +103,20 @@ export class DefaultExamCustomisationScreen extends PureComponent<
     let examDefinitions: ?(ExamDefinition[]) = getCachedItems(
       getCachedItem('examDefinitions'),
     );
-    let preExamDefinitions: ?(ExamDefinition[]) = getCachedItems(
+    const preExamDefinitions: ?(ExamDefinition[]) = getCachedItems(
       getCachedItem('preExamDefinitions'),
+    );
+    const assesmentDefinitions: ?(ExamDefinition[]) = getCachedItems(
+      getCachedItem('assessmentDefinitions'),
     );
     if (!examDefinitions) {
       return [];
     }
-    if (preExamDefinitions) {
-      examDefinitions = examDefinitions.concat(preExamDefinitions);
-    }
-    let sectionDefinitions = examSections.map((section: string) => {
+    examDefinitions = [...examDefinitions, ...(preExamDefinitions || []), ...(assesmentDefinitions || [])];
+    let sectionDefinitions = [...examSections, 'Assessment'].map((section: string) => {
       let sectionExamDefinitions: ExamDefinition[] = examDefinitions.filter(
         (examDefinition: ExamDefinition) =>
-          examDefinition.section.startsWith(section),
+          section==='Assessment' ? examDefinition.isAssessment : examDefinition.section?.startsWith(section),
       );
       let examLabels: string[] = sectionExamDefinitions.map(
         (examDefinition: ExamDefinition) => formatLabel(examDefinition),
@@ -153,10 +154,10 @@ export class DefaultExamCustomisationScreen extends PureComponent<
       return [];
     }
     const selectedExamIds: string[] =
-      sectionDefinition.examDefinitionIds.filter(
-        (examDefinitionId: string) =>
-          visitType.examDefinitionIds.indexOf(examDefinitionId) >= 0,
-      );
+    sectionDefinition.examDefinitionIds.filter(
+      (examDefinitionId: string) =>
+        visitType.examDefinitionIds.indexOf(examDefinitionId) >= 0,
+    );
     const selectedExamNames: string[] = selectedExamIds.map(
       (examDefinitionId: string) =>
         formatLabel(getCachedItem(examDefinitionId)),
