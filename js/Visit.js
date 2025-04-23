@@ -1564,7 +1564,7 @@ class VisitWorkFlow extends Component {
       return;
     }
     if (!isEmpty(exam[exam.definition.name])) {
-      alert(strings.removeExamError);
+      alert(strings.removeItemError);
       return;
     }
     exam.isHidden = true;
