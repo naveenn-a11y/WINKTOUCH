@@ -8,7 +8,8 @@ import {
   LayoutAnimation,
   Text,
   TouchableWithoutFeedback,
-  View
+  View,
+  ScrollView
 } from 'react-native';
 import { formatAllCodes, formatCode, parseCode } from './Codes';
 import {
@@ -1303,6 +1304,7 @@ export class TemplatesScreen extends Component {
       <View style={styles.centeredScreenLayout}>
         <View style={styles.flexColumnLayout}>
           <Text style={styles.screenTitle}>Templates</Text>
+          <ScrollView contentContainerStyle={styles.centeredScreenLayout}>
           <View style={styles.flexRow}>
             <ItemsList
               title="Pre Tests"
@@ -1329,6 +1331,7 @@ export class TemplatesScreen extends Component {
               onSelectItem={this.selectExamDefinition}
             />
           </View>
+          </ScrollView>
         </View>
       </View>
     );
