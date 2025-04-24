@@ -56,9 +56,11 @@ import {
   isToday,
   prefix,
   yearDateTimeFormat,
+  getDoctorFullName
 } from './Util';
 import { CustomModal as Modal } from './utilities/Modal';
 import { Binoculars, Button, NativeBar } from './Widgets';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type Props = {
   fieldId: string; // Assuming this prop exists for accessibility labels
@@ -247,6 +249,8 @@ export class PatientCard extends Component {
           </Text>
           <View style={styles.formRow}>
             <View style={styles.flexColumnLayout}>
+            <View style={styles.formRow}>
+            <Icon name="gender-male-female" style={[styles.text, styles.iconMargin]} />
               <Text style={styles.text}>
                 {formatCode('genderCode', this.props.patientInfo.gender)}
                 {this.props.patientInfo.dateOfBirth
@@ -264,25 +268,58 @@ export class PatientCard extends Component {
                 !isEmpty(this.props.patientInfo.occupation) &&
                 `, ${this.props.patientInfo.occupation}`}
               </Text>
+              </View>
+              <View style={styles.formRow}>
+              {this.props.patientInfo.familyDoctor && (
+                <Icon name="doctor" style={[styles.text, styles.iconMargin]} />
+              )}
+              {this.props.patientInfo.familyDoctor && (
+                  <Text style={styles.text}>
+                  {getDoctorFullName(this.props.patientInfo.familyDoctor)}
+                </Text>
+              )}
+              </View>
+              <View style={styles.formRow}>
+              {this.props.patientInfo.id && (
+                <Icon name="identifier" style={[styles.text, styles.iconMargin]} />
+              )}
               <Text style={styles.text}>
                 z{stripDataType(this.props.patientInfo.id)}
               </Text>
+              </View>
+              <View style={styles.formRow}>
+              {this.props.patientInfo.medicalCard && (
+                <Icon name="card-account-details" style={[styles.text, styles.iconMargin]} />
+              )}
               <Text style={styles.text}>
                 {prefix(this.props.patientInfo.medicalCard, '  ')}
                 {prefix(this.props.patientInfo.medicalCardVersion, '-')}
                 {prefix(this.props.patientInfo.medicalCardExp, '-')}
               </Text>
+              </View>
+              <View style={styles.formRow}>
+              {this.props.patientInfo.patientTags && (
+                <Icon name="tag-outline" style={[styles.text, styles.iconMargin]} />
+              )}
               <PatientTags
                 patient={this.props.patientInfo}
                 showDescription={true}
               />
+              </View>
             </View>
             <View style={styles.flexColumnLayout}>
+              <View style={styles.formRow}>
+              {(this.props.patientInfo.cell || this.props.patientInfo.phone) && (
+              <Icon name="cellphone" style={[styles.text, styles.iconMargin]} />
+              )}
               <Text style={styles.text}>
                 {this.props.patientInfo.cell
                   ? this.props.patientInfo.cell + ' '
                   : this.props.patientInfo.phone}
               </Text>
+              </View>
+              <View style={styles.formRow}>
+              <Icon name="map" style={[styles.text, styles.iconMargin]} />
               <Text style={styles.text}>
                 {this.props.patientInfo.streetNumber}{' '}
                 {this.props.patientInfo.streetName
@@ -292,7 +329,13 @@ export class PatientCard extends Component {
                 {this.props.patientInfo.postalCode}{' '}
                 {this.props.patientInfo.city}
               </Text>
+              </View>
+              <View style={styles.formRow}>
+              {this.props.patientInfo.email && (
+                <Icon name="email" style={[styles.text, styles.iconMargin]} />
+              )}
               <Text style={styles.text}>{this.props.patientInfo.email}</Text>
+              </View>
             </View>
           </View>
         </View>

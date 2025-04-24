@@ -239,6 +239,10 @@ export const styles = StyleSheet.create({
   text: {
     fontSize: 17 * fontScale,
   },
+  iconMargin: {
+    marginRight: 3 * fontScale,
+    marginTop: 3 * fontScale,
+  },
   grayedText: {
     fontSize: 18 * fontScale,
     color: 'gray',
