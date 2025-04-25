@@ -269,55 +269,53 @@ export class PatientCard extends Component {
                 `, ${this.props.patientInfo.occupation}`}
               </Text>
               </View>
+              {this.props.patientInfo.familyDoctor && (
               <View style={styles.formRow}>
-              {this.props.patientInfo.familyDoctor && (
                 <Icon name="doctor" style={[styles.text, styles.iconMargin]} />
-              )}
-              {this.props.patientInfo.familyDoctor && (
                   <Text style={styles.text}>
                   {getDoctorFullName(this.props.patientInfo.familyDoctor)}
                 </Text>
-              )}
               </View>
-              <View style={styles.formRow}>
+              )}
               {this.props.patientInfo.id && (
+              <View style={styles.formRow}>
                 <Icon name="identifier" style={[styles.text, styles.iconMargin]} />
-              )}
-              <Text style={styles.text}>
+                <Text style={styles.text}>
                 z{stripDataType(this.props.patientInfo.id)}
-              </Text>
+                </Text>
               </View>
-              <View style={styles.formRow}>
+              )}
               {this.props.patientInfo.medicalCard && (
-                <Icon name="card-account-details" style={[styles.text, styles.iconMargin]} />
-              )}
-              <Text style={styles.text}>
-                {prefix(this.props.patientInfo.medicalCard, '  ')}
-                {prefix(this.props.patientInfo.medicalCardVersion, '-')}
-                {prefix(this.props.patientInfo.medicalCardExp, '-')}
-              </Text>
-              </View>
               <View style={styles.formRow}>
-              {this.props.patientInfo.patientTags && (
-                <Icon name="tag-outline" style={[styles.text, styles.iconMargin]} />
-              )}
-              <PatientTags
-                patient={this.props.patientInfo}
-                showDescription={true}
-              />
+                <Icon name="card-account-details" style={[styles.text, styles.iconMargin]} />
+                <Text style={styles.text}>
+                  {prefix(this.props.patientInfo.medicalCard, '  ')}
+                  {prefix(this.props.patientInfo.medicalCardVersion, '-')}
+                  {prefix(this.props.patientInfo.medicalCardExp, '-')}
+                </Text>
               </View>
+              )}
+              {this.props.patientInfo.patientTags && (
+              <View style={styles.formRow}>
+                <Icon name="tag-outline" style={[styles.text, styles.iconMargin]} />
+                <PatientTags
+                  patient={this.props.patientInfo}
+                  showDescription={true}
+                  />
+              </View>
+              )}
             </View>
             <View style={styles.flexColumnLayout}>
-              <View style={styles.formRow}>
               {(this.props.patientInfo.cell || this.props.patientInfo.phone) && (
-              <Icon name="cellphone" style={[styles.text, styles.iconMargin]} />
-              )}
-              <Text style={styles.text}>
-                {this.props.patientInfo.cell
-                  ? this.props.patientInfo.cell + ' '
-                  : this.props.patientInfo.phone}
-              </Text>
-              </View>
+                <View style={styles.formRow}>
+                <Icon name="cellphone" style={[styles.text, styles.iconMargin]} />
+                <Text style={styles.text}>
+                  {this.props.patientInfo.cell
+                    ? this.props.patientInfo.cell + ' '
+                    : this.props.patientInfo.phone}
+                </Text>
+                </View>
+                )}
               <View style={styles.formRow}>
               <Icon name="map" style={[styles.text, styles.iconMargin]} />
               <Text style={styles.text}>
@@ -330,12 +328,12 @@ export class PatientCard extends Component {
                 {this.props.patientInfo.city}
               </Text>
               </View>
-              <View style={styles.formRow}>
               {this.props.patientInfo.email && (
+              <View style={styles.formRow}>
                 <Icon name="email" style={[styles.text, styles.iconMargin]} />
-              )}
-              <Text style={styles.text}>{this.props.patientInfo.email}</Text>
+                <Text style={styles.text}>{this.props.patientInfo.email}</Text>
               </View>
+              )}
             </View>
           </View>
         </View>
