@@ -866,6 +866,11 @@ export function parseImageURL(image : String): String {
       }
       image = restUrl + image.substring(templateURL.length);
     }
+
+    if (image.startsWith("./image")) {
+      const cloudImageBaseURL = "https://res.cloudinary.com/dwf0mpgyk/image/upload";
+      image = image.replace("./image",cloudImageBaseURL, 1)
+    }
   }
   return image;
 }
