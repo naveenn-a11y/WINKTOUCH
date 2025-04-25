@@ -296,6 +296,7 @@ export class VisitTypeCustomisationScreen extends PureComponent<
       <View style={styles.centeredScreenLayout}>
         <View style={styles.flexColumnLayout}>
           <Text style={styles.screenTitle}>{strings.visitType}</Text>
+          <ScrollView>
           <View style={style}>
             <VisitTypeList
               visitTypes={this.state.visitTypes}
@@ -318,6 +319,7 @@ export class VisitTypeCustomisationScreen extends PureComponent<
               />
             </View>
           </View>
+          </ScrollView>
         </View>
       </View>
     );

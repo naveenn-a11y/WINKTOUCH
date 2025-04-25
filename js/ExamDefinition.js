@@ -65,6 +65,10 @@ const examDefinitionDefinition: FieldDefinition[] = [
   {name: 'name', required: true},
 ];
 
+const assessmentFieldDefinition: FieldDefinition[] = [
+  {name: 'label', required: true},
+];
+
 export async function updateLabel(
   fieldId: string,
   label: string,
@@ -1325,7 +1329,7 @@ export class TemplatesScreen extends Component {
             <ItemsList
               title="Assessments"
               items={assessmentDefintions.filter(this.isEditable)}
-              fieldDefinitions={examDefinitionDefinition}
+              fieldDefinitions={assessmentFieldDefinition}
               onAddItem={() => this.createExamDefinition(false, true)}
               selectedItem={this.state.selectedExamDefinition}
               onSelectItem={this.selectExamDefinition}
