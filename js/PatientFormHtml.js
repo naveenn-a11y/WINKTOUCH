@@ -1483,7 +1483,6 @@ function renderRxTable(
 
   if (groupDefinition.hasVA) {
     const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.DVA.OS', exam);
-    console.log("groupDefinition.hasVA fieldDefinition: ", fieldDefinition)
     const formattedValue: string = glassesRx.os
       ? formatFieldValue(glassesRx.os.va, fieldDefinition)
       : '';
