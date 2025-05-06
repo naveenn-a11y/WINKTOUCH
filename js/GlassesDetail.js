@@ -4,23 +4,23 @@
 
 'use strict';
 
-import React, {Component} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
-import type {GlassesRx, Patient, Exam, GroupDefinition, Prism, Visit, Measurement, FieldDefinition} from './Types';
-import {styles} from './Styles';
-import {strings} from './Strings';
-import {Button, Label, NativeBar, Alert} from './Widgets';
-import {deepClone, isEmpty, formatDate, dateFormat, now, jsonDateTimeFormat} from './Util';
-import {FormInput} from './Form';
-import {getFieldDefinition, filterFieldDefinition, formatLabel} from './Items';
-import {getCodeDefinition} from './Codes';
-import {CopyRow, Garbage, Plus, Copy, ImportIcon, ExportIcon, Paste, Star} from './Favorites';
-import {importData, exportData} from './Machine';
-import {getCachedItem} from './DataCache';
-import {getConfiguration} from './Configuration';
-import {getPatient} from './Exam';
-import {ModeContext} from '../src/components/Context/ModeContextProvider';
-import {clearRefraction, hasBvd, hasPrism, GeneralPrismInput, getKeratometry, getLensometry} from './Refraction';
+import { Component } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import { ModeContext } from '../src/components/Context/ModeContextProvider';
+import { getCodeDefinition } from './Codes';
+import { getConfiguration } from './Configuration';
+import { getCachedItem } from './DataCache';
+import { getFieldDefinition as getExamFieldDefinition, getPatient } from './Exam';
+import { Copy, CopyRow, ExportIcon, Garbage, ImportIcon, Paste, Plus, Star } from './Favorites';
+import { FormInput } from './Form';
+import { filterFieldDefinition, formatLabel, getFieldDefinition } from './Items';
+import { exportData, importData } from './Machine';
+import { clearRefraction, GeneralPrismInput, getKeratometry, getLensometry, hasBvd, hasPrism } from './Refraction';
+import { strings } from './Strings';
+import { styles } from './Styles';
+import type { Exam, FieldDefinition, GlassesRx, GroupDefinition, Measurement, Patient } from './Types';
+import { deepClone, formatDate, isEmpty, jsonDateTimeFormat, now } from './Util';
+import { Alert, Button, Label, NativeBar } from './Widgets';
 
 function clearPd(glassesRx: GlassesRx) {
   glassesRx.od.closePD = undefined;
@@ -503,6 +503,19 @@ export class GlassesDetail extends Component {
     );
   }
 
+  createColumnFromVisit(props, eye, field, definition, isPrism, isVisible, errMsg, exam) {
+    return {
+      value: props.glassesRx?.[eye]?.[field] ?? '',
+      definition: getExamFieldDefinition(definition, exam),
+      onChange: (value: ?number) => this.updateGlassesRx(eye, field, value),
+      errorMessage: errMsg,
+      testID: `${props?.fieldId ?? props?.examId}.${eye}.${field}`,
+      visible: isVisible,
+      eye,
+      isPrism,
+    }
+  };
+
   createColumn(props, eye, field, definition, isPrism, isVisible, errMsg) {
     return {
       value: props.glassesRx?.[eye]?.[field] ?? '',
@@ -519,6 +532,7 @@ export class GlassesDetail extends Component {
   renderOdOsOuSection(props, state) {
     const isTyping =
     this.context.keyboardMode === 'desktop' || state.isTyping;
+    const exam: Exam = getCachedItem(this.props.examId);
 
     const hasOU = this.hasVA() && props.glassesRx.ou !== undefined;
 
@@ -527,9 +541,9 @@ export class GlassesDetail extends Component {
       { label: formatLabel(getFieldDefinition('visit.prescription.od.cyl')), visible: true, isPrism: false},
       { label: formatLabel(getFieldDefinition('visit.prescription.od.axis')), visible: true, isPrism: false},
       { label: formatLabel(getFieldDefinition('visit.prescription.od.prism1')), visible: state.prism, isPrism: true},
-      { label: formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.DVA')), visible: this.hasVA(), isPrism: false},
+      { label: formatLabel(getExamFieldDefinition('exam.VA cc.Aided acuities.DVA', exam)), visible: this.hasVA(), isPrism: false},
       { label: formatLabel(getFieldDefinition('visit.prescription.od.add')), visible: props.hasAdd, isPrism: false},
-      { label: formatLabel(getFieldDefinition('exam.VA cc.Aided acuities.NVA')), visible: this.hasNVA(), isPrism: false},
+      { label: formatLabel(getExamFieldDefinition('exam.VA cc.Aided acuities.NVA', exam)), visible: this.hasNVA(), isPrism: false},
       { label: formatLabel(getFieldDefinition('visit.prescription.od.bvd')), visible: this.hasBvd(), isPrism: false},
     ];
 
@@ -543,9 +557,9 @@ export class GlassesDetail extends Component {
           this.createColumn(props, 'od', 'cyl', 'visit.prescription.od.cyl', false, true, props.glassesRx?.od?.cylError ?? ''),
           this.createColumn(props, 'od', 'axis', 'visit.prescription.od.axis', false, true, props.glassesRx?.od?.axisError ?? ''),
           this.createColumn(props, 'od', 'prism', 'visit.prescription.od.prism', true, state.prism, props.glassesRx?.od?.prismError ?? ''),
-          this.createColumn(props, 'od', 'va', 'exam.VA cc.Aided acuities.DVA.OD', false, this.hasVA(), props.glassesRx?.od?.vaError ?? ''),
+          this.createColumnFromVisit(props, 'od', 'va', 'exam.VA cc.Aided acuities.DVA.OD', false, this.hasVA(), props.glassesRx?.od?.vaError ?? '', exam),
           this.createColumn(props, 'od', 'add', 'visit.prescription.od.add', false, props.hasAdd, props.glassesRx?.od?.addError ?? ''),
-          this.createColumn(props, 'od', 'addVa', 'exam.VA cc.Aided acuities.NVA.OD', false, this.hasNVA(), props.glassesRx?.od?.addVaError ?? ''),
+          this.createColumnFromVisit(props, 'od', 'addVa', 'exam.VA cc.Aided acuities.NVA.OD', false, this.hasNVA(), props.glassesRx?.od?.addVaError ?? '', exam),
           this.createColumn(props, 'od', 'bvd', 'visit.prescription.od.bvd', false, this.hasBvd(), props.glassesRx?.od?.bvdError ?? '')
         ],
       },
@@ -558,9 +572,9 @@ export class GlassesDetail extends Component {
           this.createColumn(props, 'os', 'cyl', 'visit.prescription.os.cyl', false, true, props.glassesRx?.os?.cylError ?? ''),
           this.createColumn(props, 'os', 'axis', 'visit.prescription.os.axis', false, true, props.glassesRx?.os?.axisError ?? ''),
           this.createColumn(props, 'os', 'prism', 'visit.prescription.os.prism', true, state.prism, props.glassesRx?.os?.prismError ?? ''),
-          this.createColumn(props, 'os', 'va', 'exam.VA cc.Aided acuities.DVA.OS', false, this.hasVA(), props.glassesRx?.os?.vaError ?? ''),
+          this.createColumnFromVisit(props, 'os', 'va', 'exam.VA cc.Aided acuities.DVA.OS', false, this.hasVA(), props.glassesRx?.os?.vaError ?? '', exam),
           this.createColumn(props, 'os', 'add', 'visit.prescription.os.add', false, props.hasAdd, props.glassesRx?.os?.addError ?? ''),
-          this.createColumn(props, 'os', 'addVa', 'exam.VA cc.Aided acuities.NVA.OS', false, this.hasNVA(), props.glassesRx?.os?.addVaError ?? ''),
+          this.createColumnFromVisit(props, 'os', 'addVa', 'exam.VA cc.Aided acuities.NVA.OS', false, this.hasNVA(), props.glassesRx?.os?.addVaError ?? '', exam),
           this.createColumn(props, 'os', 'bvd', 'visit.prescription.os.bvd', false, this.hasBvd(), props.glassesRx?.os?.bvdError ?? '')
         ],
       },
@@ -573,9 +587,9 @@ export class GlassesDetail extends Component {
           { visible: true, placeholder: true, isPrism: false },
           { visible: true, placeholder: true, isPrism: false },
           { visible: state.prism, placeholder: true, isPrism: true },
-          this.createColumn(props, 'ou', 'va', 'exam.VA cc.Aided acuities.DVA.OU', false, this.hasVA(), props.glassesRx?.ou?.vaError ?? ''),
+          this.createColumnFromVisit(props, 'ou', 'va', 'exam.VA cc.Aided acuities.DVA.OU', false, this.hasVA(), props.glassesRx?.ou?.vaError ?? '', exam),
           { visible: props.hasAdd, placeholder: true, isPrism: false },
-          this.createColumn(props, 'ou', 'addVa', 'exam.VA cc.Aided acuities.NVA.OU', false, this.hasNVA(), props.glassesRx?.ou?.addVaError ?? ''),
+          this.createColumnFromVisit(props, 'ou', 'addVa', 'exam.VA cc.Aided acuities.NVA.OU', false, this.hasNVA(), props.glassesRx?.ou?.addVaError ?? '', exam),
           { visible: this.hasBvd(), placeholder: true, isPrism: false }
         ],
       },

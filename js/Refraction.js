@@ -15,7 +15,7 @@ import {
   parseCode
 } from './Codes';
 import { getCachedItem } from './DataCache';
-import { getExam } from './Exam';
+import { getExam, getFieldDefinitionFromVisit } from './Exam';
 import {
   formatFieldValue,
   formatLabel,
@@ -765,6 +765,7 @@ export class GlassesSummary extends Component {
     showHeaders?: boolean,
     titleStyle?: any,
     showPD?: boolean,
+    visitId: number,
   };
   static defaultProps = {
     visible: true,
@@ -917,9 +918,7 @@ export class GlassesSummary extends Component {
                         ': ' +
                         formatFieldValue(
                           this.props.glassesRx.od.va,
-                          getFieldDefinition(
-                            'exam.VA cc.Aided acuities.DVA.OD',
-                          ),
+                          getFieldDefinitionFromVisit('exam.VA cc.Aided acuities.DVA.OD', getCachedItem(this.props.visitId))
                         )
                       : ' '}
                   </Text>
@@ -932,9 +931,7 @@ export class GlassesSummary extends Component {
                         ': ' +
                         formatFieldValue(
                           this.props.glassesRx.os.va,
-                          getFieldDefinition(
-                            'exam.VA cc.Aided acuities.DVA.OS',
-                          ),
+                          getFieldDefinitionFromVisit('exam.VA cc.Aided acuities.DVA.OS', getCachedItem(this.props.visitId))
                         )
                       : ' '}
                   </Text>
@@ -947,9 +944,7 @@ export class GlassesSummary extends Component {
                         ': ' +
                         formatFieldValue(
                           this.props.glassesRx.ou.va,
-                          getFieldDefinition(
-                            'exam.VA cc.Aided acuities.DVA.OU',
-                          ),
+                          getFieldDefinitionFromVisit('exam.VA cc.Aided acuities.DVA.OU', getCachedItem(this.props.visitId)),
                         )
                       : ' '}
                   </Text>
@@ -995,9 +990,7 @@ export class GlassesSummary extends Component {
                         ': ' +
                         formatFieldValue(
                           this.props.glassesRx.od.addVa,
-                          getFieldDefinition(
-                            'exam.VA cc.Aided acuities.NVA.OD',
-                          ),
+                          getFieldDefinitionFromVisit('exam.VA cc.Aided acuities.NVA.OD', getCachedItem(this.props.visitId))
                         )
                       : ' '}
                   </Text>
@@ -1010,9 +1003,7 @@ export class GlassesSummary extends Component {
                         ': ' +
                         formatFieldValue(
                           this.props.glassesRx.os.addVa,
-                          getFieldDefinition(
-                            'exam.VA cc.Aided acuities.NVA.OS',
-                          ),
+                          getFieldDefinitionFromVisit('exam.VA cc.Aided acuities.NVA.OS', getCachedItem(this.props.visitId))
                         )
                       : ' '}
                   </Text>
@@ -1025,9 +1016,7 @@ export class GlassesSummary extends Component {
                         ': ' +
                         formatFieldValue(
                           this.props.glassesRx.ou.addVa,
-                          getFieldDefinition(
-                            'exam.VA cc.Aided acuities.NVA.OU',
-                          ),
+                          getFieldDefinitionFromVisit('exam.VA cc.Aided acuities.NVA.OU', getCachedItem(this.props.visitId))
                         )
                       : ' '}
                   </Text>
