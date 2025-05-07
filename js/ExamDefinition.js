@@ -842,9 +842,9 @@ class ExamDefinitionHeader extends Component {
           <FormTextInput
             label="Exam"
             readonly={true}
-            value={this.props.examDefinition.name}
+            value={this.props.examDefinition.isAssessment ? this.props.examDefinition.label : this.props.examDefinition.name}
             onChangeText={(newName: string) =>
-              this.props.onUpdate('name', newName)
+              this.props.examDefinition.isAssessment ? this.props.onUpdate('label', newName) : this.props.onUpdate('name', newName)
             }
           />
           <FormTextInput
@@ -1175,7 +1175,7 @@ export class ExamDefinitionScreen extends Component {
       <View style={styles.screeen}>
         <View style={styles.scrollviewContainer}>
           <Text style={styles.screenTitle}>
-            {this.state.exam.definition.name}
+            {this.state.exam.definition.isAssessment ? this.state.exam.definition.label : this.state.exam.definition.name}
           </Text>
           <View style={styles.centeredRowLayout}>
             <ExamDefinitionHeader
