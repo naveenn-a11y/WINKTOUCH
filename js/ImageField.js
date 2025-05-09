@@ -90,7 +90,6 @@ export async function getBase64Image(image: string) {
 
   if (image.startsWith('http:') || image.startsWith('https:')) {
     const path: string = await loadBase64ImageForWeb(image);
-    console.log("loadBase64ImageForWeb: ",path);
     return {data: path};
   }
   return undefined;
