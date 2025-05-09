@@ -44,7 +44,7 @@ import { getStore } from './DoctorApp';
 import {
   getCurrentAction,
   getFieldDefinition as getExamFieldDefinition,
-  UserAction,
+  UserAction
 } from './Exam';
 import { getColumnFieldIndex, hasColumns } from './GroupedForm';
 import { getBase64Image } from './ImageField';
@@ -1203,14 +1203,14 @@ function renderGlassesSummary(
   if (groupDefinition.multiValue) {
     exam[exam.definition.name][groupDefinition.name].map(
       (glassesRx: GlassesRx, index: number) => {
-        html += renderRxTable(glassesRx, groupDefinition, htmlDefinition);
+        html += renderRxTable(glassesRx, groupDefinition, htmlDefinition, exam);
       },
     );
     return html;
   } else {
     const glassesRx: GlassesRx =
       exam[exam.definition.name][groupDefinition.name];
-    return renderRxTable(glassesRx, groupDefinition, htmlDefinition);
+    return renderRxTable(glassesRx, groupDefinition, htmlDefinition, exam);
   }
 }
 
@@ -1275,6 +1275,7 @@ function renderRxTable(
   glassesRx: GlassesRx,
   groupDefinition: GroupDefinition,
   htmlDefinition?: HtmlDefinition[],
+  exam: Exam,
 ) {
   let html: string = '';
   let htmlSubItems: string = '';
@@ -1323,7 +1324,7 @@ function renderRxTable(
   }
   if (groupDefinition.hasVA) {
     html += `<th class="service">${formatLabel(
-      getFieldDefinition('exam.VA cc.Aided acuities.DVA'),
+      getExamFieldDefinition('exam.VA cc.Aided acuities.DVA', exam)
     )}</th>`;
   }
   if (groupDefinition.hasAdd) {
@@ -1333,7 +1334,7 @@ function renderRxTable(
   }
   if (groupDefinition.hasAdd && groupDefinition.hasVA) {
     html += `<th class="service">${formatLabel(
-      getFieldDefinition('exam.VA cc.Aided acuities.NVA'),
+      getExamFieldDefinition('exam.VA cc.Aided acuities.NVA', exam)
     )}</th>`;
   }
   if (groupDefinition.hasBVD && hasBvd(glassesRx)) {
@@ -1381,9 +1382,7 @@ function renderRxTable(
   }
 
   if (groupDefinition.hasVA) {
-    const fieldDefinition: FieldDefinition = getFieldDefinition(
-      'exam.VA cc.Aided acuities.DVA.OD',
-    );
+    const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.DVA.OD', exam);
     const formattedValue: string = glassesRx.od
       ? formatFieldValue(glassesRx.od.va, fieldDefinition)
       : '';
@@ -1409,9 +1408,7 @@ function renderRxTable(
   }
 
   if (groupDefinition.hasAdd && groupDefinition.hasVA) {
-    const fieldDefinition: FieldDefinition = getFieldDefinition(
-      'exam.VA cc.Aided acuities.NVA.OD',
-    );
+    const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.NVA.OD', exam);
     const formattedValue: string = glassesRx.od
       ? formatFieldValue(glassesRx.od.addVa, fieldDefinition)
       : '';
@@ -1485,9 +1482,7 @@ function renderRxTable(
   }
 
   if (groupDefinition.hasVA) {
-    const fieldDefinition: FieldDefinition = getFieldDefinition(
-      'exam.VA cc.Aided acuities.DVA.OS',
-    );
+    const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.DVA.OS', exam);
     const formattedValue: string = glassesRx.os
       ? formatFieldValue(glassesRx.os.va, fieldDefinition)
       : '';
@@ -1513,9 +1508,7 @@ function renderRxTable(
   }
 
   if (groupDefinition.hasAdd && groupDefinition.hasVA) {
-    const fieldDefinition: FieldDefinition = getFieldDefinition(
-      'exam.VA cc.Aided acuities.NVA.OS',
-    );
+    const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.NVA.OS', exam);
     const formattedValue: string = glassesRx.os
       ? formatFieldValue(glassesRx.os.addVa, fieldDefinition)
       : '';
@@ -1562,9 +1555,7 @@ function renderRxTable(
     }
 
     if (groupDefinition.hasVA) {
-      const fieldDefinition: FieldDefinition = getFieldDefinition(
-        'exam.VA cc.Aided acuities.DVA.OU',
-      );
+      const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.DVA.OU', exam);
       const formattedValue: string = glassesRx.ou
         ? formatFieldValue(glassesRx.ou.va, fieldDefinition)
         : '';
@@ -1578,9 +1569,7 @@ function renderRxTable(
     }
     html += '<td class="desc"></td>';
     if (groupDefinition.hasAdd && groupDefinition.hasVA) {
-      const fieldDefinition: FieldDefinition = getFieldDefinition(
-        'exam.VA cc.Aided acuities.NVA.OU',
-      );
+      const fieldDefinition: FieldDefinition = getExamFieldDefinition('exam.VA cc.Aided acuities.NVA.OU', exam);
       const formattedValue: string = glassesRx.ou
         ? formatFieldValue(glassesRx.ou.addVa, fieldDefinition)
         : '';

@@ -288,14 +288,10 @@ export function setMappedFieldValue(
       );
   }
 }
-
-export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
-  const fieldSrc: string[] = fieldIdentifier.split('.');
-  if (fieldSrc[0] === 'exam') {
-    //A field of another exam
+export function getFieldDefinitionFromVisit(fieldIdentifier: string, visit): FieldDefinition | GroupDefinition | undefined {
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0, examIdentifier.indexOf('.'));
-    const otherExam: Exam = getExam(examName, getVisit(exam));
+    const otherExam: Exam = getExam(examName, visit);
     const examDefinition: ExamDefinition = otherExam
       ? otherExam.definition
       : getExamDefinition(examName);
@@ -353,6 +349,13 @@ export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
       fieldDefinition.mappedField = firstMappedFieldName;
     }
     return fieldDefinition;
+}
+
+export function getFieldDefinition(fieldIdentifier: string, exam: Exam): any {
+  const fieldSrc: string[] = fieldIdentifier.split('.');
+  if (fieldSrc[0] === 'exam') {
+    //A field of another exam
+    return getFieldDefinitionFromVisit(fieldIdentifier, getVisit(exam));
   } else if (
     fieldSrc[0] === 'visit' ||
     fieldSrc[0] === 'patient' ||

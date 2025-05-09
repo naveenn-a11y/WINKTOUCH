@@ -4,36 +4,36 @@
 
 'use strict';
 
-import React, {Component} from 'react';
-import {View, Text, FlatList} from 'react-native';
-import {getCodeDefinition} from './Codes';
+import { Component } from 'react';
+import { FlatList, Text, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { getCodeDefinition } from './Codes';
+import { getCachedItem } from './DataCache';
+import { ItemSummary } from './Items';
+import { GlassesSummary } from './Refraction';
+import { strings } from './Strings';
+import { isWeb, styles } from './Styles';
 import type {
   Exam,
-  Visit,
   PatientInfo,
-  User,
   Prescription,
+  User,
+  Visit,
   VisitSummary,
 } from './Types';
-import {styles, isWeb} from './Styles';
-import {strings, fontScale} from './Strings';
-import {NoAccess} from './Widgets';
 import {
-  formatDate,
-  isEmpty,
   compareDates,
-  isToyear,
   dateFormat,
   farDateFormat,
-  yearDateFormat,
-  getValue,
+  formatDate,
   getDoctorFullName,
+  getValue,
+  isEmpty,
+  isToyear,
+  yearDateFormat,
 } from './Util';
-import {getCachedItem} from './DataCache';
-import {GlassesSummary} from './Refraction';
-import {ItemSummary} from './Items';
-import {fetchVisit, getVisitHistory} from './Visit';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import { fetchVisit, getVisitHistory } from './Visit';
+import { NoAccess } from './Widgets';
 
 export class VisitSummaryTable extends Component {
   props: {
@@ -284,6 +284,7 @@ export class VisitSummaryTable extends Component {
                 glassesRx={visitSummary.refraction}
                 showPD={false}
                 key={visitSummary.visitId}
+                visitId={visitSummary.visitId}
               />
             )}
           </View>

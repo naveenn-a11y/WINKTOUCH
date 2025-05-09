@@ -442,6 +442,7 @@ export class GroupedCard extends Component {
               ? formatLabel(groupDefinition)
               : null
           }
+          visitId={this.props.exam.visitId}
         />
       ));
     }
@@ -457,6 +458,7 @@ export class GroupedCard extends Component {
             ? formatLabel(groupDefinition)
             : null
         }
+        visitId={this.props.exam.visitId}
       />
     );
   }
