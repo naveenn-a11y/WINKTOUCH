@@ -288,7 +288,7 @@ export function setMappedFieldValue(
       );
   }
 }
-export function getFieldDefinitionFromVisit(fieldIdentifier: string, visit) {
+export function getFieldDefinitionFromVisit(fieldIdentifier: string, visit): FieldDefinition | GroupDefinition | undefined {
     let examIdentifier = fieldIdentifier.substring(5);
     const examName = examIdentifier.substring(0, examIdentifier.indexOf('.'));
     const otherExam: Exam = getExam(examName, visit);
