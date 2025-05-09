@@ -37,7 +37,6 @@ import {
 } from './Util';
 
 import { curveBasis, line } from 'd3-shape';
-import RNFS from 'react-native-fs';
 import { formatCode } from './Codes';
 import { getCachedItem } from './DataCache';
 import { getStore } from './DoctorApp';
@@ -958,7 +957,7 @@ async function renderMedia(
 ) {
   let html: string = '';
   let filePath = null;
-  const image: string =
+  let image: string =
     value && value.image ? value.image : fieldDefinition.image;
   let fieldAspectRatio = aspectRatio(value, fieldDefinition);
   let style: {width: number, height: number} = imageStyle(
@@ -971,6 +970,10 @@ async function renderMedia(
   const pageAspectRatio: number = 8.5 / 11;
   const pageHeight: number = pageWidth / pageAspectRatio;
   let isPdf: boolean = false;
+
+  if (Platform.OS === 'ios' && image.startsWith('./image')) {
+    image = parseImageURL(image);
+  }
   if (image.startsWith('upload-')) {
     upload = await loadImage(value);
 
@@ -982,10 +985,6 @@ async function renderMedia(
       style = imageStyle(fieldDefinition.size, fieldAspectRatio);
       html += `<div>${formatLabel(exam.definition)}</div>`;
     }
-  } else if (Platform.OS === 'ios' && image.startsWith('./image')) {
-    let arr = image.split('./');
-    const dir = RNFS.MainBundlePath + '/assets/js';
-    filePath = `${dir}/${arr[arr.length - 1]}`;
   } else {
     filePath = image;
   }
@@ -1006,7 +1005,7 @@ async function renderMedia(
     filePath = parseImageURL(filePath);
     let imageValue: string = `<img src="${filePath}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
     if (!isWeb && image.startsWith('./image')) {
-      const base64Image = await getBase64Image(image);
+      const base64Image = await getBase64Image(parseImageURL(image));
       if (base64Image) {
         imageValue = `<img src="${base64Image.data}" border="1" style="width: ${style.width}pt; height:${style.height}pt; object-fit: contain; border: 1pt"/>`;
         imageBase64Definition.push({
@@ -1015,7 +1014,7 @@ async function renderMedia(
         });
       }
     } else if (isWeb && image.startsWith('./image')) {
-      const base64Image = await getBase64Image(image);
+      const base64Image = await getBase64Image(parseImageURL(image));
       style = await getWebImageStyle(base64Image.data, pageWidth, pageHeight, fieldAspectRatio)
       imageValue = `<div style="width: ${style.width}pt; height: ${style.height}pt; display: flex; justify-content: center; align-items: center; overflow: hidden;">
           <img src="${base64Image.data}"style="max-width: 100%; max-height: 100%; object-fit: contain;"/>

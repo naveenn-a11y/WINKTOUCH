@@ -8,7 +8,7 @@ require('moment/locale/fr-ca.js');
 require('moment/locale/es.js');
 import {strings} from './Strings';
 import { isWeb } from './Styles';
-import { WINK_APP_REST_URL } from '@env';
+import { WINK_APP_REST_URL, WINK_IMAGE_URL } from '@env';
 
 export const shortTimeFormat: string = 'H:mm';
 export const timeFormat: string = 'h:mm a';
@@ -868,7 +868,8 @@ export function parseImageURL(image : String): String {
     }
 
     if (image.startsWith("./image")) {
-      const cloudImageBaseURL = "https://res.cloudinary.com/dwf0mpgyk/image/upload";
+      const envImageBaseURL = isWeb ? process.env.WINK_IMAGE_URL : WINK_IMAGE_URL;
+      const cloudImageBaseURL = envImageBaseURL ?? "https://server9-azure.downloadwink.com/emr/images";
       image = image.replace("./image",cloudImageBaseURL, 1)
     }
   }

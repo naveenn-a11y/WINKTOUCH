@@ -45,6 +45,7 @@ import {
   formatDate,
   isEmpty,
   now,
+  parseImageURL,
   replaceFileExtension,
   yearDateFormat
 } from './Util';
@@ -89,6 +90,7 @@ export async function getBase64Image(image: string) {
 
   if (image.startsWith('http:') || image.startsWith('https:')) {
     const path: string = await loadBase64ImageForWeb(image);
+    console.log("loadBase64ImageForWeb: ",path);
     return {data: path};
   }
   return undefined;
@@ -1041,13 +1043,16 @@ export class ImageField extends Component {
       };
     }
 
-    const image: string =
+    let image: string =
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
 
     if (image === undefined || image === 'upload') {
       return undefined;
+    }
+    if (image.startsWith("./image")) {
+      image = parseImageURL(image); //backward compatibility beacuse image no longer reside in the frontend folder
     }
     if (!image.startsWith('http:') && !image.startsWith('https:')) {
       const imageValue = !image.startsWith('data:image/png;base64,')
