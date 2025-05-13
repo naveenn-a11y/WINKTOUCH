@@ -844,7 +844,7 @@ class ExamDefinitionHeader extends Component {
             readonly={true}
             value={this.props.examDefinition.isAssessment ? this.props.examDefinition.label : this.props.examDefinition.name}
             onChangeText={(newName: string) =>
-              this.props.examDefinition.isAssessment ? this.props.onUpdate('label', newName) : this.props.onUpdate('name', newName)
+              this.props.onUpdate('name', newName)
             }
           />
           <FormTextInput
