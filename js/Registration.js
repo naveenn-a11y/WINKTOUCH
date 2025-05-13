@@ -21,7 +21,7 @@ import {
   getUserLanguageIcon,
 } from './Strings';
 import { Button } from './Widgets';
-import { handleHttpError } from './Rest';
+import { handleHttpError, isValidJson } from './Rest';
 import {
   dbVersion,
   touchVersion,
@@ -29,6 +29,7 @@ import {
   deploymentVersion,
 } from './Version';
 import { WINK_APP_ECOMM_URL, WINK_APP_PUBLIC_IP } from '@env';
+import axios from 'axios';
 
 const eCommUrl = isWeb ? process.env.WINK_APP_ECOMM_URL : WINK_APP_ECOMM_URL;
 const getSecurityQuestionsUrl = () => eCommUrl + '/WinkRegistrationQuestions';
@@ -69,31 +70,36 @@ determineIfAtWink();
 
 async function fetchSecurityQuestions() {
   const url = getSecurityQuestionsUrl();
+
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    const response = await axios.get(url, {
       headers: {
-        'Accept-language': getUserLanguage(),
+        "Accept-Language": getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
-    }
-    let body: string = await httpResponse.text();
+
+    const body = response.data;
+
     if (!body) {
       return [];
     }
-    let questions: string[] = body.split('\n');
-    questions = questions.map((question: string) =>
-      question.substring(question.indexOf(' ') + 1),
+
+    let questions = body.split("\n").map((question) =>
+      question.substring(question.indexOf(" ") + 1)
     );
+
     return questions;
   } catch (error) {
-    console.log(error);
-    alert(strings.securityQuestionsError);
+    if (error.response) {
+      handleHttpError(error.response, error.response?.data, strings.securityQuestionsError, false);
+    } else {
+      __DEV__ && console.error("Fetch Security error:", error.message);
+    }
+
     throw error;
   }
 }
+
 
 async function fetchSecurityQuestionIndex(email: string) {
   if (!email) {
@@ -103,16 +109,17 @@ async function fetchSecurityQuestionIndex(email: string) {
   const url =
     getSecurityQuestionUrl() + '&email=' + encodeURIComponent(email) + '&ip=' + ip;
   try {
-    let httpResponse = await fetch(url);
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
-    }
-    let body: string = await httpResponse.text();
+    let httpResponse = await axios.get(url);
+    let body: string = httpResponse?.data;
     let questionIndex: number = parseInt(body);
     return questionIndex;
   } catch (error) {
-    console.log(error);
-    alert(strings.securityQuestionsError);
+    __DEV__ && console.log(error);
+    if(error.response) {
+      handleHttpError(error.response, error.response?.data, strings.securityQuestionsError, false);
+    } else {
+      __DEV__ && console.error("fetchSecurityQuestionIndex error:", error);
+    }
     throw error;
   }
 }
@@ -138,17 +145,18 @@ async function fetchRegistration(
     ip;
   __DEV__ && console.log(url);
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+
+    let registration: Registration = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(registration)) {
+      throw new Error('Invalid Json');
     }
-    let registration: Registration = await httpResponse.json();
     //TODO handle error
     /**
     if (response && response.startsWith('java.lang.Exception: ')) {
@@ -158,8 +166,13 @@ async function fetchRegistration(
     } */
     return registration;
   } catch (error) {
-    console.log(error);
-    alert(strings.fetchAccountsError);
+    if(error.response) {
+      const httpResponse = error.response;
+      handleHttpError(httpResponse, httpResponse?.data, strings.fetchAccountsError, false);
+    } else {
+      alert(strings.fetchAccountsError);
+      __DEV__ && console.error("Fetch Registeration error:", error.message);
+    }
     throw error;
   }
 }
@@ -171,23 +184,27 @@ export async function fetchTouchVersion(path: string): string {
   const url = getTouchVersionUrl() + '?path=' + encodeURIComponent(path);
   __DEV__ && console.log('REQ touch version:' + url);
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
-    }
-    let touchVersion: string = await httpResponse.text();
+
+    let touchVersion: string = httpResponse?.data;
     //TODO handle error
     __DEV__ && console.log('RES touch version: ' + touchVersion);
     return touchVersion;
   } catch (error) {
     console.log(error);
-    alert(strings.fetchAccountsError);
+
+    if(error.response) {
+      const httpResponse = error.response;
+      handleHttpError(httpResponse, httpResponse?.data, strings.fetchAccountsError, false);
+      return;
+    } else {
+      __DEV__ && console.error("Network error:", error.message);
+    }
     throw error;
   }
 }

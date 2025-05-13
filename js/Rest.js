@@ -24,6 +24,7 @@ import type {
 } from './Types';
 import { capitalize, deepClone, isEmpty } from './Util';
 import { setWinkRestUrl } from './WinkRest';
+import axios from 'axios';
 
 let token: string;
 let privileges: Privileges = {
@@ -186,19 +187,49 @@ function clearErrors(item: Object) {
   });
 }
 
-export function handleHttpError(httpResponse: any, httpBody?: Object) {
-  console.log(
+// Function to validate if response from server is a valid json
+export function isValidJson(response: any): boolean {
+  if (typeof response === "object" && response !== null) {
+    return true; // Already a valid JSON object or array
+  }
+  if (typeof response !== "string") {
+    return false; // Not a string or object/array
+  }
+  
+  try {
+    JSON.parse(response);
+    return true;
+  } catch (e) {
+    __DEV__ && console.log('Invalid JSON response from server:', e);
+    return false;
+  }
+}
+
+export function handleHttpError(httpResponse: any, httpBody?: Object, errorString?: string, throwError?: boolean = true) {
+  __DEV__ && console.log(
     'HTTP response error ' + httpResponse.status + ': ' + httpResponse.url,
   );
-  __DEV__ && console.log(httpResponse);
+
+  let errorMessage = errorString;
   // To be refactored to map proper error message with status Code
   if (httpResponse.status === 406) {
-    throw strings.bookingAppointmentError;
+    errorMessage = strings.bookingAppointmentError;
+  } else if (httpBody?.errors || httpBody?.message) {
+    errorMessage += ': ' + httpBody.errors || httpBody.message;
+  } else {
+    errorMessage += 'HTTP error ' + httpResponse.status
+    console.log('HTTP error message: ' + errorMessage);
+    return;
   }
-  if (httpBody?.errors || httpBody?.message) {
-    throw httpBody.errors || httpBody.message;
+
+  __DEV__ && console.log('HTTP error message: ' + errorMessage);
+
+  // Throw an error if throwError is true, otherwise show an alert with the error message
+  if (throwError) {
+    throw new Error(errorMessage);
+  } else {
+    alert(errorMessage);
   }
-  throw 'HTTP error ' + httpResponse.status;
 }
 
 export function getDefinitionCacheKey(
@@ -228,26 +259,33 @@ export async function fetchItemDefinition(
       'REQ ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url,
     );
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         Accept: 'application/json',
         'Accept-language': language,
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
-    }
+    
     __DEV__ &&
       console.log(
         'RES ' + requestNr + ' Fetching definition ' + cacheKey + ': ' + url,
       );
-    let restResponse = await httpResponse.json();
+    let restResponse = httpResponse.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
+    }
+
     definition = restResponse.fields;
     cacheItem(cacheKey, definition);
     return definition;
   } catch (error) {
     __DEV__ && console.log(error);
+    if (error.response) {
+      handleHttpError(error.response, error.response.data, '', false);
+    } else {
+      __DEV__ && console.log('Network error or no response:', error.message);
+    }
     alert(
       strings.formatString(
         strings.fetchItemError,
@@ -300,18 +338,20 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
   const requestNr = ++requestNumber;
   __DEV__ && console.log('REQ ' + requestNr + ' GET ' + url);
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         token: token,
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+    
+    const restResponse = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+
     if (restResponse.upToDate) {
       __DEV__ &&
         console.log('RES ' + requestNr + ' GET ' + url + ': is up to date.');
@@ -342,12 +382,16 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
     return item;
   } catch (error) {
     console.log(error);
-    alert(
-      strings.formatString(
-        strings.fetchItemError,
-        getDataType(id).toLowerCase(),
-      ),
-    );
+    if (error.response) {
+      handleHttpError(
+        error.response, 
+        error.response.data, 
+        strings.formatString(strings.fetchItemError,getDataType(id).toLowerCase()), 
+        false);
+        return;
+    } else {
+      __DEV__ && console.log('Network error or no response:', error.message);
+    }
     throw error;
   }
 }
@@ -414,20 +458,23 @@ export async function storeItem(item: any): any {
         JSON.stringify(item),
     );
   try {
-    let httpResponse = await fetch(url, {
+    let httpResponse = await axios({
       method: httpMethod,
+      url: url,
       headers: {
         'Content-Type': 'application/json',
         token: token,
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(item),
+      data: item,
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse, await httpResponse.json());
+    const restResponse: RestResponse = httpResponse.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse: RestResponse = await httpResponse.json();
+
     __DEV__ &&
       logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
     if (restResponse.hasValidationError || restResponse.errors) {
@@ -467,13 +514,17 @@ export async function storeItem(item: any): any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    alert(
+    handleHttpError(
+      error.response,
+      error.response.data,
       strings.formatString(
         strings.storeItemError,
         getDataType(item.id).toLowerCase(),
         error,
       ),
-    );
+      false,
+    )
+    
     item.errors = [
       strings.formatString(
         strings.storeItemError,
@@ -493,20 +544,21 @@ export async function deleteItem(item: any): any {
   const url = constructTypeUrl(item.id) + item.id;
   //__DEV__ && alert('deleting '+url);
   try {
-    let httpResponse = await fetch(url, {
-      method: 'delete',
+    let httpResponse = await axios.delete(url, {
       headers: {
         'Content-Type': 'application/json',
         token: token,
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(item),
+      data: item,
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+    const restResponse = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+
     //alert(JSON.stringify(restResponse));
     if (restResponse.errors) {
       alert(restResponse.errors);
@@ -518,12 +570,15 @@ export async function deleteItem(item: any): any {
     }
   } catch (error) {
     console.log(error);
-    alert(
+    handleHttpError(
+      error.response,
+      error.response.data,
       strings.formatString(
         strings.storeItemError,
         getDataType(item.id).toLowerCase(),
         error,
       ),
+      false,
     );
     throw error;
   }
@@ -558,18 +613,19 @@ export async function searchItems(list: string, searchCritera: Object): any {
   try {
     url = appendParameters(url, searchCritera);
     __DEV__ && console.log('REQ ' + requestNr + ' GET ' + url);
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         token: token,
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+    const restResponse = httpResponse.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+
     __DEV__ &&
       console.log(
         'RES ' +
@@ -588,7 +644,7 @@ export async function searchItems(list: string, searchCritera: Object): any {
     }
     return restResponse;
   } catch (error) {
-    console.log(error);
+    __DEV__ && console.log(error);
     alert(
       strings.formatString(
         strings.fetchItemError,
@@ -631,20 +687,23 @@ export async function performActionOnItem(
         JSON.stringify(item),
     );
   try {
-    let httpResponse = await fetch(url, {
+    let httpResponse = await axios({
       method: httpMethod,
+      url: url,
       headers: {
         'Content-Type': 'application/json',
         token: token,
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(item),
+      data: item,
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse, await httpResponse.text());
+    const restResponse = httpResponse.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+
     __DEV__ &&
       logRestResponse(restResponse, item.id, requestNr, httpMethod, url);
     if (restResponse.hasValidationError || restResponse.errors) {
@@ -686,14 +745,21 @@ export async function performActionOnItem(
     return updatedItem;
   } catch (error) {
     __DEV__ && console.log(error);
-    const errorMssg = (action && item.id && error) 
-          ? `Something went wrong trying to ${action} a ${getDataType(item.id)}. Please try again. \n\n(Internal error = ${error})`
-          : ( error 
-              ? `An Error occurred: ${error}`
-              : 'Something went wrong. Please try again.'
-          );
-    alert(errorMssg);
-    throw error;
+      const errorMssg = (action && item.id && error) 
+            ? `Something went wrong trying to ${action} a ${getDataType(item.id)}. Please try again. \n\n(Internal error = ${error})`
+            : ( error 
+                ? `An Error occurred: ${error}`
+                : 'Something went wrong. Please try again.'
+            );
+            alert(errorMssg);
+      if (error.response) {
+        handleHttpError(
+          error.response,
+          error.response.data,
+        );
+      } else {
+        throw error;
+      }
   }
 }
 
@@ -703,25 +769,31 @@ export async function devDelete(path: string) {
   }
   let url: string = getRestUrl() + 'Dev/' + path;
   try {
-    let httpResponse = await fetch(url, {
-      method: 'delete',
-      headers: {
-        token: token,
-        Accept: 'application/json',
-        'Accept-language': getUserLanguage(),
-      },
-    });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+      let httpResponse = await axios.delete({
+        url: url,
+        headers: {
+          token: token,
+          Accept: 'application/json',
+          'Accept-language': getUserLanguage(),
+        },
+      });
+   
+    const restResponse = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+    
     return restResponse;
   } catch (error) {
-    console.log(error);
     alert(
       'Something went wrong trying to delete ' + path + '. Please try again.',
     );
-    throw error;
+    if(error.response) {
+      handleHttpError(error.response, error.response.data);
+    } else {
+      throw error;
+    }
   }
 }
 

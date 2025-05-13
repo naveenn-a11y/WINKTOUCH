@@ -126,6 +126,7 @@ import {
   SelectionDialog,
 } from './Widgets';
 import { fetchWinkRest } from './WinkRest';
+import axios from 'axios';
 
 export const examSections: string[] = [
   'Amendments',
@@ -2179,14 +2180,12 @@ class VisitWorkFlow extends Component {
     updatedSetting.setting.printingPreferences.FinalRx.defaultValues = newPreference;
 
     try {
-      let httpResponse = await fetch(getRestUrl()+'User/settings', {
-        method: 'PUT',
+      let httpResponse = await axios.put(getRestUrl()+'User/settings', updatedSetting, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           token: getToken(),
         },
-        body: JSON.stringify(updatedSetting),
       });
     } catch (error) {
       __DEV__ && console.log(error);

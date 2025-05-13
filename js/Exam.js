@@ -24,7 +24,7 @@ import {
 } from './Items';
 import { PaperFormScreen } from './PaperForm';
 import { getAutoRefractor, getKeratometry, getLensometries } from './Refraction';
-import { fetchItemById, getRestUrl, getToken, storeItem } from './Rest';
+import { fetchItemById, getRestUrl, getToken, storeItem, isValidJson } from './Rest';
 import { strings } from './Strings';
 import { fontScale, isWeb, styles } from './Styles';
 import type {
@@ -57,6 +57,7 @@ import { ErrorCard } from './Form';
 import { exportData, Machine } from './Machine';
 import { PatientCard } from './Patient';
 import { renderItemsHtml, renderParentGroupHtml } from './PatientFormHtml';
+import axios from 'axios';
 
 export async function fetchExam(
   examId: string,
@@ -175,24 +176,23 @@ export function getExam(examName: string, visit: Visit): Exam {
   return exam;
 }
 
-async function fetchVisitExam(visit: Visit, examName: string): Exam | undefined{
+async function fetchVisitExam(visit: Visit, examName: string): Exam | undefined {
   if (!visit) {
     return undefined;
   }
   try {
-    const httpResponse = await fetch(getRestUrl() + `Visit/${visit.id}/customExams/name/${examName}`, {
-      method: 'get',
-      headers: {token: getToken(), Accept: 'application/json'},
+    const response = await axios.get(`${getRestUrl()}Visit/${visit.id}/customExams/name/${examName}`, {
+      headers: { token: getToken(), Accept: 'application/json' },
     });
-    if (httpResponse.ok) {
-      let restResponse = await httpResponse.json();
-      return restResponse;
-    } else {
-      alert(strings.formatString(strings.fetchItemError, `exam ${examName}`));
-      return undefined;
+    const respData = response?.data;
+    // Check For Valid Json
+    if (!isValidJson(respData)) {
+      throw new Error('Invalid Json');
     }
+    return respData;
   } catch (error) {
-    __DEV__ && console.log(error);
+    console.error(error);
+    alert(strings.formatString(strings.fetchItemError, `exam ${examName}`));
     return undefined;
   }
 };

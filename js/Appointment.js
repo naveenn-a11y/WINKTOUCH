@@ -86,6 +86,7 @@ import {
   getRestUrl,
   getToken,
   handleHttpError,
+  isValidJson,
 } from './Rest';
 import {formatCode, getAllCodes, getCodeDefinition} from './Codes';
 import {getStore} from './DoctorApp';
@@ -97,6 +98,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ArrowIcon from 'react-native-vector-icons/MaterialIcons';
 import Dialog from './utilities/Dialog';
+import axios from 'axios';
 
 const PRIVILEGE = {
   NOACCESS: 'NOACCESS',
@@ -319,25 +321,28 @@ export async function manageAvailability(
   };
   let url = getRestUrl() + 'Appointment/manageSlots?emrOnly=true';
   try {
-    let httpResponse = await fetch(url, {
-      method: 'post',
+    let httpResponse = await axios.post(url, searchCriteria, {
       headers: {
-        'Content-Type': 'application/json',
-        token: getToken(),
-        Accept: 'application/json',
-        'Accept-language': getUserLanguage(),
+      'Content-Type': 'application/json',
+      token: getToken(),
+      Accept: 'application/json',
+      'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(searchCriteria),
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+    
+    let appointments: Appointment[] = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(appointments)) {
+      throw new Error('Invalid Json');
     }
-    let appointments: Appointment[] = await httpResponse.json();
+
     return appointments;
   } catch (error) {
-    console.log(error);
-    alert(strings.fetchItemError);
-    throw error;
+    if (error.response) {
+      handleHttpError(error?.response, error.response?.data, strings.fetchItemError, false);
+    } else {
+      __DEV__ && console.log('ManageAvailability Error: ', error);
+    }
   }
 }
 export async function cancelAppointment(body) {
@@ -366,20 +371,21 @@ export async function invoiceForAppointment(
 ): PatientInvoice[] {
   let url = getRestUrl() + 'Invoice/appointment/id=' + appointmentId;
   try {
-    let httpResponse = await fetch(url, {
-      method: 'post',
+    let httpResponse = await axios.post(url, {}, {
       headers: {
-        'Content-Type': 'application/json',
-        token: getToken(),
-        Accept: 'application/json',
-        'Accept-language': getUserLanguage(),
+      'Content-Type': 'application/json',
+      token: getToken(),
+      Accept: 'application/json',
+      'Accept-language': getUserLanguage(),
       },
-      body: {},
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+  
+    let restResponse: any = httpResponse?.data;
+
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    let restResponse: any = await httpResponse.json();
 
     if (restResponse.errors) {
       alert(restResponse.errors);
@@ -390,34 +396,43 @@ export async function invoiceForAppointment(
     cacheItemsById(patientInvoices);
     return patientInvoices;
   } catch (error) {
-    console.log(error);
+    if(error.response){
+      handleHttpError(error.response, error?.response?.data, '', false);
+    } else {
+      __DEV__ && console.log('InvoiceForAppointment Error: ', error);
+    }
   }
 }
 
 export async function pushToHarmony(patientId: ?string): boolean {
   let url = getRestUrl() + 'Patient/harmony/id=' + patientId;
   try {
-    let httpResponse = await fetch(url, {
-      method: 'post',
+    let httpResponse = await axios.post(url, {}, {
       headers: {
-        'Content-Type': 'application/json',
-        token: getToken(),
-        Accept: 'application/json',
-        'Accept-language': getUserLanguage(),
+      'Content-Type': 'application/json',
+      token: getToken(),
+      Accept: 'application/json',
+      'Accept-language': getUserLanguage(),
       },
-      body: {},
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+    
+    let restResponse: any = httpResponse.data;
+
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    let restResponse: any = await httpResponse.json();
 
     if (restResponse.errors) {
       alert(restResponse.errors);
       return false;
     }
   } catch (error) {
-    console.log(error);
+    if (error.response) {
+      handleHttpError(error.response, error?.response?.data, undefined, false);
+    } else {
+      __DEV__ && console.log('PushToHarmony Error: ', error);
+    }
     return false;
   }
   return true;

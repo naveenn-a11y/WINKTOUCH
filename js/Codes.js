@@ -17,6 +17,7 @@ import {
   searchItems,
   getNextRequestNumber,
   getToken,
+  isValidJson
 } from './Rest';
 import {getFieldDefinitions} from './Items';
 import {initialiseWinkCodes} from './codes/WinkDefinedCodes';
@@ -25,6 +26,7 @@ import {passesFilter} from './Util';
 import { cacheItem, getCachedItem } from './DataCache';
 import * as defaultSetting from './utilities/Settings.json';
 import { processDuplicatesInTranslatedCodes } from './CodesUtils';
+import axios, { HttpStatusCode } from 'axios';
 
 export function formatCodeDefinition(
   option: ?CodeDefinition,
@@ -245,18 +247,22 @@ export async function fetchCodeDefinitions(
       'REQ ' + requestNr + ' fetch codes in ' + language + ': ' + url,
     );
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         token: getToken(),
         Accept: 'application/json',
         'Accept-language': language,
       },
     });
-    if (!httpResponse.ok) {
+    if (httpResponse?.status !== HttpStatusCode.Ok) {
       handleHttpError(httpResponse);
     }
-    let translatedCodeDefinitions = await httpResponse.json();
+    let translatedCodeDefinitions = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(translatedCodeDefinitions)) {
+      throw new Error('Invalid Json');
+    }
+
     __DEV__ &&
       console.log(
         'RES ' + requestNr + ' fetch codes in ' + language + ': ' + url,
@@ -281,9 +287,16 @@ export async function fetchCodeDefinitions(
     }
   } catch (error) {
     __DEV__ && console.log(error);
-      alert(
+    if(error.response){
+      const httpResponse = error.response;
+      handleHttpError(
+        httpResponse,
+        httpResponse?.data,
         strings.formatString(strings.initialiseError, 'code descriptions', error),
+        false
       );
+      return;
+    }
       throw error;
   }
 }

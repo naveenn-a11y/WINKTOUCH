@@ -3,7 +3,6 @@
  */
 
 'use strict';
-
 import { Component } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { ModeContext } from '../src/components/Context/ModeContextProvider';
@@ -324,7 +323,7 @@ export class GlassesDetail extends Component {
               machineDefinition.ip +
               ' in the http 80 butt',
           );
-        await fetch('http://' + machineDefinition.ip + ':80/m'); // NOSONAR
+        await axios.get('http://' + machineDefinition.ip + ':80/m'); // NOSONAR
       }
     }
   }

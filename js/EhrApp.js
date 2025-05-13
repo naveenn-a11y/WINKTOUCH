@@ -25,6 +25,7 @@ import { NetworkInfo, Prompt } from './Widgets';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
 import RemoteConfig from './utilities/RemoteConfig';
+import axios from 'axios';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -115,6 +116,19 @@ const theme = {
 
 let netInfoListener = null;
 let appStateListener = null;
+
+axios.interceptors.response.use(
+  response => response, // Pass through successful responses
+  error => {
+    if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
+      __DEV__ && console.error('Request aborted:', error.config?.url);
+      return Promise.resolve({ data: null });
+    }
+
+    // Pass all other errors as they are
+    return Promise.reject(error);
+  }
+);
 
 export class EhrApp extends Component {
   state: {

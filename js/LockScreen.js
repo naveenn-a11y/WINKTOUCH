@@ -22,6 +22,7 @@ import {
   getRestUrl,
   getToken,
   handleHttpError,
+  isValidJson,
 } from './Rest';
 import type {Account, Store, User} from './Types';
 import DeviceInfo from 'react-native-device-info';
@@ -29,6 +30,7 @@ import base64 from 'base-64';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {CustomModal as Modal} from './utilities/Modal';
+import axios, { HttpStatusCode } from 'axios';
 
 export class LockScreen extends Component {
   state: {
@@ -82,46 +84,41 @@ export class LockScreen extends Component {
           user.username,
       );
     try {
-      let httpResponse = await fetch(doctorLoginUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'Accept-language': getUserLanguage(),
-          token: token,
-          Authorization:
-            'Basic ' + base64.encode(user.username + ':' + password),
-        },
-        body: JSON.stringify(loginData),
+      let httpResponse = await axios.post(doctorLoginUrl, loginData, {
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+        token: token,
+        Authorization:
+        'Basic ' + base64.encode(user.username + ':' + password),
+      },
       });
       console.log(
-        'RES ' +
-          requestNr +
-          ' POST ' +
-          doctorLoginUrl +
-          ' login OK for ' +
-          user.username +
-          ':' +
-          httpResponse.ok,
+      'RES ' +
+        requestNr +
+        ' POST ' +
+        doctorLoginUrl +
+        ' login OK for ' +
+        user.username +
+        ':' +
+        httpResponse.status,
       );
-      if (!httpResponse.ok) {
-        const contentType: ?string = httpResponse.headers.get('Content-Type');
-        if (
-          contentType !== undefined &&
-          contentType !== null &&
-          contentType.startsWith('text/html')
-        ) {
-          handleHttpError(httpResponse, await httpResponse.text());
-        } else {
-          handleHttpError(httpResponse, await httpResponse.json());
-        }
+      let responseJson = httpResponse.data;
+      // Check For Valid Json
+      if (!isValidJson(responseJson)) {
+        throw new Error('Invalid Json');
       }
-      let responseJson = await httpResponse.json();
       if (responseJson.success === true || responseJson.user) {
         this.props.route.params.onUserLogin(); //restart tracker
       }
     } catch (error) {
-      alert(strings.loginFailed + ': ' + error);
+      if (error.response) {
+        const httpResponse = error.response;
+        handleHttpError(httpResponse, httpResponse.data, strings.loginFailed, false);
+      } else {
+        __DEV__ && console.log('Login Error: ' + error.message);
+      }
     }
   }
 

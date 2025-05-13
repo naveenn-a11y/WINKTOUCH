@@ -18,7 +18,7 @@ import {
 import type {User} from './Types';
 import {styles, isWeb} from './Styles';
 import {strings, getUserLanguage} from './Strings';
-import {searchItems, fetchItemById, storeItem, getToken, getRestUrl} from './Rest';
+import {searchItems, fetchItemById, storeItem, getToken, getRestUrl, isValidJson} from './Rest';
 import {Button, SelectionListRow} from './Widgets';
 import {FormRow, FormField, ErrorCard} from './Form';
 import {getCachedItem, cacheItemById, cacheItem} from './DataCache';
@@ -26,6 +26,7 @@ import {Close} from './Favorites';
 import {fetchCodeDefinitions, fetchProvincesCode} from './Codes';
 import {getAccount, getStore} from './DoctorApp';
 import {deepClone, isEmpty} from './Util';
+import axios from 'axios';
 
 const maxUserListSize: number = 200;
 
@@ -58,24 +59,25 @@ export async function searchUsers(
 }
 
 export async function fetchUserSettings() {
-  const httpResponse = await fetch(getRestUrl() + 'User/settings', {
-    method: 'get',
-    headers: {
-      token: getToken(),
-      Accept: 'application/json',
-      'Accept-language': getUserLanguage(),
-    },
-  });
-  if (httpResponse.ok) {
-    try {
-      const restResponse = await httpResponse.json();
-      if (restResponse.setting) {
-        cacheItem('user-setting', restResponse);
-      }
+  try {
+    const httpResponse = await axios.get(getRestUrl() + 'User/settings', {
+      headers: {
+        token: getToken(),
+        Accept: 'application/json',
+        'Accept-language': getUserLanguage(),
+      },
+    });
+    const restResponse = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    catch (error) {
-      console.log('Error fetching user settings: ' + error);
+
+    if (restResponse.setting) {
+      cacheItem('user-setting', restResponse);
     }
+  } catch (error) {
+    console.log('Error fetching user settings: ' + error);
   }
 }
 

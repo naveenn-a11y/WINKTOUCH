@@ -4,6 +4,7 @@ import {
   handleHttpError,
   searchItems,
   storeItem,
+  isValidJson,
 } from './Rest';
 import {getDoctor} from './DoctorApp';
 import type {Measurement} from './Types';
@@ -15,6 +16,7 @@ import {strings} from './Strings';
 import {isEmpty} from './Util';
 import {isWeb} from './Styles';
 import { WINK_APP_WEB_SOCKET_URL, WINK_APP_WSS_CHAT_URL } from '@env';
+import axios from 'axios';
 
 const MachineRequestType = {
   PUSH: 'PUSH',
@@ -221,14 +223,12 @@ export class Machine {
     const wsLoginUrl: string = wsRestUrl + path + '/';
     const requestNr = getNextRequestNumber();
     try {
-      let httpResponse = await fetch(wsLoginUrl, {
-        method: 'POST',
+      let httpResponse = await axios.post(wsLoginUrl,{}, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           token: getToken(),
-        },
-        body: JSON.stringify({}),
+        }
       });
       console.log(
         'RES ' +
@@ -238,62 +238,51 @@ export class Machine {
           ' login OK: ' +
           httpResponse.ok,
       );
-      if (!httpResponse.ok) {
-        const contentType: ?string = httpResponse.headers.get('Content-Type');
-        if (
-          contentType !== undefined &&
-          contentType !== null &&
-          contentType.startsWith('text/html')
-        ) {
-          handleHttpError(httpResponse, await httpResponse.text());
-        } else {
-          handleHttpError(httpResponse, await httpResponse.json());
-        }
+
+      const responseJson = httpResponse?.data;
+      // Check For Valid Json
+      if (!isValidJson(responseJson)) {
+        throw new Error('Invalid Json');
       }
 
-      const responseJson = await httpResponse.json();
       if (responseJson) {
         authInfo = responseJson;
       }
-    } catch (error) {}
+    } catch (error) {
+        handleHttpError(error.response, error.response.data);
+    }
     return authInfo;
   }
 
   async push() {
-    const path: string = 'Machine/Message';
-    const wsPushUrl: string = wsRestUrl + path + '/';
+    const path = "Machine/Message";
+    const wsPushUrl = wsRestUrl + path + "/";
     const requestNr = getNextRequestNumber();
+  
     try {
-      let httpResponse = await fetch(wsPushUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          token: getToken(),
-        },
-        body: JSON.stringify({
-          action: MachineRequestType.PUSH,
-          machineId: this.machineId,
-        }),
-      });
-      console.log(
-        'RES ' + requestNr + ' POST ' + wsPushUrl + '  OK: ' + httpResponse.ok,
-      );
-      if (!httpResponse.ok) {
-        const contentType: ?string = httpResponse.headers.get('Content-Type');
-        if (
-          contentType !== undefined &&
-          contentType !== null &&
-          contentType.startsWith('text/html')
-        ) {
-          handleHttpError(httpResponse, await httpResponse.text());
-        } else {
-          handleHttpError(httpResponse, await httpResponse.json());
+      const reqBody = {
+        action: MachineRequestType.PUSH,
+        machineId: this.machineId,
+      };
+      const response = await axios.post(wsPushUrl, reqBody,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            token: getToken(),
+          },
         }
+      );
+  
+      __DEV__ && console.log(`RES ${requestNr} POST ${wsPushUrl} OK: ${response.status}`);
+  
+      // Log response data
+      __DEV__ && console.log("Response JSON:", response?.data);
+    } catch (error) {
+      if(error.response) {
+        handleHttpError(error.response, error.response?.data);
       }
-
-      const responseJson = await httpResponse.json();
-      console.log('Response JSON: ' + JSON.stringify(responseJson));
-    } catch (error) {}
+    }
   }
+  
 }

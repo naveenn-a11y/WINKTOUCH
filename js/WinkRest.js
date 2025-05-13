@@ -9,11 +9,13 @@ import {
   getNextRequestNumber,
   logRestResponse,
   handleHttpError,
+  isValidJson,
 } from './Rest';
 import { strings, getUserLanguage, getUserLanguageShort } from './Strings';
 import RNFS from 'react-native-fs';
 import { isWeb } from './Styles';
 import { WINK_APP_REST_URL, WINK_APP_WEB_SOCKET_URL } from '@env';
+import axios from 'axios';
 
 export const winkWebSocketUrl: string = isWeb ? process.env.WINK_APP_WEB_SOCKET_URL : WINK_APP_WEB_SOCKET_URL;
 
@@ -50,24 +52,31 @@ export async function postWinkWebSocketUrl(
         JSON.stringify(body),
     );
   try {
-    let httpResponse = await fetch(url, {
+    let httpResponse = await axios({
       method: httpMethod,
+      url: url,
       headers: {
         token: getToken(),
         'Content-Type': 'application/json',
         'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(body),
+      data: body,
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse, await httpResponse.text());
+    const restResponse = httpResponse.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.serverError, error));
+    if (error.response) {
+      handleHttpError(error.response, error.response.data, strings.formatString(strings.serverError, error), false);
+    } else {
+      __DEV__ && console.log('Post Wink Web Error: ' + error);
+    }
     return undefined;
   }
 }
@@ -92,24 +101,29 @@ export async function fetchWinkRest(
         JSON.stringify(body),
     );
   try {
-    let httpResponse = await fetch(url, {
+    let httpResponse = await axios({
       method: httpMethod,
+      url: url,
       headers: {
         token: getToken(),
         'Content-Type': 'application/json',
         'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(body),
+      data: body,
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse, await httpResponse.text());
+    const restResponse = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
   } catch (error) {
-    console.log(error);
-    alert(strings.formatString(strings.serverError, error));
+    if (error.response) {
+      handleHttpError(error.response, error.response.data, strings.formatString(strings.serverError, error), false);
+    }
+    __DEV__ && console.log(error?.response);
     return undefined;
   }
 }
@@ -125,21 +139,25 @@ export async function createPdf(
   __DEV__ &&
     console.log(method + ' ' + url + ': ' + (body ? JSON.stringify(body) : ''));
   try {
-    let httpResponse = await fetch(url, {
+    let httpResponse = await axios({
       method: method,
+      url: url,
       headers: {
         token: getToken(),
         'Content-Type': 'application/json',
         'Accept-language': getUserLanguageShort(),
         Accept: 'application/json',
       },
-      body: body ? JSON.stringify(body) : '',
+      data: body ?? '',
     });
     //alert(JSON.stringify(httpResponse));
-    if (!httpResponse.ok) {
-      await handleHttpError(httpResponse);
+       
+    const restResponse = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(restResponse)) {
+      throw new Error('Invalid Json');
     }
-    const restResponse = await httpResponse.json();
+    
     if (restResponse.errors) {
       alert(restResponse.errors);
       __DEV__ &&
@@ -169,7 +187,11 @@ export async function createPdf(
     }
   } catch (error) {
     console.log(error);
-    alert(strings.formatString(strings.serverError, error));
+    if(error.response) {
+      handleHttpError(error.response, error.response.data, strings.formatString(strings.serverError, error), false);
+    } else {
+      __DEV__ && console.log('Create PDF Error: ' + error);
+    }
     throw error;
   }
 }

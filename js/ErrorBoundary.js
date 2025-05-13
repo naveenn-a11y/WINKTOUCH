@@ -7,6 +7,8 @@ import codePush from 'react-native-code-push';
 import {getUserLanguage, strings} from './Strings';
 import {getRestUrl, getToken} from './Rest';
 import {bundleVersion, deploymentVersion, touchVersion} from './Version';
+import axios from 'axios';
+
 async function postLogService(error: any, errorInfo: any): void {
   let url = getRestUrl() + 'Logger/';
   try {
@@ -16,15 +18,13 @@ async function postLogService(error: any, errorInfo: any): void {
       error: error.toString(),
       errorInfo: errorInfo.componentStack.toString(),
     };
-    await fetch(url, {
-      method: 'post',
+    await axios.post(url, searchCriteria, {
       headers: {
         'Content-Type': 'application/json',
         token: getToken(),
         Accept: 'application/json',
         'Accept-language': getUserLanguage(),
       },
-      body: JSON.stringify(searchCriteria),
     });
   } catch (error) {
     console.log(error);

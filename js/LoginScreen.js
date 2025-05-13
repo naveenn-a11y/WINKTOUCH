@@ -43,6 +43,7 @@ import {
   getNextRequestNumber,
   getWinkEmrHostFromAccount,
   searchItems,
+  isValidJson,
 } from './Rest';
 import {
   dbVersion,
@@ -56,6 +57,7 @@ import { cacheItemsById } from './DataCache';
 import { AgentAsumptionScreen } from './Agent';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { WINK_APP_ACCOUNTS_URL } from '@env';
+import axios, { HttpStatusCode } from 'axios';
 
 const getAccountsUrl = () => isWeb ? process.env.WINK_APP_ACCOUNTS_URL : WINK_APP_ACCOUNTS_URL;
 
@@ -75,23 +77,29 @@ async function fetchAccounts(path: string) {
     privileged +
     '&emrOnly=' +
     emrOnly;
+
+    console.log('Login URL =>', url);
   __DEV__ && console.log('Fetching accounts: ' + url);
   try {
-    let httpResponse = await fetch(url, {
-      method: 'get',
+    let httpResponse = await axios.get(url, {
       headers: {
         'Accept-language': getUserLanguage(),
       },
     });
-    if (!httpResponse.ok) {
-      handleHttpError(httpResponse);
+    let accounts: Account[] = httpResponse?.data;
+    // Check For Valid Json
+    if (!isValidJson(accounts)) {
+      throw new Error('Invalid Json');
     }
-    let accounts: Account[] = await httpResponse.json();
+
     return accounts;
   } catch (error) {
-    console.log(error);
-    alert(strings.fetchAccountsError);
-    throw error;
+    if (error.response) {
+      const httpResponse = error.response;
+      handleHttpError(httpResponse, httpResponse?.data, strings.fetchAccountsError, false);
+    } else {
+      __DEV__ && console.log('Fetch Accounts Error: ', error);
+    }
   }
 }
 
@@ -159,16 +167,13 @@ export class MfaScreen extends Component {
         'REQ ' + requestNr + ' POST ' + mfaVerifyUrl + ' login for ' + userName,
       );
     try {
-      let httpResponse = await fetch(mfaVerifyUrl, {
-        method: 'POST',
+      let httpResponse = await axios.post(mfaVerifyUrl, loginData, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           'Accept-language': getUserLanguage(),
-          Authorization:
-            'Basic ' + base64.encode(userName + ':' + password + ':' + code),
+          Authorization: 'Basic ' + base64.encode(userName + ':' + password + ':' + code),
         },
-        body: JSON.stringify(loginData),
       });
       console.log(
         'RES ' +
@@ -180,22 +185,16 @@ export class MfaScreen extends Component {
           ':' +
           httpResponse.ok,
       );
-      if (!httpResponse.ok) {
-        const contentType: ?string = httpResponse.headers.get('Content-Type');
-        if (
-          contentType !== undefined &&
-          contentType !== null &&
-          contentType.startsWith('text/html')
-        ) {
-          handleHttpError(httpResponse, await httpResponse.text());
-        } else {
-          handleHttpError(httpResponse, await httpResponse.json());
-        }
+      
+      let responseJson = httpResponse?.data;
+      // Check For Valid Json
+      if (!isValidJson(responseJson)) {
+        throw new Error('Invalid Json');
       }
-      let responseJson = await httpResponse.json();
+
       let token: string;
       if (isWeb) {
-        for (let entry of httpResponse.headers.entries()) {
+        for (let entry of httpResponse?.headers) {
           if (entry[0] === 'token') {
             token = entry[1];
           }
@@ -208,7 +207,12 @@ export class MfaScreen extends Component {
       store = responseJson.store;
       this.props.onLogin(account, user, store, token);
     } catch (error) {
-      alert(strings.loginFailed + ': ' + error);
+      if (error.response) {
+        const httpResponse = error.response;
+        handleHttpError(httpResponse, httpResponse?.data, strings.loginFailed, false);
+      } else {
+        __DEV__ && console.log('Mfa Verify Error: ' + error.message);
+      }
     }
   }
 
@@ -237,15 +241,13 @@ export class MfaScreen extends Component {
         'REQ ' + requestNr + ' POST ' + mfaScanUrl + ' login for ' + userName,
       );
     try {
-      let httpResponse = await fetch(mfaScanUrl, {
-        method: 'PUT',
+      let httpResponse = await axios.put(mfaScanUrl, loginData, {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
           'Accept-language': getUserLanguage(),
           Authorization: 'Basic ' + base64.encode(userName + ':' + password),
-        },
-        body: JSON.stringify(loginData),
+        }
       });
       console.log(
         'RES ' +
@@ -528,7 +530,7 @@ export class LoginScreen extends Component {
         }
 
         let currAccount = accounts.find((a: Account) => a.name === account);
-        if (currAccount.stores === null || currAccount.stores === undefined) {
+        if (currAccount && (currAccount?.stores === null || currAccount?.stores === undefined)) {
           this.fetchStores(currAccount);
         }
       }
@@ -701,16 +703,24 @@ export class LoginScreen extends Component {
           userName,
       );
     try {
-      let httpResponse = await fetch(doctorLoginUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-          'Accept-language': getUserLanguage(),
-          Authorization: 'Basic ' + base64.encode(userName + ':' + password),
-        },
-        body: JSON.stringify(loginData),
-      });
+      let httpResponse;
+      try{
+        httpResponse = await axios.post(doctorLoginUrl, loginData, {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'Accept-language': getUserLanguage(),
+            Authorization: 'Basic ' + base64.encode(userName + ':' + password),
+          }
+        });
+      } catch (error) {
+        if (error.response) {
+          const httpRes = error.response;
+          handleHttpError(httpRes, httpRes?.data, strings.loginFailed, false);
+          return;
+        }
+      }
+
       console.log(
         'RES ' +
           requestNr +
@@ -719,22 +729,16 @@ export class LoginScreen extends Component {
           ' login OK for ' +
           userName +
           ':' +
-          httpResponse.ok,
+          httpResponse.status,
       );
-      if (!httpResponse.ok) {
-        const contentType: ?string = httpResponse.headers.get('Content-Type');
-        if (
-          contentType !== undefined &&
-          contentType !== null &&
-          contentType.startsWith('text/html')
-        ) {
-          handleHttpError(httpResponse, await httpResponse.text());
-        } else {
-          handleHttpError(httpResponse, await httpResponse.json());
-        }
+
+      let responseJson = httpResponse?.data;
+      // Check For Valid Json
+      if (!isValidJson(responseJson)) {
+        throw new Error('Invalid Json');
       }
-      let responseJson = await httpResponse.json();
-      if (responseJson.mfa === true) {
+
+      if (responseJson?.mfa === true) {
         if (responseJson.secretImageUri) {
           this.setQRImageUrl(responseJson.secretImageUri);
         }
@@ -742,13 +746,13 @@ export class LoginScreen extends Component {
       } else {
         let token: string;
         if (isWeb) {
-          for (let entry of httpResponse.headers.entries()) {
+          for (let entry of httpResponse?.headers) {
             if (entry[0] === 'token') {
               token = entry[1];
             }
           }
         } else {
-          token = httpResponse.headers.map.token;
+          token = httpResponse?.headers?.map.token;
         }
 
         let user: User = responseJson.user;
@@ -756,7 +760,7 @@ export class LoginScreen extends Component {
         this.props.onLogin(account, user, store, token);
       }
     } catch (error) {
-      alert(strings.loginFailed + ': ' + error);
+      alert(strings.loginFailed + ': ' + error?.message);
     }
     this.setState({agentAssumptionRequired: false});
   }
