@@ -870,7 +870,7 @@ export function parseImageURL(image : String): String {
     try {
       if (image.startsWith("./image")) {
           const envImageBaseURL = isWeb ? process.env.WINK_IMAGE_URL : WINK_IMAGE_URL;
-          image = image.replace("./image",envImageBaseURL, 1);
+          image = image.replace("./image",envImageBaseURL);
       }
     } catch (ex) {
       __DEV__ & console.log("Environment WINK_IMAGE_URL missing");
