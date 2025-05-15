@@ -867,10 +867,13 @@ export function parseImageURL(image : String): String {
       image = restUrl + image.substring(templateURL.length);
     }
 
-    if (image.startsWith("./image")) {
-      const envImageBaseURL = isWeb ? process.env.WINK_IMAGE_URL : WINK_IMAGE_URL;
-      const cloudImageBaseURL = envImageBaseURL ?? "https://server9-azure.downloadwink.com/emr/images";
-      image = image.replace("./image",cloudImageBaseURL, 1)
+    try {
+      if (image.startsWith("./image")) {
+          const envImageBaseURL = isWeb ? process.env.WINK_IMAGE_URL : WINK_IMAGE_URL;
+          image = image.replace("./image",envImageBaseURL, 1);
+      }
+    } catch (ex) {
+      __DEV__ & console.log("Environment WINK_IMAGE_URL missing");
     }
   }
   return image;
