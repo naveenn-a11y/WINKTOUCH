@@ -3,41 +3,32 @@
  */
 'use strict';
 
-import React, {Component} from 'react';
+import { Component } from 'react';
 import {
-  View,
-  Text,
-  Image,
   ScrollView,
-  TextInput,
   StyleSheet,
+  View
 } from 'react-native';
+import {
+  getExam,
+  getFieldDefinition,
+  getFieldValue,
+  getPatient,
+  getVisit,
+  storeExam,
+} from './Exam';
+import { FormInput } from './Form';
+import { ImageField } from './ImageField';
+import { storePatientInfo } from './Patient';
+import { stripDataType } from './Rest';
+import { fontScale } from './Styles';
 import type {
   Exam,
   GlassesRx,
-  FieldDefinition,
-  ExamDefinition,
-  GroupDefinition,
-  PatientInfo,
+  PatientInfo
 } from './Types';
-import {styles, fontScale, imageStyle} from './Styles';
-import {DiopterField, DegreeField} from './Refraction';
-import {CheckButton, DateField, NumberField, TilesField} from './Widgets';
-import {ImageField} from './ImageField';
-import {FormInput} from './Form';
-import {formatLabel} from './Items';
-import {getCachedItem} from './DataCache';
-import {deepClone, setValue} from './Util';
-import {
-  storeExam,
-  getFieldDefinition,
-  getFieldValue,
-  getVisit,
-  getExam,
-  getPatient,
-} from './Exam';
-import {storePatientInfo} from './Patient';
-import {stripDataType} from './Rest';
+import { parseImageURL, setValue } from './Util';
+import { CheckButton } from './Widgets';
 
 const textStyle = StyleSheet.create({
   textStyle: {
@@ -283,7 +274,7 @@ export class PaperFormScreen extends Component {
         pinchGestureEnabled={this.state.scrollEnabled}>
         <View>
           <ImageField
-            image="./image/ToulchExamFront.jpg"
+            image={parseImageURL('./image/ToulchExamFront.jpg')}
             resolution="810x1068"
             size="XL"
             popup={false}
@@ -643,7 +634,7 @@ export class PaperFormScreen extends Component {
           </ImageField>
 
           <ImageField
-            image="./image/ToulchExamBack.jpg"
+            image={parseImageURL('./image/ToulchExamBack.jpg')}
             resolution="811x1071"
             size="XL"
             popup={false}
@@ -661,7 +652,7 @@ export class PaperFormScreen extends Component {
           />
 
           <ImageField
-            image="./image/ToulchMeds.jpg"
+            image={parseImageURL('./image/ToulchMeds.jpg')}
             resolution="600x826"
             size="L"
             popup={false}
@@ -700,7 +691,7 @@ export class PaperFormScreen extends Component {
         scrollEnabled={this.state.scrollEnabled}
         pinchGestureEnabled={this.state.scrollEnabled}>
         <ImageField
-          image="./image/eyeexamtemplate.png"
+          image={parseImageURL('./image/eyeexamtemplate.png')}
           resolution="763x965"
           size="XL"
           popup={false}

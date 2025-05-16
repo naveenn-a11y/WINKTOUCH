@@ -45,6 +45,7 @@ import {
   formatDate,
   isEmpty,
   now,
+  parseImageURL,
   replaceFileExtension,
   yearDateFormat
 } from './Util';
@@ -86,96 +87,7 @@ export async function getBase64Image(image: string) {
   if (image === undefined || image === 'upload') {
     return undefined;
   }
-  if (image === './image/perimetry.png') {
-    return require('./image/base64/perimetry');
-  }
-  if (image === './image/champvisuel.png') {
-    return require('./image/base64/champvisuel');
-  }
-  if (image === './image/H.png') {
-    return require('./image/base64/H');
-  }
-  if (image === './image/anteriorOD.png') {
-    return require('./image/base64/anteriorOD');
-  }
-  if (image === './image/anteriorOS.png') {
-    return require('./image/base64/anteriorOS');
-  }
-  if (image === './image/anteriorSegOD.png') {
-    return require('./image/base64/anteriorSegOD');
-  }
-  if (image === './image/anteriorSegOS.png') {
-    return require('./image/base64/anteriorSegOS');
-  }
-  if (image === './image/anteriorOD_faded.png') {
-    return require('./image/base64/anteriorOD_faded');
-  }
-  if (image === './image/anteriorOS_faded.png') {
-    return require('./image/base64/anteriorOS_faded');
-  }
-  if (image === './image/anteriorSegOD_faded.png') {
-    return require('./image/base64/anteriorSegOD_faded');
-  }
-  if (image === './image/anteriorSegOS_faded.png') {
-    return require('./image/base64/anteriorSegOS_faded');
-  }
-  if (image === './image/anteriorSegOD_resized.png') {
-    return require('./image/base64/anteriorSegOD_resized');
-  }
-  if (image === './image/anteriorSegOS_resized.png') {
-    return require('./image/base64/anteriorSegOS_resized');
-  }
-  if (image == './image/posteriorOD.png') {
-    return require('./image/base64/posteriorOD');
-  }
-  if (image === './image/posteriorOS.png') {
-    return require('./image/base64/posteriorOS');
-  }
-  if (image == './image/fundusOD.png') {
-    return require('./image/base64/fundusOD');
-  }
-  if (image === './image/fundusOS.png') {
-    return require('./image/base64/fundusOS');
-  }
-  if (image === './image/retinaOD.png') {
-    return require('./image/base64/retinaOD');
-  }
-  if (image === './image/retinaOS.png') {
-    return require('./image/base64/retinaOS');
-  }
-  if (image === './image/gonioscopyOD.png') {
-    return require('./image/base64/gonioscopyOD');
-  }
-  if (image === './image/gonioscopyOS.png') {
-    return require('./image/base64/gonioscopyOS');
-  }
-  if (image === './image/notations.png') {
-    return require('./image/base64/notations');
-  }
-  if (image === './image/contactlensOD.png') {
-    return require('./image/base64/contactlensOD');
-  }
-  if (image === './image/contactlensOS.png') {
-    return require('./image/base64/contactlensOS');
-  }
-  if (image === './image/amsler.png') {
-    return require('./image/base64/amsler');
-  }
-  if (image === './image/d15.jpg') {
-    return require('./image/base64/d15');
-  }
-  if (image === './image/eyeexamtemplate.png') {
-    return require('./image/base64/eyeexamtemplate');
-  }
-  if (image === './image/ToulchExamFront.jpg') {
-    return require('./image/base64/ToulchExamFront');
-  }
-  if (image === './image/ToulchExamBack.jpg') {
-    return require('./image/base64/ToulchExamBack');
-  }
-  if (image === './image/ToulchMeds.jpg') {
-    return require('./image/base64/ToulchMeds');
-  }
+
   if (image.startsWith('http:') || image.startsWith('https:')) {
     const path: string = await loadBase64ImageForWeb(image);
     return {data: path};
@@ -1130,7 +1042,7 @@ export class ImageField extends Component {
       };
     }
 
-    const image: string =
+    let image: string =
       this.props.value && this.props.value.image
         ? this.props.value.image
         : this.props.image;
@@ -1138,86 +1050,8 @@ export class ImageField extends Component {
     if (image === undefined || image === 'upload') {
       return undefined;
     }
-    if (image === './image/perimetry.png') {
-      return require('./image/perimetry.png');
-    }
-    if (image === './image/champvisuel.png') {
-      return require('./image/champvisuel.png');
-    }
-    if (image === './image/H.png') {
-      return require('./image/H.png');
-    }
-    if (image === './image/anteriorOD.png') {
-      return require('./image/anteriorOD.png');
-    }
-    if (image === './image/anteriorOS.png') {
-      return require('./image/anteriorOS.png');
-    }
-    if (image === './image/anteriorSegOD.png') {
-      return require('./image/anteriorSegOD.png');
-    }
-    if (image === './image/anteriorSegOS.png') {
-      return require('./image/anteriorSegOS.png');
-    }
-    if (image === './image/anteriorOD_faded.png') {
-      return require('./image/anteriorOD_faded.png');
-    }
-    if (image === './image/anteriorOS_faded.png') {
-      return require('./image/anteriorOS_faded.png');
-    }
-    if (image === './image/anteriorSegOD_faded.png') {
-      return require('./image/anteriorSegOD_faded.png');
-    }
-    if (image === './image/anteriorSegOS_faded.png') {
-      return require('./image/anteriorSegOS_faded.png');
-    }
-    if (image === './image/anteriorSegOD_resized.png') {
-      return require('./image/anteriorSegOD_resized.png');
-    }
-    if (image === './image/anteriorSegOS_resized.png') {
-      return require('./image/anteriorSegOS_resized.png');
-    }
-    if (image == './image/posteriorOD.png') {
-      return require('./image/posteriorOD.png');
-    }
-    if (image === './image/posteriorOS.png') {
-      return require('./image/posteriorOS.png');
-    }
-    if (image == './image/fundusOD.png') {
-      return require('./image/fundusOD.png');
-    }
-    if (image === './image/fundusOS.png') {
-      return require('./image/fundusOS.png');
-    }
-    if (image === './image/retinaOD.png') {
-      return require('./image/retinaOD.png');
-    }
-    if (image === './image/retinaOS.png') {
-      return require('./image/retinaOS.png');
-    }
-    if (image === './image/gonioscopyOD.png') {
-      return require('./image/gonioscopyOD.png');
-    }
-    if (image === './image/gonioscopyOS.png') {
-      return require('./image/gonioscopyOS.png');
-    }
-    if (image === './image/notations.png') {
-      return require('./image/notations.png');
-    }
-    if (image === './image/contactlensOD.png') {
-      return require('./image/contactlensOD.png');
-    }
-    if (image === './image/contactlensOS.png') {
-      return require('./image/contactlensOS.png');
-    }
-    if (image === './image/amsler.png') {
-      return require('./image/amsler.png');
-    }
-    if (image === './image/d15.jpg') {
-      return require('./image/d15.jpg');
-    }
-    if (image === './image/eyeexamtemplate.png') {
-      return require('./image/eyeexamtemplate.png');
+    if (image.startsWith("./image")) {
+      image = parseImageURL(image); //backward compatibility beacuse image no longer reside in the frontend folder
     }
     if (!image.startsWith('http:') && !image.startsWith('https:')) {
       const imageValue = !image.startsWith('data:image/png;base64,')

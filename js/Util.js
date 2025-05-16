@@ -8,7 +8,7 @@ require('moment/locale/fr-ca.js');
 require('moment/locale/es.js');
 import {strings} from './Strings';
 import { isWeb } from './Styles';
-import { WINK_APP_REST_URL } from '@env';
+import { WINK_APP_REST_URL, WINK_IMAGE_URL } from '@env';
 
 export const shortTimeFormat: string = 'H:mm';
 export const timeFormat: string = 'h:mm a';
@@ -865,6 +865,15 @@ export function parseImageURL(image : String): String {
         restUrl += '/';
       }
       image = restUrl + image.substring(templateURL.length);
+    }
+
+    try {
+      if (image.startsWith("./image")) {
+          const envImageBaseURL = isWeb ? process.env.WINK_IMAGE_URL : WINK_IMAGE_URL;
+          image = image.replace("./image",envImageBaseURL);
+      }
+    } catch (ex) {
+      __DEV__ & console.log("Environment WINK_IMAGE_URL missing");
     }
   }
   return image;
