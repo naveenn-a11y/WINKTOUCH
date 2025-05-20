@@ -691,7 +691,7 @@ export class AgendaScreen extends Component {
       );
     } else {
       const index = this.state.appointments.findIndex(
-        (e: Appointment) => e.id === updatedAppointment.id,
+        (e: Appointment) => e?.id === updatedAppointment?.id,
       );
       if (index >= 0) {
         appointments = [...this.state.appointments];
