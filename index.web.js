@@ -1,6 +1,7 @@
 import ReactGA from "react-ga4";
 import { AppRegistry } from 'react-native';
 import { name as appName } from './app.json';
+import './appInsights';
 import Index from './js/Index';
 import { setIconsConfig } from './web/Util';
 

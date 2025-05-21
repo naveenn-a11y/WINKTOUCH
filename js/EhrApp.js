@@ -5,6 +5,7 @@
 'use strict';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
+import axios from 'axios';
 import { Component } from 'react';
 import { ActivityIndicator, AppState, View } from 'react-native';
 import codePush, { SyncStatus } from 'react-native-code-push';
@@ -25,7 +26,6 @@ import { NetworkInfo, Prompt } from './Widgets';
 import InactivityTracker from './utilities/InactivityTracker';
 import NavigationService from './utilities/NavigationService';
 import RemoteConfig from './utilities/RemoteConfig';
-import axios from 'axios';
 
 !isWeb &&
   codePush.getCurrentPackage().then((currentPackage) => {
@@ -120,6 +120,8 @@ let appStateListener = null;
 axios.interceptors.response.use(
   response => response, // Pass through successful responses
   error => {
+    console.log("App Insight catch error")
+    global.appInsights.trackException({ error: error });
     if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
       __DEV__ && console.error('Request aborted:', error.config?.url);
       return Promise.resolve({ data: null });
