@@ -745,28 +745,21 @@ export async function performActionOnItem(
     return updatedItem;
   } catch (error) {
     __DEV__ && console.log(error);
-
-    let errorMssg;
-    if (action && item.id && error) {
-      errorMssg = `Something went wrong trying to ${action} a ${getDataType(item.id)}. Please try again. \n\n(Internal error = ${error.message || error})`;
-    } else if (error) {
-      errorMssg = `An Error occurred: ${error.message || error}`;
-    } else {
-      errorMssg = 'Something went wrong. Please try again.';
-    }
-
-    // alert(errorMssg);
-
-    if (error.response) {
-      handleHttpError(
-        error.response,
-        error.response.data,
-        errorMssg,
-        false
-      );
-    } else {
-      throw error;
-    }
+      const errorMssg = (action && item.id && error) 
+            ? `Something went wrong trying to ${action} a ${getDataType(item.id)}. Please try again. \n\n(Internal error = ${error})`
+            : ( error 
+                ? `An Error occurred: ${error}`
+                : 'Something went wrong. Please try again.'
+            );
+            alert(errorMssg);
+      if (error.response) {
+        handleHttpError(
+          error.response,
+          error.response.data,
+        );
+      } else {
+        throw error;
+      }
   }
 }
 
