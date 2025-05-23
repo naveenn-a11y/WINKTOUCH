@@ -200,7 +200,7 @@ export class MfaScreen extends Component {
           }
         }
       } else {
-        token = httpResponse.headers.map.token;
+        token = httpResponse.headers.token;
       }
 
       let user: User = responseJson.user;
@@ -752,7 +752,7 @@ export class LoginScreen extends Component {
             }
           }
         } else {
-          token = httpResponse?.headers?.map.token;
+          token = httpResponse?.headers?.token;
         }
 
         let user: User = responseJson.user;
