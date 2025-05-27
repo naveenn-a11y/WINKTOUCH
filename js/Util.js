@@ -67,6 +67,19 @@ export function tomorrow(): Date {
   return tomorrow;
 }
 
+// Function To convert Title Case to camel Case
+export function titleToCamelCase(str) {
+  return str
+    .split(' ')
+    .map((word, index) => {
+      word = word.toLowerCase();
+      return index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join('');
+}
+
+
+
 export function addDays(date: Date, dayCount: number) {
   const newDate: Date = new Date(
     date.getFullYear(),

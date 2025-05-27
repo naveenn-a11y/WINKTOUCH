@@ -134,7 +134,7 @@ export function getIsVisible(item: ?any, groupDefinition: GroupDefinition): ?{} 
   return true;
 }
 
-function getDefaultValue(groupDefinition: GroupDefinition, exam: ?Exam): any {
+export function getDefaultValue(groupDefinition: GroupDefinition, exam: ?Exam): any {
   const defaultValue: any = groupDefinition.defaultValue;
   const isDynamicValue: string =
     defaultValue && typeof defaultValue === 'string'
