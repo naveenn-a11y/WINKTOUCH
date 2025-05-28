@@ -51,6 +51,7 @@ import {
   renderExamHtml,
   storeExam,
   UserAction,
+  getFieldDefinition as getExamFieldDefinition,
 } from './Exam';
 import { allExamDefinitions } from './ExamDefinition';
 import { FollowUpScreen } from './FollowUp';
@@ -108,10 +109,12 @@ import {
   jsonDateTimeFormat,
   now,
   parseDate,
+  deepClone,
   tomorrow,
   yearDateFormat,
   yearDateTime24Format,
   yearDateTimeFormat,
+  titleToCamelCase,
 } from './Util';
 import Dialog from './utilities/Dialog';
 import { VisitSummaryTable } from './VisitSummary';
@@ -126,7 +129,9 @@ import {
   SelectionDialog,
 } from './Widgets';
 import { fetchWinkRest } from './WinkRest';
+import { getDefaultValue } from './GroupedForm';
 import axios from 'axios';
+
 
 export const examSections: string[] = [
   'Amendments',
@@ -1560,11 +1565,164 @@ class VisitWorkFlow extends Component {
     });
   };
 
+  isEqualCoerced(value1, value2) {
+    return (value1 == value2) || ((value1 == null && (value2 === undefined || value2 === 0 || value2 === '')) || 
+           (value2 == null && (value1 === undefined || value1 === 0 || value1 === '')));
+  }
+
+  // Helper method to check if an exam only has default values
+  examHasOnlyDefaultValues = (exam: Exam): boolean => {
+    // Early validation
+    if (!exam.definition.fields || !exam[exam.definition.name]) {
+      return true;
+    }
+
+    // Recursive function to check field values against defaults
+    const checkFieldsAgainstDefaults = (fieldDefs: any[], values: any): boolean => {
+      // Check for unexpected keys in values that don't correspond to field definitions
+      if (values && typeof values === 'object' && !Array.isArray(values)) {
+        const definedFieldNames = new Set();
+
+        // Collect all defined field names (including camelCase versions)
+        for (const fieldDef of fieldDefs) {
+          definedFieldNames.add(fieldDef.name);
+          if (typeof fieldDef.name === 'string') {
+            definedFieldNames.add(titleToCamelCase(fieldDef.name));
+          }
+        }
+
+        // Check if there are any keys in values that aren't in the field definitions
+        // Exclude system keys like entityId
+        const excludedKeys = new Set(['entityId']);
+
+        for (const key in values) {
+          if (values.hasOwnProperty(key) && !isEmpty(values[key]) && !definedFieldNames.has(key) && !excludedKeys.has(key)) {
+            return false; // Found unexpected data
+          }
+        }
+      }
+
+      for (const fieldDef of fieldDefs) {
+        // Handle nested fields recursively
+        if (fieldDef.fields && Array.isArray(fieldDef.fields)) {
+          // If the field has nested fields
+          const nestedValues = values[fieldDef.name];
+
+          // Skip if no values exist for this nested field
+          if (!nestedValues) continue;
+
+          // Handle array of objects
+          if (Array.isArray(nestedValues)) {
+            for (const itemValues of nestedValues) {
+              // Check each item's nested fields
+              if (!checkFieldsAgainstDefaults(fieldDef.fields, itemValues)) {
+                return false;
+              }
+            }
+          }
+          // Handle single object
+          else if (typeof nestedValues === 'object' && nestedValues !== null) {
+            if (!checkFieldsAgainstDefaults(fieldDef.fields, nestedValues)) {
+              return false;
+            }
+          }
+          continue;
+        }
+
+        // Regular field processing
+        const fieldName = fieldDef.name;
+        // Try to get the value using both original and camelCase field names
+        let actualValue = values?.[fieldName];
+        if (actualValue === undefined && typeof fieldName === 'string') {
+          // Try camelCase version if not found
+          const camelCaseFieldName = titleToCamelCase(fieldName)
+          actualValue = values?.[camelCaseFieldName];
+        }
+
+        // Skip if field is empty
+        if (isEmpty(actualValue)) continue;
+
+        // Skip date fields (If Default)
+        if ( (fieldDef?.defaultValue?.startsWith('[') && fieldDef?.defaultValue?.endsWith(']'))) {
+          continue;
+        }
+
+        // Skip autoSelect fields with matching selectedIndex
+        if (fieldDef.autoSelect && fieldDef.selectedIndex === actualValue) {
+          continue;
+        }
+
+        if (fieldDef.autoSelect && fieldDef.selectedIndex) {
+          if (fieldDef.options && Array.isArray(fieldDef.options)) {
+            if (fieldDef.options[fieldDef.selectedIndex - 1] == actualValue) continue;
+          } else if (fieldDef.sectionIndex === actualValue) {
+            continue;
+          }
+        }
+
+        // Skip readonly fields
+        if (fieldDef.readonly) {
+          continue;
+        }
+
+        // Get the expected default value for this field
+        const defaultValue = getDefaultValue(fieldDef, exam);
+
+        // If a field has a value different from its default, 
+        // the exam doesn't have only default values
+        if (!this.isEqualCoerced(actualValue, defaultValue)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // Process each group in the exam definition
+    for (const groupDef of exam.definition.fields) {
+      if (!groupDef.fields) continue;
+
+      const groupName = groupDef.name;
+      const groupValues = exam[exam.definition.name][groupName];
+
+      // Skip if group doesn't exist in the actual exam data
+      if (!groupValues) continue;
+
+      // Handle case where groupValues is an array
+      if (Array.isArray(groupValues)) {
+        // Check each item in the array
+        for (const itemValues of groupValues) {
+          if (!checkFieldsAgainstDefaults(groupDef.fields, itemValues)) {
+            return false;
+          }
+        }
+      }
+      // Handle case where groupValues is an object
+      else if (!checkFieldsAgainstDefaults(groupDef.fields, groupValues)) {
+        return false;
+      }
+
+      if (groupDef.import && Array.isArray(groupDef.import) && groupDef?.import?.length > 0) {
+        for (const importField of groupDef?.import) {
+          const fDef = getExamFieldDefinition(importField, exam);
+          if (!checkFieldsAgainstDefaults(fDef ?? [], groupValues)) {
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  };
+
   hideExam = (exam: Exam) => {
     if (this.props.readonly) {
       return;
     }
-    if (!isEmpty(exam[exam.definition.name])) {
+
+    // Check if exam only has default values
+    const hasOnlyDefaultValues = this.examHasOnlyDefaultValues(exam);
+    
+    if (!hasOnlyDefaultValues && !isEmpty(exam[exam.definition.name])) {
       alert(strings.removeItemError);
       return;
     }

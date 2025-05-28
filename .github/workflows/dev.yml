@@ -37,6 +37,7 @@ jobs:
           echo "WINK_APP_ECOMM_URL=${{ vars.WINK_APP_ECOMM_URL }}" >> $GITHUB_ENV
           echo "WINK_APP_ACCOUNTS_URL=${{ vars.WINK_APP_ACCOUNTS_URL }}" >> $GITHUB_ENV
           echo "APP_INSIGHT_KEY=${{ vars.APP_INSIGHT_KEY }}" >> $GITHUB_ENV
+          echo "WINK_IMAGE_URL=${{ vars.WINK_IMAGE_URL }}" >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: |

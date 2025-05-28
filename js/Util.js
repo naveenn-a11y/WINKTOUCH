@@ -8,7 +8,7 @@ require('moment/locale/fr-ca.js');
 require('moment/locale/es.js');
 import {strings} from './Strings';
 import { isWeb } from './Styles';
-import { WINK_APP_REST_URL } from '@env';
+import { WINK_APP_REST_URL, WINK_IMAGE_URL } from '@env';
 
 export const shortTimeFormat: string = 'H:mm';
 export const timeFormat: string = 'h:mm a';
@@ -66,6 +66,19 @@ export function tomorrow(): Date {
   );
   return tomorrow;
 }
+
+// Function To convert Title Case to camel Case
+export function titleToCamelCase(str) {
+  return str
+    .split(' ')
+    .map((word, index) => {
+      word = word.toLowerCase();
+      return index === 0 ? word : word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join('');
+}
+
+
 
 export function addDays(date: Date, dayCount: number) {
   const newDate: Date = new Date(
@@ -865,6 +878,15 @@ export function parseImageURL(image : String): String {
         restUrl += '/';
       }
       image = restUrl + image.substring(templateURL.length);
+    }
+
+    try {
+      if (image.startsWith("./image")) {
+          const envImageBaseURL = isWeb ? process.env.WINK_IMAGE_URL : WINK_IMAGE_URL;
+          image = image.replace("./image",envImageBaseURL);
+      }
+    } catch (ex) {
+      __DEV__ & console.log("Environment WINK_IMAGE_URL missing");
     }
   }
   return image;

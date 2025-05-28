@@ -248,47 +248,36 @@ export class GroupedFormScreen extends Component<
     if (column !== undefined) {
       if (index !== undefined) {
         if (fieldName !== undefined) {
-          this.props.exam[this.props.exam.definition.name][groupName][index][
-            column
-          ][fieldName] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][index][column][fieldName] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][groupName][index][
-            column
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][index][column] = newValue;
         }
       } else {
         if (fieldName !== undefined) {
-          this.props.exam[this.props.exam.definition.name][groupName][column][
-            fieldName
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][column][fieldName] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][groupName][column] =
-            newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][column] = newValue;
         }
       }
     } else {
       if (index !== undefined) {
         if (fieldName !== undefined) {
-          this.props.exam[this.props.exam.definition.name][groupName][index][
-            fieldName
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][index][fieldName] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][groupName][index] =
-            newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][index] = newValue;
         }
       } else {
         if (fieldName !== undefined) {
-          this.props.exam[this.props.exam.definition.name][groupName][
-            fieldName
-          ] = newValue;
+          this.props.exam[this.props.exam.definition.name][groupName][fieldName] = newValue;
         } else {
-          this.props.exam[this.props.exam.definition.name][groupName] =
-            newValue;
+          this.props.exam[this.props.exam.definition.name][groupName] = newValue;
         }
       }
     }
+    
     this.props.onUpdateExam(this.props.exam);
   }
+
 
   updateRefraction(groupName: string, refraction: GlassesRx) {
     if (!this.props.editable) {
