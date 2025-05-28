@@ -120,8 +120,6 @@ let appStateListener = null;
 axios.interceptors.response.use(
   response => response, // Pass through successful responses
   error => {
-    console.log("App Insight catch error")
-    global.appInsights.trackException({ error: error });
     if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
       __DEV__ && console.error('Request aborted:', error.config?.url);
       return Promise.resolve({ data: null });
