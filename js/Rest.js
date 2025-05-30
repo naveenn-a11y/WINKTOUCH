@@ -205,31 +205,20 @@ export function isValidJson(response: any): boolean {
   }
 }
 
-export function handleHttpError(httpResponse: any, httpBody?: Object, errorString?: string, throwError?: boolean = true) {
-  __DEV__ && console.log(
+// Prev HandleHttpError
+export function handleHttpError(httpResponse: any, httpBody?: Object) {
+  console.log(
     'HTTP response error ' + httpResponse.status + ': ' + httpResponse.url,
   );
-
-  let errorMessage = errorString;
+  __DEV__ && console.log(httpResponse);
   // To be refactored to map proper error message with status Code
-  if (httpResponse.status === 406) {
-    errorMessage = strings.bookingAppointmentError;
-  } else if (httpBody?.errors || httpBody?.message) {
-    errorMessage += ': ' + httpBody.errors || httpBody.message;
-  } else {
-    errorMessage += 'HTTP error ' + httpResponse.status
-    console.log('HTTP error message: ' + errorMessage);
-    return;
+  if (httpResponse?.status === 406) {
+    throw strings.bookingAppointmentError;
   }
-
-  __DEV__ && console.log('HTTP error message: ' + errorMessage);
-
-  // Throw an error if throwError is true, otherwise show an alert with the error message
-  if (throwError) {
-    throw new Error(errorMessage);
-  } else {
-    alert(errorMessage);
+  if (httpBody?.errors || httpBody?.message) {
+    throw httpBody.errors || httpBody.message;
   }
+  throw 'HTTP error ' + httpResponse?.status;
 }
 
 export function getDefinitionCacheKey(
@@ -265,6 +254,9 @@ export async function fetchItemDefinition(
         'Accept-language': language,
       },
     });
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     
     __DEV__ &&
       console.log(
@@ -281,11 +273,6 @@ export async function fetchItemDefinition(
     return definition;
   } catch (error) {
     __DEV__ && console.log(error);
-    if (error.response) {
-      handleHttpError(error.response, error.response.data, '', false);
-    } else {
-      __DEV__ && console.log('Network error or no response:', error.message);
-    }
     alert(
       strings.formatString(
         strings.fetchItemError,
@@ -345,6 +332,10 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
         'Accept-language': getUserLanguage(),
       },
     });
+
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     
     const restResponse = httpResponse?.data;
     // Check For Valid Json
@@ -382,16 +373,12 @@ export async function fetchItemById(id: string, ignoreCache?: boolean): any {
     return item;
   } catch (error) {
     console.log(error);
-    if (error.response) {
-      handleHttpError(
-        error.response, 
-        error.response.data, 
-        strings.formatString(strings.fetchItemError,getDataType(id).toLowerCase()), 
-        false);
-        return;
-    } else {
-      __DEV__ && console.log('Network error or no response:', error.message);
-    }
+    alert(
+      strings.formatString(
+        strings.fetchItemError,
+        getDataType(id).toLowerCase(),
+      ),
+    );
     throw error;
   }
 }
@@ -469,6 +456,9 @@ export async function storeItem(item: any): any {
       },
       data: item,
     });
+    if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+    }
     const restResponse: RestResponse = httpResponse.data;
     // Check For Valid Json
     if (!isValidJson(restResponse)) {
@@ -514,16 +504,13 @@ export async function storeItem(item: any): any {
     return updatedItem;
   } catch (error) {
     console.log(error);
-    handleHttpError(
-      error.response,
-      error.response.data,
+    alert(
       strings.formatString(
         strings.storeItemError,
         getDataType(item.id).toLowerCase(),
         error,
       ),
-      false,
-    )
+    );
     
     item.errors = [
       strings.formatString(
@@ -553,6 +540,10 @@ export async function deleteItem(item: any): any {
       },
       data: item,
     });
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
+
     const restResponse = httpResponse?.data;
     // Check For Valid Json
     if (!isValidJson(restResponse)) {
@@ -570,15 +561,12 @@ export async function deleteItem(item: any): any {
     }
   } catch (error) {
     console.log(error);
-    handleHttpError(
-      error.response,
-      error.response.data,
+    alert(
       strings.formatString(
         strings.storeItemError,
         getDataType(item.id).toLowerCase(),
         error,
       ),
-      false,
     );
     throw error;
   }
@@ -698,10 +686,15 @@ export async function performActionOnItem(
       },
       data: item,
     });
-    const restResponse = httpResponse.data;
+    
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse.data);
+    }
+    
+    const restResponse = httpResponse?.data;
     // Check For Valid Json
     if (!isValidJson(restResponse)) {
-      throw new Error('Invalid Json');
+      throw 'Invalid Json';
     }
 
     __DEV__ &&
@@ -751,15 +744,8 @@ export async function performActionOnItem(
                 ? `An Error occurred: ${error}`
                 : 'Something went wrong. Please try again.'
             );
-            alert(errorMssg);
-      if (error.response) {
-        handleHttpError(
-          error.response,
-          error.response.data,
-        );
-      } else {
-        throw error;
-      }
+      alert(errorMssg);
+      throw error;
   }
 }
 
@@ -777,7 +763,9 @@ export async function devDelete(path: string) {
           'Accept-language': getUserLanguage(),
         },
       });
-   
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     const restResponse = httpResponse?.data;
     // Check For Valid Json
     if (!isValidJson(restResponse)) {
@@ -786,14 +774,11 @@ export async function devDelete(path: string) {
     
     return restResponse;
   } catch (error) {
+    __DEV__ && console.log(error);
     alert(
       'Something went wrong trying to delete ' + path + '. Please try again.',
     );
-    if(error.response) {
-      handleHttpError(error.response, error.response.data);
-    } else {
-      throw error;
-    }
+    throw error;
   }
 }
 

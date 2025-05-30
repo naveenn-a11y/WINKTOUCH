@@ -17,7 +17,7 @@ import {
   searchItems,
   getNextRequestNumber,
   getToken,
-  isValidJson
+  isValidJson,
 } from './Rest';
 import {getFieldDefinitions} from './Items';
 import {initialiseWinkCodes} from './codes/WinkDefinedCodes';
@@ -254,8 +254,8 @@ export async function fetchCodeDefinitions(
         'Accept-language': language,
       },
     });
-    if (httpResponse?.status !== HttpStatusCode.Ok) {
-      handleHttpError(httpResponse);
+    if(httpResponse?.error) {
+        handleHttpError(httpResponse);
     }
     let translatedCodeDefinitions = httpResponse?.data;
     // Check For Valid Json
@@ -287,16 +287,7 @@ export async function fetchCodeDefinitions(
     }
   } catch (error) {
     __DEV__ && console.log(error);
-    if(error.response){
-      const httpResponse = error.response;
-      handleHttpError(
-        httpResponse,
-        httpResponse?.data,
-        strings.formatString(strings.initialiseError, 'code descriptions', error),
-        false
-      );
-      return;
-    }
+      alert(strings.formatString(strings.initialiseError, 'code descriptions', error));
       throw error;
   }
 }

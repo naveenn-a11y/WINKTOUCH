@@ -86,6 +86,9 @@ async function fetchAccounts(path: string) {
         'Accept-language': getUserLanguage(),
       },
     });
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     let accounts: Account[] = httpResponse?.data;
     // Check For Valid Json
     if (!isValidJson(accounts)) {
@@ -94,12 +97,9 @@ async function fetchAccounts(path: string) {
 
     return accounts;
   } catch (error) {
-    if (error.response) {
-      const httpResponse = error.response;
-      handleHttpError(httpResponse, httpResponse?.data, strings.fetchAccountsError, false);
-    } else {
-      __DEV__ && console.log('Fetch Accounts Error: ', error);
-    }
+    __DEV__ && console.log(error);
+    alert(strings.fetchAccountsError);
+    throw error;
   }
 }
 
@@ -185,6 +185,9 @@ export class MfaScreen extends Component {
           ':' +
           httpResponse.ok,
       );
+      if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+      }
       
       let responseJson = httpResponse?.data;
       // Check For Valid Json
@@ -207,12 +210,7 @@ export class MfaScreen extends Component {
       store = responseJson.store;
       this.props.onLogin(account, user, store, token);
     } catch (error) {
-      if (error.response) {
-        const httpResponse = error.response;
-        handleHttpError(httpResponse, httpResponse?.data, strings.loginFailed, false);
-      } else {
-        __DEV__ && console.log('Mfa Verify Error: ' + error.message);
-      }
+      alert(strings.loginFailed + ': ' + error);
     }
   }
 
@@ -704,7 +702,6 @@ export class LoginScreen extends Component {
       );
     try {
       let httpResponse;
-      try{
         httpResponse = await axios.post(doctorLoginUrl, loginData, {
           headers: {
             'Content-Type': 'application/json',
@@ -713,13 +710,6 @@ export class LoginScreen extends Component {
             Authorization: 'Basic ' + base64.encode(userName + ':' + password),
           }
         });
-      } catch (error) {
-        if (error.response) {
-          const httpRes = error.response;
-          handleHttpError(httpRes, httpRes?.data, strings.loginFailed, false);
-          return;
-        }
-      }
 
       console.log(
         'RES ' +
@@ -731,6 +721,10 @@ export class LoginScreen extends Component {
           ':' +
           httpResponse.status,
       );
+
+      if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+      }
 
       let responseJson = httpResponse?.data;
       // Check For Valid Json
@@ -760,7 +754,7 @@ export class LoginScreen extends Component {
         this.props.onLogin(account, user, store, token);
       }
     } catch (error) {
-      alert(strings.loginFailed + ': ' + error?.message);
+      alert(strings.loginFailed + ': ' + error);
     }
     this.setState({agentAssumptionRequired: false});
   }

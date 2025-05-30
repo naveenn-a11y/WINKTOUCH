@@ -21,7 +21,7 @@ import {
   getUserLanguageIcon,
 } from './Strings';
 import { Button } from './Widgets';
-import { handleHttpError, isValidJson } from './Rest';
+import { handleHttpError,  isValidJson } from './Rest';
 import {
   dbVersion,
   touchVersion,
@@ -78,24 +78,24 @@ async function fetchSecurityQuestions() {
       },
     });
 
-    const body = response.data;
+    if(response?.error) {
+        handleHttpError(response, response?.data);
+    }
 
+    const body = response.data;
     if (!body) {
       return [];
     }
 
-    let questions = body.split("\n").map((question) =>
-      question.substring(question.indexOf(" ") + 1)
+    let questions: string[] = body.split('\n');
+    questions = questions.map((question: string) =>
+      question.substring(question.indexOf(' ') + 1),
     );
 
     return questions;
   } catch (error) {
-    if (error.response) {
-      handleHttpError(error.response, error.response?.data, strings.securityQuestionsError, false);
-    } else {
-      __DEV__ && console.error("Fetch Security error:", error.message);
-    }
-
+    __DEV__ && console.log(error);
+    alert(strings.securityQuestionsError);
     throw error;
   }
 }
@@ -110,16 +110,15 @@ async function fetchSecurityQuestionIndex(email: string) {
     getSecurityQuestionUrl() + '&email=' + encodeURIComponent(email) + '&ip=' + ip;
   try {
     let httpResponse = await axios.get(url);
+    if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+    }
     let body: string = httpResponse?.data;
     let questionIndex: number = parseInt(body);
     return questionIndex;
   } catch (error) {
     __DEV__ && console.log(error);
-    if(error.response) {
-      handleHttpError(error.response, error.response?.data, strings.securityQuestionsError, false);
-    } else {
-      __DEV__ && console.error("fetchSecurityQuestionIndex error:", error);
-    }
+    alert(strings.securityQuestionsError);
     throw error;
   }
 }
@@ -151,6 +150,9 @@ async function fetchRegistration(
         'Accept-language': getUserLanguage(),
       },
     });
+    if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+    }
 
     let registration: Registration = httpResponse?.data;
     // Check For Valid Json
@@ -166,13 +168,8 @@ async function fetchRegistration(
     } */
     return registration;
   } catch (error) {
-    if(error.response) {
-      const httpResponse = error.response;
-      handleHttpError(httpResponse, httpResponse?.data, strings.fetchAccountsError, false);
-    } else {
-      alert(strings.fetchAccountsError);
-      __DEV__ && console.error("Fetch Registeration error:", error.message);
-    }
+    __DEV__ && console.log(error);
+    alert(strings.fetchAccountsError);
     throw error;
   }
 }
@@ -190,6 +187,9 @@ export async function fetchTouchVersion(path: string): string {
         'Accept-language': getUserLanguage(),
       },
     });
+    if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+    }
 
     let touchVersion: string = httpResponse?.data;
     //TODO handle error
@@ -197,14 +197,7 @@ export async function fetchTouchVersion(path: string): string {
     return touchVersion;
   } catch (error) {
     console.log(error);
-
-    if(error.response) {
-      const httpResponse = error.response;
-      handleHttpError(httpResponse, httpResponse?.data, strings.fetchAccountsError, false);
-      return;
-    } else {
-      __DEV__ && console.error("Network error:", error.message);
-    }
+    alert(strings.fetchAccountsError);
     throw error;
   }
 }

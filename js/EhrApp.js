@@ -125,6 +125,16 @@ axios.interceptors.response.use(
       return Promise.resolve({ data: null });
     }
 
+    // Handle all HTTP 4xx errors
+    if (error.response && error.response.status >= 400 && error.response.status < 500) {
+      return Promise.resolve({
+        status: error?.response?.status,
+        data: error?.response?.data,
+        error: true,
+        apiResponse: error.response.data ?? error?.response
+      });
+    }
+
     // Pass all other errors as they are
     return Promise.reject(error);
   }

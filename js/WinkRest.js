@@ -62,6 +62,9 @@ export async function postWinkWebSocketUrl(
       },
       data: body,
     });
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     const restResponse = httpResponse.data;
     // Check For Valid Json
     if (!isValidJson(restResponse)) {
@@ -71,12 +74,8 @@ export async function postWinkWebSocketUrl(
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
   } catch (error) {
-    console.log(error);
-    if (error.response) {
-      handleHttpError(error.response, error.response.data, strings.formatString(strings.serverError, error), false);
-    } else {
-      __DEV__ && console.log('Post Wink Web Error: ' + error);
-    }
+    __DEV__ && console.log(error);
+    alert(strings.formatString(strings.serverError, error));
     return undefined;
   }
 }
@@ -111,6 +110,10 @@ export async function fetchWinkRest(
       },
       data: body,
     });
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
+
     const restResponse = httpResponse?.data;
     // Check For Valid Json
     if (!isValidJson(restResponse)) {
@@ -120,10 +123,8 @@ export async function fetchWinkRest(
     __DEV__ && logRestResponse(restResponse, '', requestNr, httpMethod, url);
     return restResponse;
   } catch (error) {
-    if (error.response) {
-      handleHttpError(error.response, error.response.data, strings.formatString(strings.serverError, error), false);
-    }
-    __DEV__ && console.log(error?.response);
+    __DEV__ && console.log(error);
+    alert(strings.formatString(strings.serverError, error));
     return undefined;
   }
 }
@@ -151,6 +152,9 @@ export async function createPdf(
       data: body ?? '',
     });
     //alert(JSON.stringify(httpResponse));
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
        
     const restResponse = httpResponse?.data;
     // Check For Valid Json
@@ -187,11 +191,7 @@ export async function createPdf(
     }
   } catch (error) {
     console.log(error);
-    if(error.response) {
-      handleHttpError(error.response, error.response.data, strings.formatString(strings.serverError, error), false);
-    } else {
-      __DEV__ && console.log('Create PDF Error: ' + error);
-    }
+    alert(strings.formatString(strings.serverError, error));
     throw error;
   }
 }

@@ -239,6 +239,10 @@ export class Machine {
           httpResponse.ok,
       );
 
+      if(httpResponse?.error) {
+          handleHttpError(httpResponse, httpResponse?.data);
+        }
+
       const responseJson = httpResponse?.data;
       // Check For Valid Json
       if (!isValidJson(responseJson)) {
@@ -248,9 +252,7 @@ export class Machine {
       if (responseJson) {
         authInfo = responseJson;
       }
-    } catch (error) {
-        handleHttpError(error.response, error.response.data);
-    }
+    } catch (error) {}
     return authInfo;
   }
 
@@ -275,14 +277,14 @@ export class Machine {
       );
   
       __DEV__ && console.log(`RES ${requestNr} POST ${wsPushUrl} OK: ${response.status}`);
+
+      if(response?.error) {
+          handleHttpError(response, response?.data);
+      }
   
       // Log response data
       __DEV__ && console.log("Response JSON:", response?.data);
-    } catch (error) {
-      if(error.response) {
-        handleHttpError(error.response, error.response?.data);
-      }
-    }
+    } catch (error) { }
   }
   
 }

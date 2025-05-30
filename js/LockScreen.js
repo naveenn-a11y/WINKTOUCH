@@ -105,6 +105,10 @@ export class LockScreen extends Component {
         httpResponse.status,
       );
       let responseJson = httpResponse.data;
+      // Check For Http Error
+      if(httpResponse?.error) {
+        handleHttpError(httpResponse, httpResponse?.data);
+      }
       // Check For Valid Json
       if (!isValidJson(responseJson)) {
         throw new Error('Invalid Json');
@@ -113,12 +117,7 @@ export class LockScreen extends Component {
         this.props.route.params.onUserLogin(); //restart tracker
       }
     } catch (error) {
-      if (error.response) {
-        const httpResponse = error.response;
-        handleHttpError(httpResponse, httpResponse.data, strings.loginFailed, false);
-      } else {
-        __DEV__ && console.log('Login Error: ' + error.message);
-      }
+      alert(strings.loginFailed + ': ' + error);
     }
   }
 

@@ -329,6 +329,10 @@ export async function manageAvailability(
       'Accept-language': getUserLanguage(),
       },
     });
+
+    if (httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     
     let appointments: Appointment[] = httpResponse?.data;
     // Check For Valid Json
@@ -338,11 +342,9 @@ export async function manageAvailability(
 
     return appointments;
   } catch (error) {
-    if (error.response) {
-      handleHttpError(error?.response, error.response?.data, strings.fetchItemError, false);
-    } else {
-      __DEV__ && console.log('ManageAvailability Error: ', error);
-    }
+      console.log(error);
+      alert(strings.fetchItemError);
+      throw error;
   }
 }
 export async function cancelAppointment(body) {
@@ -379,6 +381,10 @@ export async function invoiceForAppointment(
       'Accept-language': getUserLanguage(),
       },
     });
+
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
   
     let restResponse: any = httpResponse?.data;
 
@@ -396,11 +402,7 @@ export async function invoiceForAppointment(
     cacheItemsById(patientInvoices);
     return patientInvoices;
   } catch (error) {
-    if(error.response){
-      handleHttpError(error.response, error?.response?.data, '', false);
-    } else {
       __DEV__ && console.log('InvoiceForAppointment Error: ', error);
-    }
   }
 }
 
@@ -415,6 +417,10 @@ export async function pushToHarmony(patientId: ?string): boolean {
       'Accept-language': getUserLanguage(),
       },
     });
+
+    if(httpResponse?.error) {
+      handleHttpError(httpResponse, httpResponse?.data);
+    }
     
     let restResponse: any = httpResponse.data;
 
@@ -428,11 +434,7 @@ export async function pushToHarmony(patientId: ?string): boolean {
       return false;
     }
   } catch (error) {
-    if (error.response) {
-      handleHttpError(error.response, error?.response?.data, undefined, false);
-    } else {
-      __DEV__ && console.log('PushToHarmony Error: ', error);
-    }
+    __DEV__ && console.log('PushToHarmony Error: ', error);
     return false;
   }
   return true;
