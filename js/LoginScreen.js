@@ -51,7 +51,6 @@ import {
   bundleVersion,
   deploymentVersion,
 } from './Version';
-import { fetchCodeDefinitions } from './Codes';
 import { isEmpty } from './Util';
 import { cacheItemsById } from './DataCache';
 import { AgentAsumptionScreen } from './Agent';
@@ -523,10 +522,9 @@ export class LoginScreen extends Component {
         if (isTrial) {
           this.setState(
             {accounts, userName: 'Henry', password: 'Lomb', isTrial},  // NOSONAR
-            this.fetchCodes(),
           );
         } else {
-          this.setState({accounts, isTrial}, this.fetchCodes());
+          this.setState({accounts, isTrial});
         }
 
         let currAccount = accounts.find((a: Account) => a.name === account);
@@ -535,16 +533,6 @@ export class LoginScreen extends Component {
         }
       }
     }
-  }
-
-  fetchCodes(): void {
-    InteractionManager.runAfterInteractions(() => {
-      let account: ?Account = this.getAccount();
-      if (!account || account.id === undefined) {
-        return;
-      }
-      fetchCodeDefinitions(getUserLanguage(), account.id);
-    });
   }
 
   async loadDefaultValues() {
@@ -581,7 +569,7 @@ export class LoginScreen extends Component {
     } else {
       AsyncStorage.setItem('account', account);
     }
-    this.setState({account}, this.fetchCodes());
+    this.setState({account});
   };
 
   formatAccount(account: Account) {
@@ -788,7 +776,6 @@ export class LoginScreen extends Component {
   switchLanguage = () => {
     switchLanguage();
     this.forceUpdate();
-    this.fetchCodes();
   };
 
   renderMfaScreen() {

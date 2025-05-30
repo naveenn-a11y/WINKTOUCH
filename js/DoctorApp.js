@@ -5,13 +5,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions, NavigationContainer } from '@react-navigation/native';
 import { Component } from 'react';
-import { StatusBar, View } from 'react-native';
+import { StatusBar, View, InteractionManager } from 'react-native';
 import { DefaultTheme, Provider } from 'react-native-paper';
 import { ModeContextProvider } from '../src/components/Context/ModeContextProvider';
 import { AgendaScreen } from './Agenda';
 import { AppointmentScreen } from './Appointment';
 import { ExamChartScreen } from './Chart';
-import { fetchUserDefinedCodes, getAllCodes } from './Codes';
+import { fetchUserDefinedCodes, fetchCodeDefinitions, getAllCodes } from './Codes';
 import { ConfigurationScreen, getConfiguration } from './Configuration';
 import {
   CustomisationScreen,
@@ -108,9 +108,9 @@ function setStore(selectedStore: Store): void {
 
 export function getPhoropters(): CodeDefinition[] {
   const machines: CodeDefinition[] = getAllCodes('machines');
-  let phoropters: CodeDefinition[] = machines.filter(
+ let phoropters: CodeDefinition[] = machines.filter(
     (machine: CodeDefinition) => machine.machineType === 'PHOROPTER',
-  );
+  );  
   return phoropters;
 }
 
@@ -122,35 +122,35 @@ const theme = {
 const NavContainer = ({ logout, setNavigator, navigationStateChanged }) => {
   const StackNavigator = createDoctorAppNavigator();
   const refreshKey = generateRandomGUID()
-  
+
   return (
-    <NavigationContainer 
+<NavigationContainer 
       ref={(navigator) => setNavigator(navigator)}
       onStateChange={navigationStateChanged}
-    >
+    >      
       <StackNavigator.Navigator initialRouteName="overview" screenOptions={{ headerShown: false }} >
-          <StackNavigator.Screen name="overview">
-            {(props) => <OverviewScreen {...props} onLogout={logout} refreshKey={refreshKey} />}
-          </StackNavigator.Screen>
-          <StackNavigator.Screen name="agenda" component={AgendaScreen} />
-          <StackNavigator.Screen name="findPatient" component={FindPatientScreen} />
-          <StackNavigator.Screen name="appointment" component={AppointmentScreen} />
-          <StackNavigator.Screen name="exam" component={ExamScreen} />
-          <StackNavigator.Screen name="patient" component={PatientScreen} />
-          <StackNavigator.Screen name="cabinet" component={CabinetScreen} />
-          <StackNavigator.Screen name="examGraph" component={ExamChartScreen} />
-          <StackNavigator.Screen name="examHistory" component={ExamHistoryScreen} />
-          <StackNavigator.Screen name="examTemplate" component={ExamDefinitionScreen} />
-          <StackNavigator.Screen name="templates" component={TemplatesScreen} />
-          <StackNavigator.Screen name="configuration" component={ConfigurationScreen} />
-          <StackNavigator.Screen name="referral" component={ReferralScreen} />
-          <StackNavigator.Screen name="followup" component={FollowUpScreen} />
-          <StackNavigator.Screen name="customisation" component={CustomisationScreen} />
-          <StackNavigator.Screen name="defaultTileCustomisation" component={DefaultExamCustomisationScreen} />
-          <StackNavigator.Screen name="visitTypeCustomisation" component={VisitTypeCustomisationScreen} />
-          <StackNavigator.Screen name="visitTypeTemplate" component={VisitTypeTemplateScreen} />
-          <StackNavigator.Screen name="room" component={RoomScreen} />
-          <StackNavigator.Screen name="lock" component={LockScreen} />
+        <StackNavigator.Screen name="overview">
+          {(props) => <OverviewScreen {...props} onLogout={logout} refreshKey={refreshKey} />}
+        </StackNavigator.Screen>
+        <StackNavigator.Screen name="agenda" component={AgendaScreen} />
+        <StackNavigator.Screen name="findPatient" component={FindPatientScreen} />
+        <StackNavigator.Screen name="appointment" component={AppointmentScreen} />
+        <StackNavigator.Screen name="exam" component={ExamScreen} />
+        <StackNavigator.Screen name="patient" component={PatientScreen} />
+        <StackNavigator.Screen name="cabinet" component={CabinetScreen} />
+        <StackNavigator.Screen name="examGraph" component={ExamChartScreen} />
+        <StackNavigator.Screen name="examHistory" component={ExamHistoryScreen} />
+        <StackNavigator.Screen name="examTemplate" component={ExamDefinitionScreen} />
+        <StackNavigator.Screen name="templates" component={TemplatesScreen} />
+        <StackNavigator.Screen name="configuration" component={ConfigurationScreen} />
+        <StackNavigator.Screen name="referral" component={ReferralScreen} />
+        <StackNavigator.Screen name="followup" component={FollowUpScreen} />
+        <StackNavigator.Screen name="customisation" component={CustomisationScreen} />
+        <StackNavigator.Screen name="defaultTileCustomisation" component={DefaultExamCustomisationScreen} />
+        <StackNavigator.Screen name="visitTypeCustomisation" component={VisitTypeCustomisationScreen} />
+        <StackNavigator.Screen name="visitTypeTemplate" component={VisitTypeTemplateScreen} />
+        <StackNavigator.Screen name="room" component={RoomScreen} />
+        <StackNavigator.Screen name="lock" component={LockScreen} />
       </StackNavigator.Navigator>
     </NavigationContainer>
   );
@@ -216,7 +216,17 @@ export class DoctorApp extends Component {
     await allExamDefinitions(false, false);
     await allExamDefinitions(false, true);
     await fetchExamPredefinedValues();
+    await this.fetchCodes();
     this.forceUpdate();
+  }
+
+  fetchCodes(): void {
+    InteractionManager.runAfterInteractions(() => {
+      if (!account || account.id === undefined) {
+        return;
+      }
+      fetchCodeDefinitions(getUserLanguage(), account.id);
+    });
   }
 
   initConfiguration(): void {
@@ -295,11 +305,11 @@ export class DoctorApp extends Component {
                 state: this.state.currentRoute,
                 navigate: this.navigate,
               }}>
-                <NavContainer 
-                  logout={this.logout} 
-                  setNavigator={(navigatorRef) => this.setNavigator(navigatorRef)} 
-                  navigationStateChanged={this.navigationStateChanged}
-                />
+              <NavContainer
+                logout={this.logout}
+                setNavigator={(navigatorRef) => this.setNavigator(navigatorRef)}
+                navigationStateChanged={this.navigationStateChanged}
+              />
             </ErrorBoundary>
             <MenuBar
               scene={{}}
