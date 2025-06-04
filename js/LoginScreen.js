@@ -754,7 +754,7 @@ export class LoginScreen extends Component {
         this.props.onLogin(account, user, store, token);
       }
     } catch (error) {
-      alert(strings.loginFailed + ': ' + error);
+      alert(strings.loginFailed + ': ' + (strings[error] || error));
     }
     this.setState({agentAssumptionRequired: false});
   }
