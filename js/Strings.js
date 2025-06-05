@@ -444,6 +444,7 @@ export const strings = new LocalizedStrings({
     homePhoneOrCellRequired: 'Either home phone or cell is required',
     refreshNow: 'Refresh now',
     lastRefreshed: 'Last updated at ',
+    ['Access denied. Invalid credentials.']: 'Access denied. Invalid credentials.'
   },
   fr: {
     enterRegisteredEmail:
@@ -891,6 +892,7 @@ export const strings = new LocalizedStrings({
     homePhoneOrCellRequired: 'Un téléphone résidentiel ou cellulaire est requis',
     refreshNow: 'Actualiser maintenant',
     lastRefreshed: 'Dernière mise à jour à ',
+    ['Access denied. Invalid credentials.']: 'Accès refusé. Identifiants invalides.'
   },
   es: {
     enterRegisteredEmail:
@@ -1336,6 +1338,7 @@ export const strings = new LocalizedStrings({
     homePhoneOrCellRequired: 'Se requiere teléfono residencial o celular',
     refreshNow: 'Actualizar ahora',
     lastRefreshed: 'Última actualización en ',
+    ['Access denied. Invalid credentials.']: 'Acceso denegado. Credenciales no válidas.'
   },
 });
 
