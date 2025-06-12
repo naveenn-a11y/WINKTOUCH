@@ -273,7 +273,7 @@ export async function renderParentGroupHtml(
   html += '<div class="container">';
   html += '<div class="BreakBeforeHeader"></div>';
   const xlGroupDefinition: GroupDefinition[] = exam.definition.fields.filter(
-    (groupDefinition: GroupDefinition) => (groupDefinition.size === 'XL' || groupDefinition.size === 'MAX'),
+    (groupDefinition: GroupDefinition) => groupDefinition.size === 'XL',
   );
   if (xlGroupDefinition && xlGroupDefinition.length > 0) {
     html += '<div>';
@@ -571,7 +571,7 @@ async function renderRowsHtml(
       if (!isEmpty(value)) {
         if (
           groupLabel !== examLabel &&
-          (groupDefinition.size !== 'XL' || groupDefinition.size !== 'MAX' ) &&
+          groupDefinition.size !== 'XL' &&
           !fieldDefinition.image
         ) {
           htmlSubItems += !labelDisplayed
@@ -853,7 +853,7 @@ async function renderField(
         let ImageIndex = '';
         html += isWeb ? '<div class="images-warp">' : '';
         if (
-          (groupDefinition.size === 'L' || groupDefinition.size === 'XL' || groupDefinition.size === 'MAX') &&
+          (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
           fieldDefinition.size !== 'M'
         ) {
           html += '<div class="breakBefore"></div>';
@@ -871,7 +871,7 @@ async function renderField(
         html += '</span>';
         html += isWeb ? '</div>' : '';
         if (
-          (groupDefinition.size === 'L' || groupDefinition.size === 'XL' || groupDefinition.size === 'MAX') &&
+          (groupDefinition.size === 'L' || groupDefinition.size === 'XL') &&
           fieldDefinition.size !== 'M'
         ) {
           largeMedia.push({
@@ -949,18 +949,6 @@ async function getWebImageStyle(image: String, pageWidth: number, pageHeight: nu
   return style;
 }
 
-function parseConsentText(text : string) : string{
-  const acceptedTerms = [
-      "Term 1: accepted",
-      "Term 2: accepted",
-      "Term 3: accepted",
-      "Term 4: accepted"
-  ];
-
-  return acceptedTerms.includes(text) ? "&#10003;" : text;
-}
-
-
 async function renderMedia(
   value: ImageDrawing,
   fieldDefinition: FieldDefinition,
@@ -1008,7 +996,7 @@ async function renderMedia(
     style.width = Math.floor(pageWidth);
     style.height = Math.floor(style.width / fieldAspectRatio);
   }
-  if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL' || groupDefinition.size === 'MAX')) {
+  if (!(groupDefinition.size === 'L' || groupDefinition.size === 'XL')) {
     style.width = style.width * 0.65;
     style.height = style.height * 0.65;
   }
@@ -1085,7 +1073,7 @@ async function renderMedia(
                   html += isWeb
                     ? '<g transform="scale(0.9 0.92)" >'
                     : ' <g transform="scale(0.96 0.98)" >';
-                  html += `<text x="${x}" y="${y}" style="font-size:${(childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize*fontScale : defaultFontSize)}">${parseConsentText(pfValue)}</text>`; 
+                  html += `<text x="${x}" y="${y}" style="font-size:${(childFieldDefinition?.layout?.fontSize ? childFieldDefinition.layout.fontSize*fontScale : defaultFontSize)}">${pfValue}</text>`; 
                   html += ' </g>';
                   html += '</svg>';
                 }
@@ -1852,7 +1840,7 @@ export function patientHeader(referral: boolean) {
     'font-size: 16px;' +
     'font-weight: bold;' +
     '}' +
-    'span.imageTitle { max-width: auto; }' +
+    'span.imageTitle { max-width: 150px; }' +
     ' .wrap-imgs {' +
     '   display: grid;' +
     '   width: 100%;' +
