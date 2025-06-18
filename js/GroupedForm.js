@@ -5,12 +5,12 @@
 
 'use strict';
 
-import {Component} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
-import {ModeContext} from '../src/components/Context/ModeContextProvider';
-import {getCodeDefinition} from './Codes';
-import {getCachedItem} from './DataCache';
-import {getDoctor} from './DoctorApp';
+import { Component } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { ModeContext } from '../src/components/Context/ModeContextProvider';
+import { getCodeDefinition } from './Codes';
+import { getCachedItem } from './DataCache';
+import { getDoctor } from './DoctorApp';
 import {
   getFieldDefinition as getExamFieldDefinition,
   getFieldValue,
@@ -25,19 +25,19 @@ import {
   Plus,
   Star,
 } from './Favorites';
-import {isCheckboxInput, FormInput} from './Form';
-import {formatFieldLabel, formatLabel} from './Items';
-import {importData} from './Machine';
-import {strings} from './Strings';
-import {scaleStyle, styles} from './Styles';
+import { FormInput, isCheckboxInput } from './Form';
+import { formatFieldLabel, formatLabel } from './Items';
+import { importData } from './Machine';
+import { strings } from './Strings';
+import { scaleStyle, styles } from './Styles';
 import type {
   CodeDefinition,
   FieldDefinition,
   GroupDefinition,
   Measurement,
 } from './Types';
-import {formatDate, getValue, isEmpty, now, yearDateFormat} from './Util';
-import {Alert, Label, NativeBar} from './Widgets';
+import { formatDate, getValue, isEmpty, now, yearDateFormat } from './Util';
+import { Alert, Label, NativeBar } from './Widgets';
 
 export function hasColumns(groupDefinition: GroupDefinition): boolean {
   return (
@@ -564,7 +564,7 @@ export class GroupedForm extends Component {
         <View style={styles.formRow} key={`header-row`}>
           {columns.map((column, index) => {
             if (column === '>>') {
-                return this.props.editable ? this.renderColumnCopyAlt(fieldDefinition, index, columns, false) : null;
+              return ((index < columns.length - 1) && (index > 0) && this.props.editable) ? this.renderColumnCopyAlt(fieldDefinition, index, columns, false) : null;
             }
             const columnDef =  this.props.definition.fields.find((fieldDef) => fieldDef.name === column);
             if (columnDef) {
