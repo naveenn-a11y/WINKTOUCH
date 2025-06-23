@@ -3,10 +3,9 @@
  */
 'use strict';
 
+import { Editor } from '@tinymce/tinymce-react';
 import React from 'react';
-import {StyleSheet} from 'react-native';
-import {styles, windowHeight, fontScale} from '../../../js/Styles';
-import {Editor} from '@tinymce/tinymce-react';
+import { fontScale, windowHeight } from '../../../js/Styles';
 
 interface EditorProps {
   /**
@@ -53,12 +52,12 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
 
   insertContent(html: string) {
     __DEV__ && console.log('Inserting raw html: ' + html);
-    this.state.activeEditor.selection.setContent(`${html}`, {format: 'raw'});
+    this.state.activeEditor?.selection.setContent(`${html}`, {format: 'raw'});
   }
 
   setContent(html: string) {
     __DEV__ && console.log('Set raw html: ' + html);
-    this.state.activeEditor.setContent(`${html}`);
+    this.state.activeEditor?.setContent(`${html}`);
   }
 
   afterSave() {
