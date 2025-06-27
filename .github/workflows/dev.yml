@@ -98,3 +98,4 @@ jobs:
           token: ${{ secrets.WORKFLOW_TOKEN }}
           repository: cmokbel/E2E-Wink-Automation
           event-type: winktouch-sanity-check
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
