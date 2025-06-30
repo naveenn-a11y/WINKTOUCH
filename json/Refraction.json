@@ -2,6 +2,7 @@
   "name": "Refraction",
   "showSubtitles": true,
   "scrollable": true,
+  "starable": true,
   "type": "groupedForm",
   "section": "Vision testing.6",
   "graph": {
