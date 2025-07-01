@@ -11,7 +11,8 @@ import {
   SafeAreaView,
   Text,
   TouchableOpacity,
-  View
+  View,
+  Modal
 } from 'react-native';
 import {
   Card,
@@ -131,7 +132,8 @@ import {
 import { fetchWinkRest } from './WinkRest';
 import { getDefaultValue } from './GroupedForm';
 import axios from 'axios';
-
+import { PdfViewer } from '../src/components/PdfViewer';
+import { Buffer } from 'buffer';
 
 export const examSections: string[] = [
   'Amendments',
@@ -1012,6 +1014,8 @@ class VisitWorkFlow extends Component {
     showInvoiceAlert: ?boolean,
     showVisitTypeAlert: ?boolean,
     visitType: ?string,
+    showInvoiceOptionsAlert: boolean,
+    showPdfViewer: boolean
   };
 
   constructor(props: any) {
@@ -1042,6 +1046,8 @@ class VisitWorkFlow extends Component {
       showInvoiceAlert: false,
       showVisitTypeAlert: false,
       visitType: visit.typeName,
+      showInvoiceOptionsAlert: false,
+      showPdfViewer: false
     };
     visit && this.loadUnstartedExamTypes(visit);
   }
@@ -2528,6 +2534,92 @@ class VisitWorkFlow extends Component {
     );
   }
 
+  showInvoiceOptionsAlert = () => {
+    this.setState({showInvoiceOptionsAlert: true});
+  };
+
+  hideInvoiceOptionsAlert = () => {
+    this.setState({showInvoiceOptionsAlert: false});
+  };
+  
+  showPdfViewer = () => {
+    this.setState({showPdfViewer: true});
+  };
+
+  handleInvoiceOption = (selectedOption: any) => {
+    this.hideInvoiceOptionsAlert();
+    if (selectedOption.label === strings.invoiceAgain) {
+      this.invoice();
+    } else if (selectedOption.label === strings.showInvoice) {
+      this.showInvoice(this.props.visitId);
+    }
+  };
+
+  async showInvoice(visitId: string) {
+    try {
+        const invoiceDetailsResponse = await axios.get(`${getRestUrl()}Invoice/visit/${visitId}`, {
+            headers: { token: getToken(), Accept: 'application/json' },
+        });
+        if (!invoiceDetailsResponse || !invoiceDetailsResponse.data) {
+            return null;
+        }
+        const invoiceId = invoiceDetailsResponse.data[invoiceDetailsResponse.data.length - 1]?.idPatientInvoice;
+        if (!invoiceId) {
+            return null;
+        }
+        const pdfResponse = await axios.get(`${getRestUrl()}Invoice/print/${invoiceId}`, {
+            headers: { token: getToken() },
+            responseType: 'arraybuffer'
+        });
+        if (!pdfResponse || !pdfResponse.data) {
+            return null;
+        }
+        let base64PdfData = Buffer.from(pdfResponse.data, 'binary').toString('base64');
+        if (!base64PdfData) {
+            return null;
+        }
+        const source = 'data:application/pdf;base64,' + base64PdfData;
+        this.setState({ pdfSource: source, showPdfViewer: true });
+      } catch (error) {
+        console.log(error);
+      }
+  };
+
+  handleInvoiceButtonPress = () => {
+    if (this.hasInvoice()) {
+      this.showInvoiceOptionsAlert();
+    } else {
+      this.invoice();
+    }
+  };
+
+  renderInvoiceOptionsAlert() {
+    const invoiceOptions = [
+      { label: strings.invoiceAgain, isChecked: false },
+      { label: strings.showInvoice, isChecked: false }
+    ];
+
+    return (
+      <Alert
+        visible={this.state.showInvoiceOptionsAlert}
+        title={strings.invoiceOptions}
+        data={invoiceOptions}
+        dismissable={true}
+        onConfirmAction={(selectedOptions: any) => {
+          const selectedOption = selectedOptions.find((option: any) => option.isChecked);
+          if (selectedOption) {
+            this.handleInvoiceOption(selectedOption);
+          }
+        }}
+        onCancelAction={this.hideInvoiceOptionsAlert}
+        style={styles.alert}
+        confirmActionLabel={strings.select}
+        cancelActionLabel={strings.cancel}
+        radioButton={true}
+      />
+    );
+  }
+
   renderActionButtons() {
     const visit: Visit = this.state.visit;
     const appointment: Appointment = this.state.appointment;
@@ -2543,7 +2635,6 @@ class VisitWorkFlow extends Component {
     if (isExternal) {
       return null;
     }
-
     return (
       <View
         style={{paddingTop: 30 * fontScale, paddingBottom: 100 * fontScale}}>
@@ -2553,6 +2644,7 @@ class VisitWorkFlow extends Component {
         {this.state.showMedicationRxPopup &&
           this.renderPrintMedicationRxPopup()}
         {this.state.showInvoiceAlert && this.renderInvoiceAlert()}
+        {this.state.showInvoiceOptionsAlert && this.renderInvoiceOptionsAlert()}
 
         <View style={styles.flow}>
           {this.state.visit.prescription.signedDate && (
@@ -2565,9 +2657,7 @@ class VisitWorkFlow extends Component {
           {(hasPreTestReadAccess || hasFinalRxReadAccess) && (
             <Button
               title={strings.printRx}
-              onPress={() => {
-                this.showRxPopup();
-              }}
+              onPress={() => this.showRxPopup()}
               loading={this.state.isPrintingRx}
               disabled={this.state.isPrintingRx}
             />
@@ -2637,16 +2727,38 @@ class VisitWorkFlow extends Component {
             )}
           {this.canInvoice() && (
             <Button
+              title={strings.invoice}
+              onPress={this.handleInvoiceButtonPress}
               loading={this.state.postInvoiceLoading}
-              title={
-                this.hasInvoice() ? strings.invoiceAgain : strings.createInvoice
-              }
-              onPress={() =>
-                this.hasInvoice() ? this.showInvoiceAlert() : this.invoice()
-              }
+              disabled={this.state.postInvoiceLoading}
             />
           )}
-        </View>
+          <Modal
+            visible={this.state.showPdfViewer && !!this.state.pdfSource}
+            transparent={true}
+            onRequestClose={() => this.setState({ showPdfViewer: false })}
+          >
+            <View style={styles.invoiceViewerContainer}>
+              <View style={styles.invoiceViewerWrapper}>
+                <View style={{ flex: 1, overflow: 'scroll' }}>
+                  <PdfViewer
+                    source={this.state.pdfSource}
+                    style={styles.invoiceViewer}
+                    isPreview={false}
+                  />
+                </View>
+                <View
+                  style={styles.invoiceCloseBtn}
+                >
+                  <Button
+                    title={strings.close}
+                    onPress={() => this.setState({ showPdfViewer: false })}
+                  />
+                </View>
+              </View>
+            </View>
+          </Modal>
+          </View>
       </View>
     );
   }
