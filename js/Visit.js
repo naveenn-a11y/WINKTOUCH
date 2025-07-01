@@ -1649,7 +1649,7 @@ class VisitWorkFlow extends Component {
         if (isEmpty(actualValue)) continue;
 
         // Skip date fields (If Default)
-        if ( (fieldDef?.defaultValue?.startsWith('[') && fieldDef?.defaultValue?.endsWith(']'))) {
+        if (fieldDef?.type === 'futureDate' || (fieldDef?.defaultValue?.startsWith('[') && fieldDef?.defaultValue?.endsWith(']'))) {
           continue;
         }
 
