@@ -133,6 +133,7 @@ import { fetchWinkRest } from './WinkRest';
 import { getDefaultValue } from './GroupedForm';
 import axios from 'axios';
 import { PdfViewer } from '../src/components/PdfViewer';
+import { printBase64Pdf } from './Print';
 import { Buffer } from 'buffer';
 
 export const examSections: string[] = [
@@ -1014,8 +1015,7 @@ class VisitWorkFlow extends Component {
     showInvoiceAlert: ?boolean,
     showVisitTypeAlert: ?boolean,
     visitType: ?string,
-    showInvoiceOptionsAlert: boolean,
-    showPdfViewer: boolean
+    showInvoiceOptionsAlert: boolean
   };
 
   constructor(props: any) {
@@ -1046,8 +1046,7 @@ class VisitWorkFlow extends Component {
       showInvoiceAlert: false,
       showVisitTypeAlert: false,
       visitType: visit.typeName,
-      showInvoiceOptionsAlert: false,
-      showPdfViewer: false
+      showInvoiceOptionsAlert: false
     };
     visit && this.loadUnstartedExamTypes(visit);
   }
@@ -1502,6 +1501,7 @@ class VisitWorkFlow extends Component {
           strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
         );
         visit.invoices = patientInvoices;
+        this.getInvoicePdf(ids.replace(/[^0-9]/g,""));
       } else {
         this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
       }
@@ -2542,14 +2542,11 @@ class VisitWorkFlow extends Component {
     this.setState({showInvoiceOptionsAlert: false});
   };
   
-  showPdfViewer = () => {
-    this.setState({showPdfViewer: true});
-  };
-
   handleInvoiceOption = (selectedOption: any) => {
     this.hideInvoiceOptionsAlert();
     if (selectedOption.label === strings.invoiceAgain) {
-      this.invoice();
+      this.showInvoiceAlert();
+      this.renderInvoiceAlert();
     } else if (selectedOption.label === strings.showInvoice) {
       this.showInvoice(this.props.visitId);
     }
@@ -2567,6 +2564,15 @@ class VisitWorkFlow extends Component {
         if (!invoiceId) {
             return null;
         }
+        this.getInvoicePdf(invoiceId);
+      } catch (error) {
+        console.log(error);
+        alert(strings.formatString(strings.serverError, error));
+      }
+  }
+
+  async getInvoicePdf(invoiceId: string) {
+    try {
         const pdfResponse = await axios.get(`${getRestUrl()}Invoice/print/${invoiceId}`, {
             headers: { token: getToken() },
             responseType: 'arraybuffer'
@@ -2576,15 +2582,17 @@ class VisitWorkFlow extends Component {
         }
         let base64PdfData = Buffer.from(pdfResponse.data, 'binary').toString('base64');
         if (!base64PdfData) {
-            return null;
+          return null;
         }
-        const source = 'data:application/pdf;base64,' + base64PdfData;
-        this.setState({ pdfSource: source, showPdfViewer: true });
+        await printBase64Pdf(base64PdfData);
+        // const source = 'data:application/pdf;base64,' + base64PdfData;
+        // this.setState({ pdfSource: source, showPdfViewer: true });
       } catch (error) {
         console.log(error);
+        alert(strings.formatString(strings.serverError, error));
       }
-  };
-
+  }
+  
   handleInvoiceButtonPress = () => {
     if (this.hasInvoice()) {
       this.showInvoiceOptionsAlert();
@@ -2595,14 +2603,14 @@ class VisitWorkFlow extends Component {
 
   renderInvoiceOptionsAlert() {
     const invoiceOptions = [
-      { label: strings.invoiceAgain, isChecked: false },
-      { label: strings.showInvoice, isChecked: false }
+      { label: strings.showInvoice, isChecked: true },
+      { label: strings.invoiceAgain, isChecked: false }
     ];
 
     return (
       <Alert
         visible={this.state.showInvoiceOptionsAlert}
-        title={strings.invoiceOptions}
+        title={strings.selectInvoiceOptions}
         data={invoiceOptions}
         dismissable={true}
         onConfirmAction={(selectedOptions: any) => {
@@ -2727,38 +2735,13 @@ class VisitWorkFlow extends Component {
             )}
           {this.canInvoice() && (
             <Button
-              title={strings.invoice}
+              title={this.hasInvoice() ? strings.invoiceOptions : strings.invoice}
               onPress={this.handleInvoiceButtonPress}
               loading={this.state.postInvoiceLoading}
               disabled={this.state.postInvoiceLoading}
             />
           )}
-          <Modal
-            visible={this.state.showPdfViewer && !!this.state.pdfSource}
-            transparent={true}
-            onRequestClose={() => this.setState({ showPdfViewer: false })}
-          >
-            <View style={styles.invoiceViewerContainer}>
-              <View style={styles.invoiceViewerWrapper}>
-                <View style={{ flex: 1, overflow: 'scroll' }}>
-                  <PdfViewer
-                    source={this.state.pdfSource}
-                    style={styles.invoiceViewer}
-                    isPreview={false}
-                  />
-                </View>
-                <View
-                  style={styles.invoiceCloseBtn}
-                >
-                  <Button
-                    title={strings.close}
-                    onPress={() => this.setState({ showPdfViewer: false })}
-                  />
-                </View>
-              </View>
-            </View>
-          </Modal>
-          </View>
+        </View>
       </View>
     );
   }

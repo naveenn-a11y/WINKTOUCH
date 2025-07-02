@@ -1362,34 +1362,6 @@ export const styles = StyleSheet.create({
     width: (windowWidth - 620) * fontScale,
     height: 800 * fontScale,
   },
-  invoiceViewerContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  invoiceViewerWrapper: {
-    width: '45%',
-    height: '80%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    overflow: 'hidden',
-    position: 'relative'
-  },
-  invoiceViewer: {
-    flex: 1,
-    width: (windowWidth - 620) * fontScale,
-    height: 800 * fontScale,
-    alignSelf: 'center',
-    justifyContent: 'center',
-    resizeMode: 'contain',
-  },
-  invoiceCloseBtn: {
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
-    zIndex: 10,
-  },
   floatingContainer: {
     position: 'absolute',
     bottom: 0 * fontScale,
@@ -1522,12 +1494,13 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   alertCheckBox: {
-    flexDirection: 'center',
-    alignItems: 'center',
+    flexDirection: 'column',
+    // alignItems: 'center',
     justifyContent: 'flex-start',
+    flex: 1,
     fontSize: 18 * fontScale,
     color: fontColor,
-    marginLeft: 10 * fontScale,
+    // marginLeft: 10 * fontScale,
   },
   bottomBar: {
     zIndex: 1,
@@ -1822,81 +1795,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     height: 20,
     width: 20
-  },
-  invoiceDropdownContainer: {
-    paddingTop: 50,
-          flexDirection: 'row',
-          justifyContent: 'center',
-  }, 
-  invoiceButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minWidth: 140,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-  },
-  invoiceButtonDisabled: {
-    backgroundColor: '#CCCCCC',
-    opacity: 0.6,
-  },
-  invoiceButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  invoiceButtonTextDisabled: {
-    color: '#999999',
-  },
-  menuWrapper: {
-    position: 'relative',
-    zIndex: 1,
-  },
-  invoiceMenuContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    elevation: 8,
-    shadowColor: '#000000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    minWidth: 160,
-    marginTop: 4,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  invoiceMenuItemText: {
-    fontSize: 16,
-    color: '#1db3b3',
-    backgroundColor: '#1db3b3',
-    fontWeight: '500',
-    paddingVertical: 4,
-  },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-  },
-  centeredRowLayout: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  checkButtonLabel: {
-    fontSize: 16,
-    marginHorizontal: 8,
-  },
-  checkButtonIcon: {
-    fontSize: 22,
-    color: '#333',
   },
   radioOuterCircle: {
     height: 20,
