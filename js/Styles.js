@@ -1495,12 +1495,13 @@ export const styles = StyleSheet.create({
   },
   alertCheckBox: {
     flexDirection: 'column',
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'flex-start',
     flex: 1,
     fontSize: 18 * fontScale,
     color: fontColor,
-    // marginLeft: 10 * fontScale,
+    marginLeft: 10 * fontScale,
+    marginVertical: 10 * fontScale,
   },
   bottomBar: {
     zIndex: 1,
