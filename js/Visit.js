@@ -132,7 +132,6 @@ import {
 import { fetchWinkRest } from './WinkRest';
 import { getDefaultValue } from './GroupedForm';
 import axios from 'axios';
-import { PdfViewer } from '../src/components/PdfViewer';
 import { printBase64Pdf } from './Print';
 import { Buffer } from 'buffer';
 
