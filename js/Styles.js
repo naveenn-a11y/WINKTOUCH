@@ -1794,21 +1794,6 @@ export const styles = StyleSheet.create({
     height: 20,
     width: 20
   },
-  radioOuterCircle: {
-    height: 20,
-    width: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#555',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioInnerCircle: {
-    height: 10,
-    width: 10,
-    borderRadius: 5,
-    backgroundColor: '#555',
-  },
 });
 
 function cardStyle(color: Color) {
