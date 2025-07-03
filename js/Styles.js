@@ -1793,7 +1793,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     height: 20,
     width: 20
-  },
+  }
 });
 
 function cardStyle(color: Color) {
