@@ -3094,9 +3094,16 @@ export class CheckButton extends Component {
           )}
 
           {this.props.radio ? (
-            <View style={styles.radioOuterCircle}>
-              {this.props.isChecked && <View style={styles.radioInnerCircle} />}
-            </View>
+            <Icon name={this.props.isChecked ? 'radiobox-marked' : 'radiobox-blank'}
+              style={[
+                styles.checkButtonIcon,
+                this.props.isChecked
+                  ? styles.radioButtonChecked
+                  : styles.radioButtonUnchecked,
+              ]}
+              testID={this.props.isChecked ? 'radioCheckedIcon' : 'radioUncheckedIcon'}
+              >
+            </Icon>
           ) : (
             <Icon
               name={
@@ -3708,8 +3715,7 @@ type AlertProps = {
   onCancelAction: () => void,
   onEmailAction?: (selectedData: ?any) => void,
   isActionVertical?: boolean,
-  multiValue?: boolean,
-  radioButton?: boolean
+  multiValue?: boolean
 };
 
 type AlertState = {
@@ -3758,23 +3764,15 @@ export class Alert extends Component<AlertProps, AlertState> {
 
   toggleCheckbox(index: number) {
     let data: any = this.state.data;
-     // If it's a radio button selection (only one can be selected)
-    if (this.props.radioButton) {
-      data = data.map((element: any, i: number) => ({
-        ...element,
-        isChecked: i === index, // Only selected item is true
-      }));
-    } else {
-      const item: any = data[index];
-      if (item.singleSelection) {
-        data.map((element: any, i: number) => {
-          if (element.entityId === item.entityId && index !== i) {
-            data[i].isChecked = false;
-          }
-        });
-      }
-      data[index].isChecked = !data[index].isChecked;
+    const item: any = data[index];
+    if (item.singleSelection) {
+      data.map((element: any, i: number) => {
+        if (element.entityId === item.entityId && index !== i) {
+          data[i].isChecked = false;
+        }
+      });
     }
+    data[index].isChecked = !data[index].isChecked;
     this.setState({data});
   }
 
@@ -3804,7 +3802,7 @@ export class Alert extends Component<AlertProps, AlertState> {
                     : element.description
                     ? element.description
                     : element;
-                  return this.props.multiValue || this.props.radioButton ? (
+                  return this.props.multiValue ? (
                     <View key={index}>
                       <CheckButton
                         isChecked={element.isChecked}
@@ -3813,7 +3811,7 @@ export class Alert extends Component<AlertProps, AlertState> {
                         style={styles.alertCheckBox}
                         testID={this.props.testID + '.' + item}
                         suffix={item}
-                        radio={this.props.radioButton}
+                        radio={element.singleSelection}
                       />
                       {element.divider && <Divider />}
                     </View>

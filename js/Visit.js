@@ -1506,7 +1506,7 @@ class VisitWorkFlow extends Component {
         this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
       }
     } catch (error) {
-      console.log(error);
+      __DEV__ && console.log(error);
       alert(strings.formatString(strings.serverError, error));
     }
     this.setState({visit, postInvoiceLoading: false});
@@ -2566,7 +2566,7 @@ class VisitWorkFlow extends Component {
         }
         this.getInvoicePdf(invoiceId);
       } catch (error) {
-        console.log(error);
+        __DEV__ && console.log(error);
         alert(strings.formatString(strings.serverError, error));
       }
   }
@@ -2585,10 +2585,8 @@ class VisitWorkFlow extends Component {
           return null;
         }
         await printBase64Pdf(base64PdfData);
-        // const source = 'data:application/pdf;base64,' + base64PdfData;
-        // this.setState({ pdfSource: source, showPdfViewer: true });
       } catch (error) {
-        console.log(error);
+        __DEV__ && console.log(error);
         alert(strings.formatString(strings.serverError, error));
       }
   }
@@ -2603,8 +2601,8 @@ class VisitWorkFlow extends Component {
 
   renderInvoiceOptionsAlert() {
     const invoiceOptions = [
-      { label: strings.showInvoice, isChecked: true },
-      { label: strings.invoiceAgain, isChecked: false }
+      { label: strings.showInvoice, singleSelection: true },
+      { label: strings.invoiceAgain, singleSelection: true }
     ];
 
     return (
@@ -2623,7 +2621,7 @@ class VisitWorkFlow extends Component {
         style={styles.alert}
         confirmActionLabel={strings.select}
         cancelActionLabel={strings.cancel}
-        radioButton={true}
+        multiValue={true}
       />
     );
   }
