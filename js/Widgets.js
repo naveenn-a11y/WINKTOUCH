@@ -1433,8 +1433,31 @@ export class TilesField extends Component {
     this.setState({isActive: false, startTyping: true});
   };
 
+  // Formats the value if Prefix not present & adding prefix if not present
+  // This is used to format the value before sending it to the parent component
+  formatValue = (newValue) => {
+    if(newValue === undefined || newValue === null || newValue === '') {
+      return '';
+    }
+    if (this.props.prefix instanceof Array && this.props?.prefix?.length > 0 && typeof newValue === 'string') {
+      if (newValue.startsWith(this.props.prefix[0]) === false) {
+        newValue = `${this.props.prefix[0]}${newValue}`;
+      }
+    } else if (this.props.prefix && typeof newValue === 'string') {
+      if (newValue.startsWith(this.props.prefix) === false) {
+        newValue = `${this.props.prefix}${newValue}`;
+      }
+    }
+    return newValue;
+  }
+
   handleBlur = (input) => {
-    const newValue = input.nativeEvent.text;
+    // If prefix is an array, format the value accordingly
+    const isPrefixFormatRequired = this.props?.prefix instanceof Array && this.props?.prefix?.length > 0;
+
+    // Add Value with prefix if isPrefixFormatRequired is true
+    // Otherwise, using the input text as is
+    const newValue = isPrefixFormatRequired ? this.formatValue(input.nativeEvent.text) : input.nativeEvent.text;
     this.commitTyping(newValue);
     if (this.props.onBlur) {
       this.props.onBlur();

@@ -377,6 +377,8 @@ export class GroupedForm extends Component {
       (column !== undefined ? ' ' + this.formatColumnLabel(column) + ' ' : ' ') +
       formatLabel(fieldDefinition);
     const isTyping = this.getIsTyping();
+
+    const fieldId = this.props?.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column);
     return (
       <FormInput
         value={value}
@@ -392,7 +394,7 @@ export class GroupedForm extends Component {
         examId={this.props.examId}
         enableScroll={this.props.enableScroll}
         disableScroll={this.props.disableScroll}
-        fieldId={this.props?.fieldId + '.' + fieldDefinition.name + (column === undefined ? '' : column)}
+        fieldId={fieldId}
         testID={(!isEmpty(this.props?.fieldId) ? (this.props?.fieldId + '.') : '') + fieldDefinition.name + (column === undefined ? '' : column)}
         neverMultiline={neverMultiline}
       />

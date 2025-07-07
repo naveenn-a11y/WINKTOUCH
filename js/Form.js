@@ -795,7 +795,7 @@ export class FormOptions extends Component {
     hideClear?: boolean,
     listField?: boolean,
     simpleSelect?: boolean,
-    isValueRequired?: boolean,
+    isValueRequired?: boolean
   };
   state: {
     dismissedError: boolean,
@@ -1355,7 +1355,7 @@ export class FormInput extends Component {
     fieldId: string,
     testID?: string,
     customOptions?: CodeDefinition[],
-    neverMultiline?: boolean,
+    neverMultiline?: boolean
   };
   state: {
     validation?: string,
