@@ -3080,28 +3080,33 @@ export class CheckButton extends Component {
     onDeselect: () => void,
     style?: any,
     testID?: string,
+    radio?: boolean
   };
+
   static defaultProps = {
     visible: true,
+    radio: false
   };
+
   render() {
     if (!this.props.visible) {
       return null;
     }
+
     return (
       <TouchableOpacity
         activeOpacity={1}
         disabled={this.props.readonly}
         onPress={
-          this.props.isChecked == true
-            ? this.props.onDeselect
-            : this.props.onSelect
+          this.props.isChecked ? this.props.onDeselect : this.props.onSelect
         }
-        
         testID={
           this.props.testID ? this.props.testID + 'CheckButton' : 'checkButton'
         }>
-        <View role={this.props.isChecked ? 'checked' : 'unchecked'} style={styles.centeredRowLayout}>
+        <View
+          role={this.props.isChecked ? 'checked' : 'unchecked'}
+          style={styles.centeredRowLayout}>
+          
           {this.props.prefix != undefined && (
             <Text
               style={
@@ -3110,15 +3115,30 @@ export class CheckButton extends Component {
               {this.props.prefix}
             </Text>
           )}
-          <Icon
-            name={
-              this.props.isChecked
-                ? 'checkbox-marked'
-                : 'checkbox-blank-outline'
-            }
-            testID={this.props.isChecked ? 'checkedIcon' : 'uncheckedIcon'}
-            style={styles.checkButtonIcon}
-          />
+
+          {this.props.radio ? (
+            <Icon name={this.props.isChecked ? 'radiobox-marked' : 'radiobox-blank'}
+              style={[
+                styles.checkButtonIcon,
+                this.props.isChecked
+                  ? styles.radioButtonChecked
+                  : styles.radioButtonUnchecked,
+              ]}
+              testID={this.props.isChecked ? 'radioCheckedIcon' : 'radioUncheckedIcon'}
+              >
+            </Icon>
+          ) : (
+            <Icon
+              name={
+                this.props.isChecked
+                  ? 'checkbox-marked'
+                  : 'checkbox-blank-outline'
+              }
+              testID={this.props.isChecked ? 'checkedIcon' : 'uncheckedIcon'}
+              style={styles.checkButtonIcon}
+            />
+          )}
+
           {this.props.suffix != undefined && (
             <Text
               style={
@@ -3132,6 +3152,7 @@ export class CheckButton extends Component {
     );
   }
 }
+
 
 export class BackButton extends Component {
   props: {
@@ -3717,7 +3738,7 @@ type AlertProps = {
   onCancelAction: () => void,
   onEmailAction?: (selectedData: ?any) => void,
   isActionVertical?: boolean,
-  multiValue?: boolean,
+  multiValue?: boolean
 };
 
 type AlertState = {
@@ -3767,7 +3788,6 @@ export class Alert extends Component<AlertProps, AlertState> {
   toggleCheckbox(index: number) {
     let data: any = this.state.data;
     const item: any = data[index];
-
     if (item.singleSelection) {
       data.map((element: any, i: number) => {
         if (element.entityId === item.entityId && index !== i) {
@@ -3775,7 +3795,6 @@ export class Alert extends Component<AlertProps, AlertState> {
         }
       });
     }
-
     data[index].isChecked = !data[index].isChecked;
     this.setState({data});
   }
@@ -3807,7 +3826,7 @@ export class Alert extends Component<AlertProps, AlertState> {
                     ? element.description
                     : element;
                   return this.props.multiValue ? (
-                    <View>
+                    <View key={index}>
                       <CheckButton
                         isChecked={element.isChecked}
                         onSelect={() => this.toggleCheckbox(index)}
@@ -3815,6 +3834,7 @@ export class Alert extends Component<AlertProps, AlertState> {
                         style={styles.alertCheckBox}
                         testID={this.props.testID + '.' + item}
                         suffix={item}
+                        radio={element.singleSelection}
                       />
                       {element.divider && <Divider />}
                     </View>
