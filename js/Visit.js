@@ -3307,6 +3307,7 @@ export class VisitHistory extends Component {
         confirmActionLabel={strings.confirm}
         cancelActionLabel={strings.cancel}
         style={styles.alert}
+        requireDeleteConfirmation={true}
       />
     );
   }
