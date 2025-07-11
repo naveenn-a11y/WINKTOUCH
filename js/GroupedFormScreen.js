@@ -4,21 +4,20 @@
 
 'use strict';
 
-import {Component} from 'react';
-import {Text, View} from 'react-native';
-import {getCachedItem} from './DataCache';
-import {Copy, Favorites, Star} from './Favorites';
-import {formatLabel, getFieldDefinition} from './Items';
-import {clearRefraction, initRefraction, newRefraction} from './Refraction';
+import { Component } from 'react';
+import { View } from 'react-native';
+import { CheckList } from './CheckList';
+import { getCachedItem } from './DataCache';
+import { Favorites } from './Favorites';
 import { GlassesDetail } from './GlassesDetail';
-import {strings} from './Strings';
-import {styles} from './Styles';
-import type {ExamPredefinedValue, FieldDefinition, GlassesRx, GroupDefinition} from './Types';
-import {deepAssign, deepClone, isEmpty} from './Util';
-import {FloatingButton, Label} from './Widgets';
-import {CheckList} from './CheckList';
-import {GroupedCard} from './GroupedCard';
-import {getIsVisible, GroupedForm} from './GroupedForm';
+import { getIsVisible, GroupedForm } from './GroupedForm';
+import { formatLabel, getFieldDefinition } from './Items';
+import { clearRefraction, initRefraction, newRefraction } from './Refraction';
+import { strings } from './Strings';
+import { styles } from './Styles';
+import type { ExamPredefinedValue, FieldDefinition, GlassesRx, GroupDefinition } from './Types';
+import { deepAssign, deepClone, isEmpty } from './Util';
+import { FloatingButton } from './Widgets';
 
 export function addGroupItem(
   exam: Exam,
@@ -586,7 +585,7 @@ export class GroupedFormScreen extends Component<
             hasMPD={groupDefinition.hasMPD}
             hasCustomField={groupDefinition.hasCustomField}
             hasCurrentWear={groupDefinition.hasCurrentWear}
-            key={groupDefinition.name}
+            key={`${groupDefinition.name}${subIndex}`}
             onAdd={() => this.addGroupItem(groupDefinition)}
             onClear={() => this.clear(groupDefinition.name, subIndex)}
             definition={groupDefinition}
@@ -595,6 +594,9 @@ export class GroupedFormScreen extends Component<
             editable={
               this.props.editable !== false && groupDefinition.readonly !== true
             }
+            onAddFavorite={(favorite: any, name: string) =>{
+              this.props.onAddFavorite(favorite, name)
+            }}
           />
         ) : (
           <GroupedForm
