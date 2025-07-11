@@ -329,7 +329,7 @@ export class GlassesDetail extends Component {
   }
   addGroupFavorite = (favoriteName: string) => {
     let group: {} = {
-      [this.props.definition.name]: {notes: this.props.glassesRx.notes},
+      [this.props.definition.name]: this.props.glassesRx,
     };
     this.props.onAddFavorite(group, favoriteName);
   };

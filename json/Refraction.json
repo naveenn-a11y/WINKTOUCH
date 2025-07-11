@@ -120,6 +120,7 @@
         "exam.Auto refractor.Auto refractor",
         "machine.phoropter.rx"
       ],
+      "starable": true,
       "name": "Subjective refraction",
       "multiValue": true,
       "type": "SRx",
@@ -211,6 +212,7 @@
       "hasVA": true,
       "hasAdd": true,
       "hasBVD": true,
+      "starable": true,
       "name": "Final Rx",
       "type": "SRx",
       "import": [
