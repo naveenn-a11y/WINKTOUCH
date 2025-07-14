@@ -186,8 +186,12 @@ export const strings = new LocalizedStrings({
     confirm: 'Confirm',
     send: 'Send',
     deleteVisitTitle: 'Delete consultation',
+    // deleteVisitQuestion:
+    //   'Are you sure you want to permanently delete the {0} of {1} ?',
     deleteVisitQuestion:
-      'Are you sure you want to permanently delete the {0} of {1} ?',
+      'This will permanently delete this consultation, including all diagnosis, procedures, notes, and results.  Are you absolutely sure?',
+    deleteBoxText: 'Please enter <style1>delete</style1> in order to proceed',
+    deleteText: 'delete',
     deletedVisitMessage: 'Cannot open deleted visits !',
     findPatient: 'Search by patient name or #Z',
     findDoctor: "Search by doctor's name",
@@ -636,8 +640,12 @@ export const strings = new LocalizedStrings({
     confirm: 'Confirmer',
     send: 'Envoyer',
     deleteVisitTitle: 'Supprimer une consultation',
+    // deleteVisitQuestion:
+    //   'Êtes-vous sûr de vouloir supprimer {0} du {1} de façon permanente ?',
     deleteVisitQuestion:
-      'Êtes-vous sûr de vouloir supprimer {0} du {1} de façon permanente ?',
+      'Cela supprimera de façon permanente cette consultation, y compris tous les diagnostics, interventions, notes et résultats. Êtes-vous absolument certain ?',
+    deleteBoxText: 'Veuillez saisir <style1>supprimer</style1> pour continuer.',
+    deleteText: 'supprimer',
     deletedVisitMessage: "Impossible d'ouvrir les visites supprimées !",
     findPatient: 'Entrer le nom du patient ou le #Z',
     findDoctor: 'Entrer le nom du docteur',
@@ -1084,8 +1092,12 @@ export const strings = new LocalizedStrings({
     confirm: 'Confirmar',
     send: 'Enviar',
     deleteVisitTitle: 'Eliminar la consulta',
+    // deleteVisitQuestion:
+    //   '¿Estás seguro que deseas eliminar permanentemente el {0} de {1} ?',
     deleteVisitQuestion:
-      '¿Estás seguro que deseas eliminar permanentemente el {0} de {1} ?',
+      'Esto eliminará de forma permanente esta consulta, incluidos todos los diagnósticos, procedimientos, notas y resultados. ¿Estás absolutamente seguro?',
+    deleteBoxText: 'Por favor, escriba <style1>eliminar</style1> para continuar.',
+    deleteText: 'eliminar',
     deletedVisitMessage: '¡No se puede abrir las visitas eliminadas!',
     findPatient: 'Búsqueda por nombre de paciente o #Z',
     findDoctor: 'Búsqueda por nombre del médico',

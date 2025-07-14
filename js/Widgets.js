@@ -1432,7 +1432,7 @@ export class TilesField extends Component {
     }
     this.setState({isActive: false, startTyping: true});
   };
-
+  
   // Formats the value if Prefix not present & adding prefix if not present
   // This is used to format the value before sending it to the parent component
   formatValue = (newValue) => {
@@ -3738,12 +3738,14 @@ type AlertProps = {
   onCancelAction: () => void,
   onEmailAction?: (selectedData: ?any) => void,
   isActionVertical?: boolean,
-  multiValue?: boolean
+  multiValue?: boolean,
+  requireDeleteConfirmation?: boolean,
 };
 
 type AlertState = {
   visible: boolean,
   data?: any,
+  deleteText?: string
 };
 
 export class Alert extends Component<AlertProps, AlertState> {
@@ -3752,6 +3754,7 @@ export class Alert extends Component<AlertProps, AlertState> {
     this.state = {
       visible: true,
       data: this.props.data,
+      deleteText: '',
     };
   }
   static defaultProps = {
@@ -3761,6 +3764,9 @@ export class Alert extends Component<AlertProps, AlertState> {
   };
 
   isDisabled(): boolean {
+    if (this.props.requireDeleteConfirmation) {
+      return this.state.deleteText.trim().toLowerCase() !== strings.deleteText;
+    }
     if (!this.props.multiValue) {
       return false;
     }
@@ -3799,12 +3805,37 @@ export class Alert extends Component<AlertProps, AlertState> {
     this.setState({data});
   }
 
+  handleDeleteTextChange = (text: string) => {
+    this.setState({ deleteText: text });
+  };
+
+  renderDeleteConfirmationBox() {
+    if (!this.props.requireDeleteConfirmation) return null;
+    return (
+      <View style={{marginVertical: 10}}>
+        <SpecialText
+          style={styles.paragraph}
+          childrenStyles={[{style1: {fontWeight: 'bold'}}]}
+        >
+          {strings.deleteBoxText}
+        </SpecialText>
+        <TextInput
+          value={this.state.deleteText}
+          onChangeText={this.handleDeleteTextChange}
+          autoCapitalize="none"
+          style={[styles.inputField, {marginTop: 8}]}
+        />
+      </View>
+    );
+  }
+
   renderContent() {
     if (!isEmpty(this.props.message)) {
       return (
         <View style={{height: 'auto', maxHeight: 300 * fontScale}}>
           <ScrollView>
             <Paragraph>{this.props.message}</Paragraph>
+            {this.renderDeleteConfirmationBox()}
           </ScrollView>
         </View>
       );
