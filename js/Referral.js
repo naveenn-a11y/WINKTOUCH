@@ -903,7 +903,7 @@ export class ReferralScreen extends Component<
     return (
       <View style={{flex: 100, flexDirection: 'column'}}>
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-          <View style={styles.pageEditor}>
+          <View style={styles.pageEditor} testID={'referralEditor'}>
             <HtmlEditor
               style={styles.page}
               ref={(ref) => (this.editor = ref)}

@@ -70,6 +70,7 @@ export class HtmlEditor extends React.Component<EditorProps, EditorState> {
       <Editor
         tinymceScriptSrc="https://ws-touch.downloadwink.com/tinymce/js/tinymce/tinymce.min.js"
         initialValue={this.props.value}
+        testID="htmlEditor"
         init={{
           setup: (editor) => {
             this.setState({ activeEditor: editor }),
