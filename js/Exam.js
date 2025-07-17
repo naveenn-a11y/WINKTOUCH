@@ -923,6 +923,7 @@ export class ExamScreen extends Component {
     patientInfo: PatientInfo,
     relatedExams: JSX.Element,
   };
+  focusSubscription: ?() => void;
 
   constructor(props: any) {
     super(props);
@@ -1009,8 +1010,10 @@ export class ExamScreen extends Component {
   componentWillUnmount() {
     this.deleteCopiedData();
 
+    // Clean up focus subscription
     if (this.focusSubscription !== undefined) {
       this.focusSubscription();
+      this.focusSubscription = undefined;
     }
     
     //__DEV__ && console.log('Exam will unmount dirty='+this.state.isDirty);
@@ -1641,6 +1644,17 @@ export class ExamScreen extends Component {
         exam.isHidden = false;
         this.storeExam(exam);
       }
+
+      // Clean up any existing focus listener
+      if (this.focusSubscription) {
+        this.focusSubscription();
+      }
+
+      // Added focus listener to refresh related exams when navigating back
+      this.focusSubscription = this.props.navigation.addListener('focus', () => {
+        // Refresh related exams to get updated data from navigation
+        this.renderRelatedExams(this.state.exam.definition);
+      });
 
       this.props.navigation.push('exam', {
         exam,
