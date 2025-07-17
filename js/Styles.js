@@ -1965,6 +1965,8 @@ function modalTileLabel(isSelected: boolean, isIcon: boolean = false) {
 }
 
 export function scaleStyle(style: Object): Object {
+  //Hardcoded for different device resolution screens
+  const fontScale = 0.75;
   if (style === undefined || style === null) {
     return style;
   }
