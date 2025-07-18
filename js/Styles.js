@@ -17,6 +17,7 @@ export const windowHeight: number =
 
 export const fontScale =
   0.75 * Math.min(1, Math.min(windowWidth / 1024, windowHeight / 768));
+export const globalFontScale = 0.75 * Math.min(1, Math.min(windowWidth / 1024, windowHeight / 768));
 __DEV__ &&
   console.log(
     'Device resolution: ' +
@@ -1964,9 +1965,9 @@ function modalTileLabel(isSelected: boolean, isIcon: boolean = false) {
   };
 }
 
-export function scaleStyle(style: Object): Object {
-  //Hardcoded for different device resolution screens
-  const fontScale = 0.75;
+export function scaleStyle(style: Object, isReferral?: Boolean): Object {
+  // Use 0.75 if isReferral, else use globalFontScale
+  const fontScale = isReferral ? 0.75 : globalFontScale;
   if (style === undefined || style === null) {
     return style;
   }

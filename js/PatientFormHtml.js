@@ -1054,7 +1054,7 @@ async function renderMedia(
             async (childGroupDefinition: GroupDefinition, index: number) => {
               let parentScaledStyle: Object;
               if (childGroupDefinition.layout) {
-                parentScaledStyle = scaleStyle(childGroupDefinition.layout);
+                parentScaledStyle = scaleStyle(childGroupDefinition.layout, true);
               }
 
               for (const childFieldDefinition: FieldDefinition of childGroupDefinition.fields) {
@@ -1067,7 +1067,7 @@ async function renderMedia(
                 );
                 if (!isEmpty(pfValue)) {
                   if (childFieldDefinition.layout) {
-                    fieldScaledStyle = scaleStyle(childFieldDefinition.layout);
+                    fieldScaledStyle = scaleStyle(childFieldDefinition.layout, true);
                   }
 
                   let x = round(
