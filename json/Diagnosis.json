@@ -80,7 +80,7 @@
           "label": "Diagnóstico",
           "fields": [{
               "name": "Notes",
-              "label": "Notas"
+              "label": "Notas de diagnóstico"
           }]
         }
       ]
