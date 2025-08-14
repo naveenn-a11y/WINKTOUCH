@@ -535,7 +535,7 @@ export const strings = new LocalizedStrings({
     beforeYesterday: 'Avant hier',
     tomorrow: 'Demain',
     in2Days: 'Dans 2 jours',
-    lockVisit: 'Vérouiller 1 ',
+    lockVisit: 'Vérouiller',
     complete: 'Compléter',
     years: 'ans',
     ageM: 'âgé de',
