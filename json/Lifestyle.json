@@ -5,16 +5,16 @@
       "label": "Occupation",
       "fields": [
         {
-          "name": "Métiers",
-          "label": "Ocupación"
+          "name": "Occupation",
+          "label": "Métiers"
         },
         {
-          "name": "Loisirs",
-          "label": "Aficiones"
+          "name": "Hobbies",
+          "label": "Loisirs"
         },
         {
-          "name": "Utilisation de l’ordinateur",
-          "label": "Uso de la computadora"
+          "name": "Computer use",
+          "label": "Utilisation de l’ordinateur"
         }
       ]
     },
