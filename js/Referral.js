@@ -1100,7 +1100,7 @@ export class ReferralScreen extends Component<
         {this.renderSavedFollowUp()}
         <View style={styles.separator}>
           <View style={styles.tabCard}>
-            <Text style={styles.cardTitle}>New Referral</Text>
+            <Text style={styles.cardTitle}>{strings.newReferral}</Text>
             <View style={styles.boardM}>
               <View style={styles.formRow}>
                 <FormCode

@@ -6,20 +6,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Moment from 'moment';
 import LocalizedStrings from 'react-native-localization';
-import { cacheDefinitions } from './Items';
+import {cacheDefinitions} from './Items';
 
 export const strings = new LocalizedStrings({
   en: {
     enterRegisteredEmail:
       'Please enter your email address to connect to your WINK database\nor try with a demo database',
-    trialWarning:
-      'This is a demo version that uses a public shared database. Do not enter any real patient data.',
+    trialWarning: 'This is a demo version that uses a public shared database. Do not enter any real patient data.',
     winkLink: 'Visit www.winksoftware.com to learn more',
     emailAdres: 'Email address',
     connectToPms: 'Connect',
     tryForFree: 'Try it out',
-    answerSecurityQuestion:
-      'Please answer the security question before submitting',
+    answerSecurityQuestion: 'Please answer the security question before submitting',
     submitSecurityAnswer: 'Send',
     unRegisteredEmail: 'This email address was not registered before with Wink',
     userName: 'User name',
@@ -27,8 +25,7 @@ export const strings = new LocalizedStrings({
     enterCode: 'Enter Code',
     submitLogin: 'Login',
     verifyCode: 'Verify',
-    touchNotConfigured:
-      'Your account is not set up to use the mobile app yet. Please contact customer support.',
+    touchNotConfigured: 'Your account is not set up to use the mobile app yet. Please contact customer support.',
     registrationScreenTitle: 'WINKemr registration',
     loginscreenTitle: 'WINKemr login',
     mfaCodeVerificationTitle: 'WINKemr code verification',
@@ -38,10 +35,8 @@ export const strings = new LocalizedStrings({
     store: 'Store',
     securityQuestionsError:
       'Something went wrong trying to get the security question from the server. Please try again.',
-    registrationError:
-      'Something went wrong trying to get the app version from the server. Please try again.',
-    fetchAccountsError:
-      'Something went wrong trying to get the accounts from the server. Please try again.',
+    registrationError: 'Something went wrong trying to get the app version from the server. Please try again.',
+    fetchAccountsError: 'Something went wrong trying to get the accounts from the server. Please try again.',
     loginFailed: 'Login failed',
     calendar: 'Calendar',
     patient: 'Patient',
@@ -85,8 +80,7 @@ export const strings = new LocalizedStrings({
     large: 'Large',
     extraLarge: 'Extra large',
     duplicate: 'Duplicate',
-    serverError:
-      'Something went wrong on the server. Please try again.\n\n(Internal error = {0})',
+    serverError: 'Something went wrong on the server. Please try again.\n\n(Internal error = {0})',
     pending: 'Pending',
     confirmed: 'Confirmed',
     cancelled: 'Cancelled',
@@ -120,8 +114,7 @@ export const strings = new LocalizedStrings({
     ageM: 'age',
     ageF: 'age',
     recall: 'Recall',
-    noAccountsWarning:
-      'There are no accounts compatible with this version of WINKemr.',
+    noAccountsWarning: 'There are no accounts compatible with this version of WINKemr.',
     sign: 'Sign',
     signed: 'Signed',
     diagnosis: 'Diagnosis',
@@ -166,20 +159,17 @@ export const strings = new LocalizedStrings({
     summaryTitle: 'Summary',
     fetchItemError:
       'Something went wrong trying to get {0} data from the server. Please try again.\n\n(Internal error = {1})',
-    storeItemError:
-      'Something went wrong trying to save {0} data on the server.\n\n(Internal error = {1})',
+    storeItemError: 'Something went wrong trying to save {0} data on the server.\n\n(Internal error = {1})',
     initialiseError:
       'Something went wrong while initialising. Please kill and restart the app.\n\n(Internal error fetching {0} = {1})',
     maximumAddableGroupError: 'You can not add more then {0} {1}.',
-    doctorWithoutVisitTypeError:
-      'Doctor {0} is not set up for the EMR yet in the database.',
+    doctorWithoutVisitTypeError: 'Doctor {0} is not set up for the EMR yet in the database.',
     searchCriteriumMissingError: 'Please enter a search criterium.',
     noPatientsFound: 'No patients found',
     noDoctorsFound: 'No doctors found',
     drawingNotSavedWarning: 'Attention: Your last drawing was not saved.',
     scanEmailTitle: 'Patient file {0}',
-    scanEmailBody:
-      '<p>Please find attached the {0} for patient {1}.</p><p>Have a nice day</p><p>{2}</p>',
+    scanEmailBody: '<p>Please find attached the {0} for patient {1}.</p><p>Have a nice day</p><p>{2}</p>',
     emailAppUnavailableError: 'Please configure the iPad email app.',
     updateAppStore: 'Please update the WINKemr app in the apple appstore.',
     cancel: 'Cancel',
@@ -206,21 +196,17 @@ export const strings = new LocalizedStrings({
     drSignature: 'Signature',
     signedDate: 'Signed Date',
     futureVisitDateError: "You can't add a consultation in the future",
-    saveImageError:
-      'Something went wrong saving your {0} image in the database. Please try again.',
-    pmsImageSaveError:
-      'Something went wrong while saving your image in the PMS. You can try again.',
+    saveImageError: 'Something went wrong saving your {0} image in the database. Please try again.',
+    pmsImageSaveError: 'Something went wrong while saving your image in the PMS. You can try again.',
     examDate: 'Date of Exam',
     healthCard: 'Health Card',
-    configMissing:
-      'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
+    configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
     emailSuccess: 'Email sent successfully to {0}',
     faxSuccess: 'Fax sent successfully to {0}',
     referralSuccess: 'Referral sent successfully to {0}',
     referringPatientTo: 'Referring patient to ',
     doctorReferralMissing: 'Please select the doctor',
-    digitalSignatureMissing:
-      'Please insert and place your digital signature field first',
+    digitalSignatureMissing: 'Please insert and place your digital signature field first',
     followUpTitle: 'Follow Up',
     dynamicField: 'Dynamic field',
     findRow: 'Search',
@@ -231,8 +217,7 @@ export const strings = new LocalizedStrings({
     forward: 'Forward',
     noDataFound: 'No Existing Referral Letter !',
     deleteTitle: 'Delete',
-    deleteReferralQuestion:
-      'Are you sure you want to delete the referral {0} of {1} ?',
+    deleteReferralQuestion: 'Are you sure you want to delete the referral {0} of {1} ?',
     manageUsers: 'Doctors',
     deleteReferralTitle: 'Delete referral',
     customisation: 'Customise',
@@ -254,8 +239,7 @@ export const strings = new LocalizedStrings({
     flip: 'Flip',
     snapshot: 'Snapshot',
     somethingWentWrongTitle: 'Oops! Something went wrong.',
-    somethingWentWrongMessage:
-      'Sorry, Something went wrong there. See the action below !',
+    somethingWentWrongMessage: 'Sorry, Something went wrong there. See the action below !',
     restartApp: 'Click here to restart the app !',
     dragNDrop: 'Click to upload or drag and drop your file here',
     takePicture: 'Take a picture',
@@ -277,8 +261,7 @@ export const strings = new LocalizedStrings({
     lockedOn: 'Locked on',
     lastUpdateOn: 'Last update on',
     lastUpdateBy: 'Last update by',
-    visitDeniedAccessError:
-      'You do not have access to view this patient file !',
+    visitDeniedAccessError: 'You do not have access to view this patient file !',
     deniedAccessTitle: 'Access Denied',
     documentSize: 'Document Size',
     documentCategory: 'Document Category',
@@ -299,14 +282,12 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Refractor',
     exportAction: 'Export',
     billing: 'Billing',
-    multipleBuiltInTemplate:
-      'More than 1 template was found, please select which one to use !',
+    multipleBuiltInTemplate: 'More than 1 template was found, please select which one to use !',
     machinePullSuccess: 'Machine Interface has pulled successfully the data !',
     clientConnected: 'Client connected !',
     clientDisconnected: 'Client disconnected !',
     appointmentFor: 'Appointment for',
-    successfullyCopied:
-      'was successfully copied! Please move it to an available cell.',
+    successfullyCopied: 'was successfully copied! Please move it to an available cell.',
     selfPaid: 'Self Paid',
     bookingAppointmentError:
       'This appointment might have already been booked on another computer, or the number of slots requested are not free !',
@@ -337,10 +318,8 @@ export const strings = new LocalizedStrings({
     last: 'Last',
     mins: 'mins',
     hour: 'hour',
-    copyMessage:
-      'Data was copied successfully, please paste it in the appropriate box',
-    finalRxCopyMessage:
-      "Final Rx copied successfully! Please paste in the current visit's appropriate box",
+    copyMessage: 'Data was copied successfully, please paste it in the appropriate box',
+    finalRxCopyMessage: "Final Rx copied successfully! Please paste in the current visit's appropriate box",
     time: 'Time',
     createAvailability: 'Create Availability',
     markAsUnavailable: 'Mark as unavailable',
@@ -369,8 +348,7 @@ export const strings = new LocalizedStrings({
     agentAssumptionTitle: 'Agent Assumption Form',
     zendesk: 'Zendesk #',
     reason: 'Reason',
-    agentLoginWarning:
-      'This is a production account that uses private data. Do not enter any real patient data!',
+    agentLoginWarning: 'This is a production account that uses private data. Do not enter any real patient data!',
     billingUpdateShortWarning:
       'Any changes made in this tile AFTER you have already created the invoice, will <style1>NOT</style1> reflect on that invoice... <style2>Read more</style2>',
     billingUpdateWarning:
@@ -399,8 +377,7 @@ export const strings = new LocalizedStrings({
     completeAlertMessage:
       'The following tiles have not been verified and will not be saved once the exam is completed: \n',
     lockAlertTitle: 'Would you still like to lock the exam?',
-    lockAlertMessage:
-      'The following tiles have not been verified and will not be saved once the exam is locked: \n',
+    lockAlertMessage: 'The following tiles have not been verified and will not be saved once the exam is locked: \n',
     InvoiceAgainAlertTitle: 'Existing Invoice',
     InvoiceAgainAlertMessage:
       'You are creating an additional invoice for this visit.\nPlease make sure you cancel the original invoice in WINKpms to avoid duplicates.',
@@ -452,7 +429,9 @@ export const strings = new LocalizedStrings({
     homePhoneOrCellRequired: 'Either home phone or cell is required',
     refreshNow: 'Refresh now',
     lastRefreshed: 'Last updated at ',
-    ['Access denied. Invalid credentials.']: 'Access denied. Invalid credentials.'
+    ['Access denied. Invalid credentials.']: 'Access denied. Invalid credentials.',
+    selectRoom: 'Select an exam room',
+    newReferral: 'New Referral',
   },
   fr: {
     enterRegisteredEmail:
@@ -463,11 +442,9 @@ export const strings = new LocalizedStrings({
     emailAdres: 'Adresse courriel',
     connectToPms: 'Se connecter',
     tryForFree: 'Essayer',
-    answerSecurityQuestion:
-      'Veuillez répondre à la question de sécurité avant de soumettre la réponse',
+    answerSecurityQuestion: 'Veuillez répondre à la question de sécurité avant de soumettre la réponse',
     submitSecurityAnswer: 'Soumettre',
-    unRegisteredEmail:
-      "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
+    unRegisteredEmail: "Cette adresse courriel n'a pas été enregistrée précédemment avec Wink",
     userName: "Nom d'utilisateur",
     password: 'Mot de passe', // NOSONAR
     enterCode: 'Entrez le code',
@@ -482,12 +459,9 @@ export const strings = new LocalizedStrings({
     mfaCodeScanned: "J'ai scanné le code",
     account: 'Compte',
     store: 'Magasin',
-    securityQuestionsError:
-      "Une erreur s'est produite en validant la question de sécurité. Veuillez réessayer.",
-    registrationError:
-      "Une erreur s'est produite en cherchant la version de l'application mobile. Veuillez réessayer.",
-    fetchAccountsError:
-      "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
+    securityQuestionsError: "Une erreur s'est produite en validant la question de sécurité. Veuillez réessayer.",
+    registrationError: "Une erreur s'est produite en cherchant la version de l'application mobile. Veuillez réessayer.",
+    fetchAccountsError: "Une erreur s'est produite en cherchant vos comptes. Veuillez réessayer.",
     loginFailed: "Erreur d'authentification",
     calendar: 'Calendrier',
     patient: 'Patient',
@@ -531,8 +505,7 @@ export const strings = new LocalizedStrings({
     large: 'Large',
     extraLarge: 'Extra large',
     duplicate: 'Duplicate',
-    serverError:
-      "Une erreur s'est produite sur le serveur. Veuillez réessayer.\n\n(Erreur interne = {0})",
+    serverError: "Une erreur s'est produite sur le serveur. Veuillez réessayer.\n\n(Erreur interne = {0})",
     pending: 'En attente',
     confirmed: 'confirmé',
     cancelled: 'Annulé',
@@ -562,14 +535,13 @@ export const strings = new LocalizedStrings({
     beforeYesterday: 'Avant hier',
     tomorrow: 'Demain',
     in2Days: 'Dans 2 jours',
-    lockVisit: 'Vérouiller ',
+    lockVisit: 'Vérouiller 1 ',
     complete: 'Compléter',
     years: 'ans',
     ageM: 'âgé de',
     ageF: 'âgée de',
     recall: 'Rappel',
-    noAccountsWarning:
-      "Ce compte n'est pas accessible avec cette version de WINKemr.",
+    noAccountsWarning: "Ce compte n'est pas accessible avec cette version de WINKemr.",
     sign: 'Signer',
     signed: 'Signé',
     diagnosis: 'Diagnostique',
@@ -605,37 +577,28 @@ export const strings = new LocalizedStrings({
     update: 'Confirmer',
     errorTitle: 'Erreur',
     errorsTitle: 'Erreurs',
-    validationErrorMessage:
-      'Veuillez vérifier que tout les champs ont des valeurs valides.',
+    validationErrorMessage: 'Veuillez vérifier que tout les champs ont des valeurs valides.',
     refractionTitle: 'Rx',
-    removeItemError:
-      "Veuillez effacer toutes les données avant de retirer cet item",
+    removeItemError: 'Veuillez effacer toutes les données avant de retirer cet item',
     unsupportedDocumentError: "Document {0} n'est pas supporté.",
     documentTrailTitle: '{0}',
     medicationRxTitle: 'Rx médicament',
     summaryTitle: 'Résumé',
     fetchItemError:
       "Une erreur s'est produite en chargeant les données. Veuillez essayer de nouveau.\n\n(Erreur interne = {1})",
-    storeItemError:
-      "Une erreur s'est produite en sauvegardant les données sur le serveur.\n\n(Erreur interne = {1})",
+    storeItemError: "Une erreur s'est produite en sauvegardant les données sur le serveur.\n\n(Erreur interne = {1})",
     initialiseError:
       "Une erreur s'est produite au demarage. Veuillez redémarrer l'application.\n\n(Erreur interne en chargeant {0} = {1})",
     maximumAddableGroupError: 'Vous ne pouvez pas ajouter plus que {0} {1}.',
-    doctorWithoutVisitTypeError:
-      "Docteur {0} n'est pas encore configuré pour utiliser l'application mobile.",
-    searchCriteriumMissingError:
-      'Veuillez entrez un critère pour la recherche.',
+    doctorWithoutVisitTypeError: "Docteur {0} n'est pas encore configuré pour utiliser l'application mobile.",
+    searchCriteriumMissingError: 'Veuillez entrez un critère pour la recherche.',
     noPatientsFound: 'Aucun patient trouvé',
     noDoctorsFound: 'Aucun docteur trouvé',
-    drawingNotSavedWarning:
-      "Attention: Votre dernière annotation n'a pas été sauvegardée.",
+    drawingNotSavedWarning: "Attention: Votre dernière annotation n'a pas été sauvegardée.",
     scanEmailTitle: 'Dossier patient {0}',
-    scanEmailBody:
-      '<p>Veuillez trouvez le {0} pour patient {1}.</p><p>Cordialement</p><p>{2}</p>',
-    emailAppUnavailableError:
-      "Vous devez d'abord configurer l'application courriel sur votre iPad.",
-    updateAppStore:
-      "Veuillez effectuer les mises à jour pour WINKemr dans l'App store",
+    scanEmailBody: '<p>Veuillez trouvez le {0} pour patient {1}.</p><p>Cordialement</p><p>{2}</p>',
+    emailAppUnavailableError: "Vous devez d'abord configurer l'application courriel sur votre iPad.",
+    updateAppStore: "Veuillez effectuer les mises à jour pour WINKemr dans l'App store",
     cancel: 'Annuler',
     confirm: 'Confirmer',
     send: 'Envoyer',
@@ -655,20 +618,17 @@ export const strings = new LocalizedStrings({
     document: 'document',
     importDataQuestion: 'Veuillez choisir pour importer',
     configuration: 'Config',
-    nameStar: 'Please give the star a name',
+    nameStar: 'Veuillez donner un nom à ce favori',
     during: 'Pendant',
     drSignature: 'Signature',
     signedDate: 'Signé le',
-    futureVisitDateError:
-      'Vous ne pouvez pas ajouter une consultation dans le futur.',
+    futureVisitDateError: 'Vous ne pouvez pas ajouter une consultation dans le futur.',
     saveImageError:
       "Une erreur s'est produite en sauvegardant l'image {0} dans la base de données. Veuillez essayer de nouveau.",
-    pmsImageSaveError:
-      "Une erreur s'est produite en sauvegardant l'image dans le PMS",
+    pmsImageSaveError: "Une erreur s'est produite en sauvegardant l'image dans le PMS",
     examDate: "Date de l'exam",
     healthCard: 'Carte maladie',
-    configMissing:
-      'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
+    configMissing: 'Please go back to the first page and configure the {0} you want to use via the Config menu button.',
     emailSuccess: 'Email envoyé avec succès à {0}',
     faxSuccess: 'Fax envoyé avec succès à {0}',
     referralSuccess: 'Référence envoyé avec succès à {0}',
@@ -685,8 +645,7 @@ export const strings = new LocalizedStrings({
     forward: 'Transférer',
     noDataFound: 'Aucune donnée trouvée !',
     deleteTitle: 'Supprimer',
-    deleteReferralQuestion:
-      'Êtes-vous sûr de vouloir supprimer la référence {0} du {1}  ?',
+    deleteReferralQuestion: 'Êtes-vous sûr de vouloir supprimer la référence {0} du {1}  ?',
     manageUsers: 'Docteurs',
     deleteReferralTitle: 'Supprimer une référence',
     customisation: 'Personnalisation',
@@ -706,8 +665,7 @@ export const strings = new LocalizedStrings({
     flip: 'Retourner',
     snapshot: 'Snapshot',
     somethingWentWrongTitle: "Oops! Quelque chose s'est mal passé.",
-    somethingWentWrongMessage:
-      "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
+    somethingWentWrongMessage: "Désolé, Quelque chose s'est mal passé. Utilisez l'action ci-dessous !",
     restartApp: "Cliquez ici pour redémarrer l'application !",
     dragNDrop: 'Cliquez pour téléverser ou déposez votre document ici',
     takePicture: 'Prendre une Photo',
@@ -750,17 +708,14 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Auto Réfraction',
     exportAction: 'Exporter',
     billing: 'Facturation',
-    multipleBuiltInTemplate:
-      "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
-    machinePullSuccess:
-      "L'interface machine a extrait avec succès les données !",
+    multipleBuiltInTemplate: "Plus d'un modèle a été trouvé, veuillez sélectionner celui à utiliser !",
+    machinePullSuccess: "L'interface machine a extrait avec succès les données !",
     clientConnected: 'Client connecté !',
     clientDisconnected: 'Client déconnecté !',
     apply: 'Appliquer',
     chooseDoctor: 'Choisir Docteur',
     appointmentFor: 'Le rendez vous de',
-    successfullyCopied:
-      'a été copié ! Veuillez le reporter à une autre plage horaire.',
+    successfullyCopied: 'a été copié ! Veuillez le reporter à une autre plage horaire.',
     selfPaid: 'Paiement personnel',
     bookingAppointmentError:
       "Ce rendez-vous a peut-être déjà été réservé sur un autre ordinateur, ou le nombre de créneaux demandés n'est pas libre !",
@@ -789,10 +744,8 @@ export const strings = new LocalizedStrings({
     first: 'Premier',
     last: 'Dernier',
     mins: 'mins',
-    copyMessage:
-      'Les données ont été copiées avec succès, veuillez les coller dans la case appropriée',
-    finalRxCopyMessage:
-      'Rx Finale copié avec succès! Veuillez coller dans la case appropriée de la visite en cours',
+    copyMessage: 'Les données ont été copiées avec succès, veuillez les coller dans la case appropriée',
+    finalRxCopyMessage: 'Rx Finale copié avec succès! Veuillez coller dans la case appropriée de la visite en cours',
     time: 'Temps',
     createAvailability: 'Créer une disponibilité',
     markAsUnavailable: 'Marquer comme indisponible',
@@ -815,8 +768,7 @@ export const strings = new LocalizedStrings({
     invoiceCreatedSuccessMessage: 'Facture(s) {0} créée(s) avec succès!',
     NoinvoiceCreatedMessage: 'Aucune facture créée pour cette visite!',
     sendToHarmony: 'Envoyer vers Harmony',
-    sendToHarmonySuccessMessage:
-      'Données envoyées avec succès à Topcon Harmony!',
+    sendToHarmonySuccessMessage: 'Données envoyées avec succès à Topcon Harmony!',
     recentlyViewedPatients: 'Patients Récemment Consultés',
     support: 'Support',
     agentAssumptionTitle: "Formulaire d'agent",
@@ -843,8 +795,7 @@ export const strings = new LocalizedStrings({
     openAppstore: 'Veuillez ouvrir l’appstore pour mettre à jour l’application',
     appVersion: 'Version de l’application',
     welcome: 'Bienvenue',
-    somethingWentWrongVisitTitle:
-      "Une erreur s'est produite lors du chargement de la visite !",
+    somethingWentWrongVisitTitle: "Une erreur s'est produite lors du chargement de la visite !",
     reloadVisitTitle: 'Recharger la visite',
     customiseDefaultExams: 'Examens par défaut',
     customiseExamDefinition: 'Définition des examens',
@@ -860,7 +811,7 @@ export const strings = new LocalizedStrings({
     InvoiceAgainAlertMessage:
       'Vous avez créé une nouvelle facture pour cette visite.\nVeuillez vous assurer d’annuler la facture original pour éviter des doublons. ',
     notes: 'Notes',
-    occupation: 'Profession',
+    occupation: 'Métiers',
     examiningOptometrist: 'Optométriste examinant',
     gender: 'Sexe',
     address: 'Adresse',
@@ -873,8 +824,7 @@ export const strings = new LocalizedStrings({
     newVisitType: 'Nouveau type de visite',
     visitType: 'Type de visite',
     monocularPd: 'PD Monoculaire',
-    referralAlertTitle:
-      'Souhaitez-vous toujours créer une lettre de référence?',
+    referralAlertTitle: 'Souhaitez-vous toujours créer une lettre de référence?',
     referralAlertMessage: 'Les tuiles suivantes n’ont pas été vérifiées: \n',
     bvd: 'VTX',
     print: 'Imprimer',
@@ -882,7 +832,7 @@ export const strings = new LocalizedStrings({
     fax: 'Fax',
     save: 'Sauvegarder',
     examRoom: "Salle d'examen",
-    patientRoom: 'Salle des patients',
+    patientRoom: 'Salle du patient',
     characters: 'Caractères',
     lines: 'Lignes',
     va: 'AV',
@@ -892,7 +842,8 @@ export const strings = new LocalizedStrings({
     add: 'Add',
     prism: 'Prism',
     calendarComments: 'Commentaires de calendrier',
-    connectionMessage: 'La connexion Internet semble être hors ligne. S`il vous plait, vérifiez votre connexion internet',
+    connectionMessage:
+      'La connexion Internet semble être hors ligne. S`il vous plait, vérifiez votre connexion internet',
     testingCondition: 'Conditions de test',
     updateVisitType: 'Changer le type de visite',
     intakeForms: 'Formulaires d’admission',
@@ -908,7 +859,9 @@ export const strings = new LocalizedStrings({
     homePhoneOrCellRequired: 'Un téléphone résidentiel ou cellulaire est requis',
     refreshNow: 'Actualiser maintenant',
     lastRefreshed: 'Dernière mise à jour à ',
-    ['Access denied. Invalid credentials.']: 'Accès refusé. Identifiants invalides.'
+    ['Access denied. Invalid credentials.']: 'Accès refusé. Identifiants invalides.',
+    selectRoom: 'Sélectionnez une salle',
+    newReferral: 'New Referral',
   },
   es: {
     enterRegisteredEmail:
@@ -919,11 +872,9 @@ export const strings = new LocalizedStrings({
     emailAdres: 'Dirección de correo electrónico',
     connectToPms: 'Conectar',
     tryForFree: 'Pruébalo',
-    answerSecurityQuestion:
-      'Responde a la pregunta de seguridad antes de enviarla',
+    answerSecurityQuestion: 'Responde a la pregunta de seguridad antes de enviarla',
     submitSecurityAnswer: 'Enviar',
-    unRegisteredEmail:
-      'Esta dirección de correo electrónico no se registró antes con Wink',
+    unRegisteredEmail: 'Esta dirección de correo electrónico no se registró antes con Wink',
     userName: 'Nombre de usuario',
     password: 'contraseña', // NOSONAR
     enterCode: 'Ingresar código',
@@ -942,8 +893,7 @@ export const strings = new LocalizedStrings({
       'Algo salió mal al intentar obtener la pregunta de seguridad del servidor. Inténtalo de nuevo.',
     registrationError:
       'Algo salió mal al intentar obtener la versión de la aplicación desde el servidor. Inténtalo de nuevo.',
-    fetchAccountsError:
-      'Algo salió mal al intentar obtener las cuentas del servidor. Inténtalo de nuevo.',
+    fetchAccountsError: 'Algo salió mal al intentar obtener las cuentas del servidor. Inténtalo de nuevo.',
     loginFailed: 'Falló el inicio de sesión',
     calendar: 'Calendario',
     patient: 'Paciente',
@@ -987,8 +937,7 @@ export const strings = new LocalizedStrings({
     large: 'Grande',
     extraLarge: 'Extra grande',
     duplicate: 'Duplicar',
-    serverError:
-      'Algo salió mal en el servidor. Inténtalo de nuevo. (Error interno = {0})',
+    serverError: 'Algo salió mal en el servidor. Inténtalo de nuevo. (Error interno = {0})',
     pending: 'Pendiente',
     confirmed: 'Confirmado',
     cancelled: 'Cancelado',
@@ -1022,8 +971,7 @@ export const strings = new LocalizedStrings({
     ageM: 'edad',
     ageF: 'edad',
     recall: 'Volver a llamar',
-    noAccountsWarning:
-      'No hay cuentas compatibles con esta versión de WINKemr.',
+    noAccountsWarning: 'No hay cuentas compatibles con esta versión de WINKemr.',
     sign: 'Firmar',
     signed: 'Firmado',
     diagnosis: 'Diagnóstico',
@@ -1059,35 +1007,28 @@ export const strings = new LocalizedStrings({
     update: 'Actualizar',
     errorTitle: 'Error',
     errorsTitle: 'Errores',
-    validationErrorMessage:
-      'Verifica que todos los campos contengan valores válidos.',
+    validationErrorMessage: 'Verifica que todos los campos contengan valores válidos.',
     refractionTitle: 'Rx',
-    removeItemError:
-      'Borra todos los datos antes de retirar un item.',
+    removeItemError: 'Borra todos los datos antes de retirar un item.',
     unsupportedDocumentError: 'No se puede mostrar el documento {0}.',
     documentTrailTitle: '{0} ',
     medicationRxTitle: 'Medicación Rx',
     summaryTitle: 'Resumen',
     fetchItemError:
       'Algo salió mal al intentar obtener datos {0} del servidor. Inténtalo de nuevo. (Error interno = {1})',
-    storeItemError:
-      'Algo salió mal al intentar guardar los datos {0} en el servidor. (Error interno = {1})',
+    storeItemError: 'Algo salió mal al intentar guardar los datos {0} en el servidor. (Error interno = {1})',
     initialiseError:
       'Algo ha salido mal durante la inicialización. Elimine y reinicie la aplicación. (Búsqueda de errores internos {0} = {1})',
     maximumAddableGroupError: 'No se puede añadir más de {0} {1}.',
-    doctorWithoutVisitTypeError:
-      'El médico {0} aún no está configurado para el RME en la base de datos.',
+    doctorWithoutVisitTypeError: 'El médico {0} aún no está configurado para el RME en la base de datos.',
     searchCriteriumMissingError: 'Introduce un criterio de búsqueda.',
     noPatientsFound: 'No se encontró ningún paciente',
     noDoctorsFound: 'No se encontró ningún médico',
     drawingNotSavedWarning: 'Atención: Tu último dibujo no se guardó.',
     scanEmailTitle: 'Archivo del paciente {0}',
-    scanEmailBody:
-      '<p>Se adjunta el {0} para el paciente {1}.</p><p>Que tengas un buen día</p><p>{2}</p>',
-    emailAppUnavailableError:
-      'Configura la aplicación de correo electrónico del iPad.',
-    updateAppStore:
-      'Actualiza la aplicación WINKemr en la tienda de aplicaciones de Apple.',
+    scanEmailBody: '<p>Se adjunta el {0} para el paciente {1}.</p><p>Que tengas un buen día</p><p>{2}</p>',
+    emailAppUnavailableError: 'Configura la aplicación de correo electrónico del iPad.',
+    updateAppStore: 'Actualiza la aplicación WINKemr en la tienda de aplicaciones de Apple.',
     cancel: 'Cancelar',
     confirm: 'Confirmar',
     send: 'Enviar',
@@ -1112,10 +1053,8 @@ export const strings = new LocalizedStrings({
     drSignature: 'Firma',
     signedDate: 'Fecha firmada',
     futureVisitDateError: 'No puedes agregar una consulta en el futuro',
-    saveImageError:
-      'Algo salió mal al guardar tu imagen {0} en la base de datos. Inténtalo de nuevo.',
-    pmsImageSaveError:
-      'Algo salió mal al guardar tu imagen en el PMS. Puedes intentarlo de nuevo.',
+    saveImageError: 'Algo salió mal al guardar tu imagen {0} en la base de datos. Inténtalo de nuevo.',
+    pmsImageSaveError: 'Algo salió mal al guardar tu imagen en el PMS. Puedes intentarlo de nuevo.',
     examDate: 'Fecha del examen',
     healthCard: 'Tarjeta de salud',
     configMissing:
@@ -1125,8 +1064,7 @@ export const strings = new LocalizedStrings({
     referralSuccess: 'Remisión enviada con éxito a {0}',
     referringPatientTo: 'Remitir al paciente a',
     doctorReferralMissing: 'Selecciona el médico',
-    digitalSignatureMissing:
-      'Introduce y coloca primero el campo de la firma digital',
+    digitalSignatureMissing: 'Introduce y coloca primero el campo de la firma digital',
     followUpTitle: 'Seguimiento',
     dynamicField: 'Campo dinámico',
     findRow: 'Buscar',
@@ -1137,8 +1075,7 @@ export const strings = new LocalizedStrings({
     forward: 'Adelantar',
     noDataFound: '¡No existe carta de referencia!',
     deleteTitle: 'Borrar',
-    deleteReferralQuestion:
-      '¿Estás seguro que deseas eliminar la referencia {0} de {1} ?',
+    deleteReferralQuestion: '¿Estás seguro que deseas eliminar la referencia {0} de {1} ?',
     manageUsers: 'Médicos',
     deleteReferralTitle: 'Eliminar la remisión',
     customisation: 'Personalizar',
@@ -1160,8 +1097,7 @@ export const strings = new LocalizedStrings({
     flip: 'Voltear',
     snapshot: 'Captura',
     somethingWentWrongTitle: '¡Vaya! Algo ha salido mal.',
-    somethingWentWrongMessage:
-      'Lo sentimos, algo salió mal. ¡Ver la acción a continuación!',
+    somethingWentWrongMessage: 'Lo sentimos, algo salió mal. ¡Ver la acción a continuación!',
     restartApp: '¡Haz clic aquí para reiniciar la aplicación!',
     dragNDrop: 'Haz clic para cargar o arrastra y suelta tu archivo aquí',
     takePicture: 'Tomar una foto',
@@ -1183,8 +1119,7 @@ export const strings = new LocalizedStrings({
     lockedOn: 'Bloqueado',
     lastUpdateOn: 'última actualización en',
     lastUpdateBy: 'última actualización por',
-    visitDeniedAccessError:
-      '¡No tienes acceso para ver este archivo del paciente!',
+    visitDeniedAccessError: '¡No tienes acceso para ver este archivo del paciente!',
     deniedAccessTitle: 'Acceso denegado',
     documentSize: 'Tamaño del documento',
     documentCategory: 'Categoría del documento',
@@ -1205,15 +1140,12 @@ export const strings = new LocalizedStrings({
     autoRefractor: 'Autorefractor',
     exportAction: 'Exportar',
     billing: 'Facturación',
-    multipleBuiltInTemplate:
-      'Se encontró más de 1 plantilla, seleccione cuál usar.',
-    machinePullSuccess:
-      'La interfaz de la máquina ha extraído con éxito los datos.',
+    multipleBuiltInTemplate: 'Se encontró más de 1 plantilla, seleccione cuál usar.',
+    machinePullSuccess: 'La interfaz de la máquina ha extraído con éxito los datos.',
     clientConnected: '¡Cliente conectado!',
     clientDisconnected: '¡Cliente desconectado!',
     appointmentFor: 'Cita para',
-    successfullyCopied:
-      '¡fue copiado con éxito! Muévelo a una celda disponible.',
+    successfullyCopied: '¡fue copiado con éxito! Muévelo a una celda disponible.',
     selfPaid: 'Pagado',
     bookingAppointmentError:
       'Es posible que esta cita ya esté reservada en otro ordenador o que el número de plazas solicitadas no esté libre.',
@@ -1234,8 +1166,7 @@ export const strings = new LocalizedStrings({
     appDateAndTime: 'Fecha y tipo de cita',
     successfullyRescheduled: 'La cita ha sido reprogramada con éxito',
     lockScreenTitle: 'Su sesión ha expirado',
-    enterPassword:
-      'Introduce tu contraseña para continuar desde donde lo dejaste',
+    enterPassword: 'Introduce tu contraseña para continuar desde donde lo dejaste',
     notLabel: 'No',
     resumeSession: 'Reanudar la sesión',
     iForgot: 'Me olvidé',
@@ -1245,10 +1176,8 @@ export const strings = new LocalizedStrings({
     last: 'último',
     mins: 'mins',
     hour: 'hora',
-    copyMessage:
-      'Los datos se copiaron correctamente, pégalos en la casilla correspondiente',
-    finalRxCopyMessage:
-      '¡Rx final copiado con éxito! Introduce en la casilla correspondiente a la visita actual',
+    copyMessage: 'Los datos se copiaron correctamente, pégalos en la casilla correspondiente',
+    finalRxCopyMessage: '¡Rx final copiado con éxito! Introduce en la casilla correspondiente a la visita actual',
     time: 'Tiempo',
     createAvailability: 'Crear disponibilidad',
     markAsUnavailable: 'Marcar como no disponible',
@@ -1291,8 +1220,7 @@ export const strings = new LocalizedStrings({
     appUpdateTitle: 'La nueva actualización está disponible',
     appUpdateSubtitle:
       'Actualiza la aplicación WINKemr en el apple appstore para obtener las últimas características y la mejor experiencia.',
-    openAppstore:
-      'Abre la tienda de aplicaciones para actualizar la aplicación',
+    openAppstore: 'Abre la tienda de aplicaciones para actualizar la aplicación',
     appVersion: 'Versión de la aplicación',
     welcome: 'Bienvenido',
     somethingWentWrongVisitTitle: '¡Algo salió mal al cargar la visita!',
@@ -1327,8 +1255,7 @@ export const strings = new LocalizedStrings({
     newVisitType: 'Nuevo tipo de visita',
     visitType: 'Tipo de visita',
     monocularPd: 'Monocular DP',
-    referralAlertTitle:
-      '¿Todavía le gustaría comenzar una carta de recomendación?',
+    referralAlertTitle: '¿Todavía le gustaría comenzar una carta de recomendación?',
     referralAlertMessage: 'Los siguientes mosaicos no han sido verificados\n',
     bvd: 'DVP',
     print: 'Imprimir',
@@ -1362,24 +1289,15 @@ export const strings = new LocalizedStrings({
     homePhoneOrCellRequired: 'Se requiere teléfono residencial o celular',
     refreshNow: 'Actualizar ahora',
     lastRefreshed: 'Última actualización en ',
-    ['Access denied. Invalid credentials.']: 'Acceso denegado. Credenciales no válidas.'
+    ['Access denied. Invalid credentials.']: 'Acceso denegado. Credenciales no válidas.',
+    selectRoom: 'Seleccione una sala',
+    newReferral: 'New Referral',
   },
 });
 
 //console.log('Interface language is: '+strings.getInterfaceLanguage());
 
-const supportedLanguages: string[] = [
-  'en-US',
-  '🇺🇸',
-  'en-CA',
-  '🇨🇦',
-  'en-UK',
-  '🇬🇧',
-  'fr-CA',
-  '🇫🇷',
-  'es-ES',
-  '🇪🇸',
-];
+const supportedLanguages: string[] = ['en-US', '🇺🇸', 'en-CA', '🇨🇦', 'en-UK', '🇬🇧', 'fr-CA', '🇫🇷', 'es-ES', '🇪🇸'];
 
 let userLanguage: string;
 
