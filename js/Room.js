@@ -9,17 +9,17 @@ import {View} from 'react-native';
 import {getCodeDefinition} from './Codes';
 import {strings} from './Strings';
 
-let roomScreenDefinition = {
+const roomScreenDefinition = {
   name: 'Exam Room',
   fields: [
     {
       name: 'examroom',
-      label: strings?.selectRoom,
+      label: 'Exam Room',
       size: 'M',
       fields: [
         {
           name: 'room',
-          label: strings?.patientRoom,
+          label: 'Patient Room',
           options: 'examRooms',
         },
       ],
@@ -102,20 +102,7 @@ export class RoomScreen extends Component {
       updateExamRoom(examRoomPatient);
     }
   }
-
   componentDidMount() {
-    // Check if strings have changed and update roomScreenDefinition labels if needed
-    roomScreenDefinition = {
-      ...roomScreenDefinition,
-      fields: roomScreenDefinition.fields.map(group => ({
-        ...group,
-        label: strings?.selectRoom || strings?.selectexamRoom,
-        fields: group.fields.map(field => ({
-          ...field,
-          label: strings?.patientRoom,
-        })),
-      })),
-    };
     this.getExamRoom();
   }
 

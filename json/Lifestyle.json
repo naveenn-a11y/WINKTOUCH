@@ -2,21 +2,7 @@
   "addable": false,
   "locale": {
     "fr-CA": {
-      "label": "Occupation",
-      "fields": [
-        {
-          "name": "Occupation",
-          "label": "Métiers"
-        },
-        {
-          "name": "Hobbies",
-          "label": "Loisirs"
-        },
-        {
-          "name": "Computer use",
-          "label": "Utilisation de l’ordinateur"
-        }
-      ]
+      "label": "Occupation"
     },
     "es-ES": {
       "label": "Ocupación",
