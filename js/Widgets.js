@@ -1452,17 +1452,23 @@ export class TilesField extends Component {
   }
 
   handleBlur = (input) => {
-    // If prefix is an array, format the value accordingly
-    const isPrefixFormatRequired = this.props?.prefix instanceof Array && this.props?.prefix?.length > 0;
+    const raw = input?.nativeEvent?.text ?? '';
+    const isPrefixFormatRequired =
+      Array.isArray(this.props?.prefix) && this.props.prefix.length > 0;
 
-    // Add Value with prefix if isPrefixFormatRequired is true
-    // Otherwise, using the input text as is
-    const newValue = isPrefixFormatRequired ? this.formatValue(input.nativeEvent.text) : input.nativeEvent.text;
+    // 413.5 rule: if the field already contains a slash (e.g., "20/20"),
+    // we must NOT auto-apply any region prefix.
+    // This preserves "20/20" in CA (no "6/" prefix) and similarly avoids "20/20/20" in US.
+    const containsSlash = /\//.test(String(raw).trim());
+
+    const newValue =
+      isPrefixFormatRequired && !containsSlash
+        ? this.formatValue(raw)
+        : raw;
+
     this.commitTyping(newValue);
-    if (this.props.onBlur) {
-      this.props.onBlur();
-    }
-  }
+    this.props.onBlur?.();
+  };
 
   commitTyping = (newValue: string) => {
     this.setState({editedValue: newValue}, this.commitEdit);
@@ -3125,8 +3131,7 @@ export class CheckButton extends Component {
                   : styles.radioButtonUnchecked,
               ]}
               testID={this.props.isChecked ? 'radioCheckedIcon' : 'radioUncheckedIcon'}
-              >
-            </Icon>
+               />
           ) : (
             <Icon
               name={
