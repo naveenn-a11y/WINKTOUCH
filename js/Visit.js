@@ -1683,14 +1683,17 @@ class VisitWorkFlow extends Component {
     };
 
     // Process each group in the exam definition
-    for (const groupDef of exam.definition.fields) {
-      if (!groupDef.fields) continue;
+    const groupDef = exam.definition;
 
-      const groupName = groupDef.name;
-      const groupValues = exam[exam.definition.name][groupName];
+      if (!groupDef.fields) {
+        return false;
+      };
+      const groupValues = exam[exam.definition.name];
 
       // Skip if group doesn't exist in the actual exam data
-      if (!groupValues) continue;
+      if (!groupValues) {
+        return false;
+      };
 
       // Handle case where groupValues is an array
       if (Array.isArray(groupValues)) {
@@ -1714,8 +1717,6 @@ class VisitWorkFlow extends Component {
           }
         }
       }
-    }
-
     return true;
   };
 
