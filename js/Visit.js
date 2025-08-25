@@ -1685,7 +1685,7 @@ class VisitWorkFlow extends Component {
     // Process each group in the exam definition
     const groupDef = exam.definition;
 
-      if (!groupDef.fields) {
+      if (!groupDef?.fields) {
         return false;
       };
       const groupValues = exam[exam.definition.name];
