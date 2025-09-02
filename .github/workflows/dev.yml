@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-and-deploy:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, app-dev, Linux]
     environment: 'dev'
 
     steps:
@@ -90,7 +90,7 @@ jobs:
 
   run-sanity-tests:
     needs: [build-and-deploy]
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, app-dev, Linux]
     steps:
       - name: Sanity Tests
         uses: peter-evans/repository-dispatch@v3
