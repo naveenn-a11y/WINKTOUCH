@@ -2,7 +2,7 @@
   "name": "RxToOrder",
   "scrollable": true,
   "addable": false,
-  "appendStarValues": false,
+  "appendStarValues": true,
   "isAssessment": true,
   "order": 1,
   "cardGroup": "Final Rx",
