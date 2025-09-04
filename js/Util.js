@@ -527,7 +527,7 @@ export function deepAssign(
         value[key] = subNewValue;
       }
     } else {
-      subNewValue = appendValue && !isEmpty(subValue) ? subValue.concat(subNewValue) : subNewValue;
+      // subNewValue = appendValue && !isEmpty(subValue) ? subValue.concat(subNewValue) : subNewValue;
       value[key] = subNewValue;
     }
   }
