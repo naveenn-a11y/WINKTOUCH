@@ -516,7 +516,6 @@ export function deepAssign(
   appendValue: ?boolean,
 ): Object {
   for (let [key: string, subNewValue: any] of Object.entries(newValue)) {
-    debugger;
     let subValue: any = value[key];
 
     if (subValue instanceof Array) {
@@ -533,7 +532,6 @@ export function deepAssign(
       }
     } else {
       subNewValue = appendValue && !isEmpty(subValue) && (!isDateString(subValue) || isDateString(subValue.concat(subNewValue))) ? subValue.concat(subNewValue) : subNewValue;
-      debugger;
       value[key] = subNewValue;
     }
   }
