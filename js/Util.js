@@ -507,7 +507,7 @@ export function cleanUpArray(a: any[]): any[] {
 }
 
 function isDateString(value : string): boolean {
-  return /^\d{1,4}([/-])\d{1,4}\1\d{1,4}((?:T|\s+)\d{1,2}:\d{1,2})?$/.test(value.trim());
+  return /^\d{1,4}([/-])\d{1,4}\1\d{1,4}((?:T|\s+)\d{1,2}:\d{1,2})?$/.test(value);
 }
 
 export function deepAssign(
