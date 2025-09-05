@@ -5,14 +5,15 @@
 'use strict';
 
 import RNBeep from '@dashdoc/react-native-system-sounds';
+import axios from 'axios';
+import { Buffer } from 'buffer';
 import { Component, PureComponent } from 'react';
 import {
   FlatList,
   SafeAreaView,
   Text,
   TouchableOpacity,
-  View,
-  Modal
+  View
 } from 'react-native';
 import {
   Card,
@@ -48,14 +49,15 @@ import {
   createExam,
   ExamCard,
   getExam,
+  getFieldDefinition as getExamFieldDefinition,
   getFieldValue,
   renderExamHtml,
   storeExam,
   UserAction,
-  getFieldDefinition as getExamFieldDefinition,
 } from './Exam';
 import { allExamDefinitions } from './ExamDefinition';
 import { FollowUpScreen } from './FollowUp';
+import { getDefaultValue } from './GroupedForm';
 import { formatLabel } from './Items';
 import { PatientDocumentPage } from './Patient';
 import {
@@ -66,7 +68,7 @@ import {
   renderAttachment,
   setScannedFiles,
 } from './PatientFormHtml';
-import { emailClRx, emailRx, printClRx, printMedicalRx, printRx } from './Print';
+import { emailClRx, emailRx, printBase64Pdf, printClRx, printMedicalRx, printRx } from './Print';
 import { isReferralsEnabled } from './Referral';
 import {
   fetchItemById,
@@ -110,12 +112,11 @@ import {
   jsonDateTimeFormat,
   now,
   parseDate,
-  deepClone,
+  titleToCamelCase,
   tomorrow,
   yearDateFormat,
   yearDateTime24Format,
-  yearDateTimeFormat,
-  titleToCamelCase,
+  yearDateTimeFormat
 } from './Util';
 import Dialog from './utilities/Dialog';
 import { VisitSummaryTable } from './VisitSummary';
@@ -130,10 +131,6 @@ import {
   SelectionDialog,
 } from './Widgets';
 import { fetchWinkRest } from './WinkRest';
-import { getDefaultValue } from './GroupedForm';
-import axios from 'axios';
-import { printBase64Pdf } from './Print';
-import { Buffer } from 'buffer';
 
 export const examSections: string[] = [
   'Amendments',
@@ -1648,7 +1645,7 @@ class VisitWorkFlow extends Component {
         if (isEmpty(actualValue)) continue;
 
         // Skip date fields (If Default)
-        if (fieldDef?.type === 'futureDate' || (fieldDef?.defaultValue?.startsWith('[') && fieldDef?.defaultValue?.endsWith(']'))) {
+        if (fieldDef?.type === 'futureDate' || (typeof fieldDef?.defaultValue === 'string' && fieldDef?.defaultValue?.startsWith('[') && fieldDef?.defaultValue?.endsWith(']'))) {
           continue;
         }
 
