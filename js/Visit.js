@@ -1492,12 +1492,13 @@ class VisitWorkFlow extends Component {
       );
       if (patientInvoices && patientInvoices.length > 0) {
         const piIds: string[] = patientInvoices.map((inv) => inv.id);
-        const ids: string = piIds.join();
+        const cleanedIds = piIds.map(id => id.replace(/[^0-9]/g,""));
+        cleanedIds.forEach(id => this.getInvoicePdf(id));
+        const ids = cleanedIds.join();
         this.setSnackBarMessage(
           strings.formatString(strings.invoiceCreatedSuccessMessage, ids),
         );
         visit.invoices = patientInvoices;
-        this.getInvoicePdf(ids.replace(/[^0-9]/g,""));
       } else {
         this.setSnackBarMessage(strings.NoinvoiceCreatedMessage);
       }
