@@ -1493,7 +1493,7 @@ class VisitWorkFlow extends Component {
       if (patientInvoices && patientInvoices.length > 0) {
         const piIds: string[] = patientInvoices.map((inv) => inv.id);
         const cleanedIds = piIds.map(id => id.replace(/[^0-9]/g,""));
-        if (piIds.length > 1) {
+        if (piIds.length > 0) {
           const printId = cleanedIds[cleanedIds.length - 1];
           const ids = cleanedIds.join();
           this.setSnackBarMessage(strings.formatString(strings.invoiceCreatedSuccessMessage, ids));
