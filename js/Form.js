@@ -1161,13 +1161,13 @@ export class FormCode extends Component {
     return undefined;
   }
 
-  updateValue = (newValue: ?string) => {
+  updateValue = (newValue: ?string, shouldUpdate: boolean = true) => {
     let newCode: ?string | ?number = parseCode(
       this.props.code,
       newValue,
       this.getCodeIdentifier(),
     );
-    this.props.onChangeValue && this.props.onChangeValue(newCode);
+    this.props.onChangeValue && this.props.onChangeValue(newCode, shouldUpdate);
   };
 
   selectedDescription(allDescriptions: string[]): string {
@@ -1190,7 +1190,7 @@ export class FormCode extends Component {
       }
       let description: string = formatCode(this.props.code, this.props.value);
       if (!allDescriptions.includes(description)) {
-        this.updateValue(allDescriptions[selectedIndex]);
+        this.updateValue(allDescriptions[selectedIndex], false);
         return allDescriptions[selectedIndex];
       }
       return description;
@@ -1343,7 +1343,7 @@ export class FormInput extends Component {
     showLabel?: boolean,
     visible?: boolean,
     style?: any,
-    onChangeValue: (value: ?string | ?number) => void,
+    onChangeValue: (value: (?string | ?number), shouldUpdate?: boolean) => void,
     patientId: string,
     examId: string,
     filterValue: {},
