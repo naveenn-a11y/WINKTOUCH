@@ -24,7 +24,7 @@ import {
 } from './Items';
 import { PaperFormScreen } from './PaperForm';
 import { getAutoRefractor, getKeratometry, getLensometries } from './Refraction';
-import { fetchItemById, getRestUrl, getToken, storeItem, isValidJson } from './Rest';
+import { fetchItemById, getRestUrl, getToken, isValidJson, storeItem } from './Rest';
 import { strings } from './Strings';
 import { fontScale, isWeb, styles } from './Styles';
 import type {
@@ -52,12 +52,12 @@ import {
 import { visitHasEnded } from './Visit';
 import { Alert, CollapsibleMessage, Lock, NativeBar, NoAccess, Pencil } from './Widgets';
 
+import axios from 'axios';
 import { getConfiguration } from './Configuration';
 import { ErrorCard } from './Form';
 import { exportData, Machine } from './Machine';
 import { PatientCard } from './Patient';
 import { renderItemsHtml, renderParentGroupHtml } from './PatientFormHtml';
-import axios from 'axios';
 
 export async function fetchExam(
   examId: string,
@@ -1100,10 +1100,10 @@ export class ExamScreen extends Component {
     }
   }
 
-  updateExam = (exam: Exam): void => {
+  updateExam = (exam: Exam, isDirty: boolean = true): void => {
     //__DEV__ && console.log('Examscreen updateExam called');
     if (!this.state.exam.readonly) {
-      this.setState({exam, isDirty: true});
+      this.setState({exam, isDirty});
     }
   };
 

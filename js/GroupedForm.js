@@ -212,7 +212,7 @@ export class GroupedForm extends Component {
     editable?: boolean,
     cloneable?: boolean,
     style?: any,
-    onChangeField?: (fieldName: string, newValue: any, column: ?string) => void,
+    onChangeField?: (fieldName: string, newValue: any, column: ?string, shouldUpdate?: boolean) => void,
     onUpdateForm?: (groupName: string, newValue: any) => void,
     onClear?: () => void,
     onAddFavorite?: (favoriteName: string) => void,
@@ -270,13 +270,13 @@ export class GroupedForm extends Component {
     return formatLabel(columnDefinition);
   }
 
-  changeField(fieldDefinition: FieldDefinition, newValue: any, column: ?string) {
+  changeField(fieldDefinition: FieldDefinition, newValue: any, column: ?string, shouldUpdate: boolean = true) {
     if (fieldDefinition.mappedField) {
       const exam: Exam = getCachedItem(this.props.examId);
       setMappedFieldValue(fieldDefinition.mappedField, newValue, exam);
     }
     if (this.props.onChangeField) {
-      this.props.onChangeField(fieldDefinition.name, newValue, column);
+      this.props.onChangeField(fieldDefinition.name, newValue, column, shouldUpdate);
     }
   }
 
@@ -295,7 +295,7 @@ export class GroupedForm extends Component {
         ? fieldDefinition.defaultValue.startsWith('[') && fieldDefinition.defaultValue.endsWith(']')
         : false;
     if (value && isDynamicValue && this.props.onChangeField) {
-      this.props.onChangeField(fieldDefinition.name, value);
+      this.props.onChangeField(fieldDefinition.name, value, undefined, false);
     }
     return value;
   }
@@ -387,7 +387,7 @@ export class GroupedForm extends Component {
         showLabel={false}
         readonly={!this.props.editable}
         definition={fieldDefinition}
-        onChangeValue={(newValue: string) => this.changeField(fieldDefinition, newValue, column)}
+        onChangeValue={(newValue: string, shouldUpdate?: boolean) => this.changeField(fieldDefinition, newValue, column, shouldUpdate)}
         errorMessage={error}
         isTyping={isTyping}
         patientId={this.props.patientId}

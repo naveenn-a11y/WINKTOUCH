@@ -243,6 +243,7 @@ export class GroupedFormScreen extends Component<
     newValue: string,
     column: ?string,
     index?: number,
+    shouldUpdate: boolean = true,
   ) {
     if (column !== undefined) {
       if (index !== undefined) {
@@ -274,7 +275,7 @@ export class GroupedFormScreen extends Component<
       }
     }
     
-    this.props.onUpdateExam(this.props.exam);
+    this.props.onUpdateExam(this.props.exam, shouldUpdate);
   }
 
 
@@ -607,6 +608,7 @@ export class GroupedFormScreen extends Component<
               fieldName: string,
               newValue: string,
               column: ?string,
+              shouldUpdate?: boolean,
             ) =>
               this.changeField(
                 groupDefinition.name,
@@ -614,6 +616,7 @@ export class GroupedFormScreen extends Component<
                 newValue,
                 column,
                 subIndex,
+                shouldUpdate,
               )
             }
             onClear={() => this.clear(groupDefinition.name, subIndex)}
@@ -777,8 +780,9 @@ export class GroupedFormScreen extends Component<
             fieldName: string,
             newValue: string,
             column: ?string,
+            shouldUpdate?: boolean,
           ) =>
-            this.changeField(groupDefinition.name, fieldName, newValue, column)
+            this.changeField(groupDefinition.name, fieldName, newValue, column, undefined, shouldUpdate)
           }
           onClear={() => this.clear(groupDefinition.name)}
           onAddFavorite={
