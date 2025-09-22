@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 -----------------------------------------------
 Running local WinkTouch against Azure DEV (web)
@@ -90,3 +91,7 @@ npm run build:dev and npm test .
 
 It will be triggered any time a PR is brought into the 'main' branch for now.
 Team is still working through release/branching processes.
+=======
+# WINKTOUCH
+Test the Code from my personal
+>>>>>>> 82f3d0eb70e81eb33d06a8b368cec927674e8974
