@@ -1,0 +1,54 @@
+name: iOS Build & CodePush Deploy
+
+on:
+  push:
+    branches:
+      - main # Trigger this workflow on every push to the main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install npm dependencies
+        run: npm install
+
+      - name: Install CodePush CLI
+        run: npm install -g code-push-standalone
+
+      - name: Install CocoaPods
+        run: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: Run CodePush release
+        env:
+          CODEPUSH_ACCESS_KEY: ${{ secrets.CODEPUSH_ACCESS_KEY }}
+        run: |
+          echo "Starting CodePush deployment..."
+          code-push-standalone release-react WinkTouch-ios ios
+          echo "CodePush deployment finished."
+
+      # This section is optional, only if you want to build a native IPA file as well
+      - name: Build and archive iOS app
+        run: |
+          xcodebuild -workspace ios/WinkTouch.xcworkspace -scheme WinkTouch -configuration Release -sdk iphoneos -archivePath build/WinkTouch.xcarchive
+
+      - name: Export .ipa file
+        run: |
+          xcodebuild -exportArchive -archivePath build/WinkTouch.xcarchive -exportPath ./build/ipa -exportOptionsPlist ios/ExportOptions.plist
+
+      - name: Upload .ipa as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinkTouch-iOS-Build
+          path: ./build/ipa/*.ipa
