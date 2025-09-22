@@ -27,7 +27,7 @@
     "@react-native-firebase/remote-config": "^19.0.1",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/stack": "^6.3.20",
-    "@tinymce/tinymce-react": "^4.3.2",
+    "@tinymce/tinymce-react": "^6.3.0",
     "axios": "^1.7.9",
     "base-64": "^1.0.0",
     "d3-shape": "^3.2.0",
@@ -47,7 +47,7 @@
     "react-dropzone": "^14.2.3",
     "react-ga4": "^2.1.0",
     "react-image-file-resizer": "^0.4.8",
-    "react-native": "0.73.2",
+    "react-native": "^0.73.11",
     "react-native-big-calendar": "^4.9.0",
     "react-native-blob-util": "^0.19.9",
     "react-native-code-push": "^9.0.1",
@@ -63,7 +63,7 @@
     "react-native-modal-datetime-picker": "^17.1.0",
     "react-native-paper": "^5.12.3",
     "react-native-paper-dropdown": "^1.0.7",
-    "react-native-pdf": "^6.7.4",
+    "react-native-pdf": "^6.7.7",
     "react-native-pdf-lib": "github:zilicon/react-native-pdf-lib#fix-fonts",
     "react-native-print": "^0.11.0",
     "react-native-public-ip": "^1.0.2",
@@ -79,7 +79,7 @@
     "react-native-voice": "^0.3.0",
     "react-native-web": "^0.19.10",
     "react-native-webview": "^13.6.4",
-    "react-pdf": "^7.7.0",
+    "react-pdf": "^10.1.0",
     "simplify-js": "^1.2.4"
   },
   "devDependencies": {
@@ -110,7 +110,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^5.2.2"
   },
   "engines": {
     "node": ">=18"

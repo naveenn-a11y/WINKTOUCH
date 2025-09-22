@@ -27,3 +27,4 @@ export default class Index extends Component {
 if (!isWeb) {
   Index = codePush({checkFrequency: codePush.CheckFrequency.MANUAL})(Index);
 }
+// This is a new release test.

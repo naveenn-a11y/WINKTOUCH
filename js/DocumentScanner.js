@@ -17,8 +17,6 @@ import {
   View,
 } from 'react-native';
 import RNFS from 'react-native-fs';
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
 import NativeScanner from '../src/components/DocumentScanner';
 import { resizeFile } from '../src/components/FileResizer';
 import { PdfViewer } from '../src/components/PdfViewer';
